@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>الرواتب والسلف — أحمد وحمدي</title>
+  <link rel="stylesheet" href="/src/css/styles.css" />
+  <script type="module" src="/src/js/salaries.js"></script>
+</head>
+<body>
+  <div class="main-wrapper">
+    <div class="page-header">
+      <div>
+        <div class="page-title">💵 الرواتب والسلف</div>
+        <div class="page-subtitle">إدارة رواتب الموظفين والسلف المصروفة</div>
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="salaries-tab">💵 صرف الرواتب</button>
+        <button class="tab-btn" data-tab="advances-tab">💸 السلف</button>
+      </div>
+
+      <!-- SALARIES TAB -->
+      <div class="tab-content active" id="salaries-tab">
+        <!-- Calculator -->
+        <div class="card">
+          <div class="card-title">احتساب راتب شهري</div>
+          <div class="flex gap-2 items-center" style="flex-wrap:wrap">
+            <div class="form-group" style="margin:0;flex:1;min-width:180px">
+              <label style="margin-bottom:4px">الموظف</label>
+              <select id="sal-employee" class="form-control">
+                <option value="">اختر الموظف</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin:0;flex:0 0 auto">
+              <label style="margin-bottom:4px">الشهر</label>
+              <input type="month" id="sal-month" class="form-control" style="width:175px">
+            </div>
+            <div style="padding-top:22px">
+              <button class="btn btn-primary" id="calc-salary-btn">🧮 احتسب</button>
+            </div>
+          </div>
+          <div id="salary-calc-result" class="mt-2"></div>
+        </div>
+
+        <!-- Paid salaries list -->
+        <div class="card">
+          <div class="card-title">
+            <span>سجل الرواتب المصروفة</span>
+            <button class="btn btn-ghost btn-sm" id="print-payroll-btn">🖨️ طباعة</button>
+          </div>
+          <div class="filter-bar">
+            <select id="sal-filter-emp" class="form-control" style="min-width:180px">
+              <option value="">كل الموظفين</option>
+            </select>
+            <input type="month" id="sal-filter-month" class="form-control" style="width:175px">
+            <button class="btn btn-ghost btn-sm" id="sal-filter-btn">فلتر</button>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr><th>#</th><th>الموظف</th><th>الشهر</th><th>الأساسي</th><th>الخصومات</th><th>المدفوع</th><th>التاريخ</th><th>🗑️</th></tr>
+              </thead>
+              <tbody id="salaries-tbody">
+                <tr><td colspan="8"><div class="loading-state"><div class="spinner"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ADVANCES TAB -->
+      <div class="tab-content" id="advances-tab">
+        <div class="card">
+          <div class="card-title">
+            <span>سجل السلف</span>
+            <button class="btn btn-primary" id="add-advance-btn">+ إضافة سلفة</button>
+          </div>
+          <div class="filter-bar">
+            <select id="adv-filter-emp" class="form-control" style="min-width:180px">
+              <option value="">كل الموظفين</option>
+            </select>
+            <select id="adv-filter-status" class="form-control" style="width:auto">
+              <option value="">كل الحالات</option>
+              <option value="pending">معلقة</option>
+              <option value="deducted">مخصومة</option>
+              <option value="paid_early">مدفوعة مسبقاً</option>
+              <option value="rejected">مرفوضة</option>
+            </select>
+            <input type="date" id="adv-from" class="form-control" style="width:140px">
+            <input type="date" id="adv-to"   class="form-control" style="width:140px">
+            <button class="btn btn-primary btn-sm" id="adv-filter-btn">فلتر</button>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr><th>#</th><th>الموظف</th><th>المبلغ</th><th>الوصف</th><th>التاريخ</th><th>الحالة</th><th>إجراءات</th></tr>
+              </thead>
+              <tbody id="advances-tbody">
+                <tr><td colspan="7"><div class="loading-state"><div class="spinner"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

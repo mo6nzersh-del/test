@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>الموظفين — أحمد وحمدي</title>
+  <link rel="stylesheet" href="/src/css/styles.css" />
+  <script type="module" src="/src/js/employees.js"></script>
+</head>
+<body>
+  <div class="main-wrapper">
+    <div class="page-header">
+      <div>
+        <div class="page-title">👥 الموظفين</div>
+        <div class="page-subtitle">بيانات الموظفين والحضور والغياب</div>
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="emp-list-tab">👥 قائمة الموظفين</button>
+        <button class="tab-btn" data-tab="att-tab">📅 الحضور والغياب</button>
+      </div>
+
+      <!-- LIST TAB -->
+      <div class="tab-content active" id="emp-list-tab">
+        <div class="card">
+          <div class="card-title">
+            <span>الموظفون</span>
+            <div class="flex gap-2">
+              <select id="emp-status-filter" class="form-control" style="width:auto">
+                <option value="">الكل</option>
+                <option value="active">يعمل ✅</option>
+                <option value="inactive">متوقف ⏸️</option>
+                <option value="fired">مفصول ❌</option>
+              </select>
+              <button class="btn btn-primary" id="add-employee-btn">+ إضافة موظف</button>
+            </div>
+          </div>
+          <div class="filter-bar">
+            <div class="search-box">
+              <input type="text" id="emp-search" class="form-control" placeholder="بحث بالاسم أو الوظيفة...">
+            </div>
+          </div>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr><th>#</th><th>الموظف</th><th>الوظيفة</th><th>الراتب</th><th>الهاتف</th><th>الحالة</th><th>إجراءات</th></tr>
+              </thead>
+              <tbody id="employees-tbody">
+                <tr><td colspan="7"><div class="loading-state"><div class="spinner"></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ATTENDANCE TAB -->
+      <div class="tab-content" id="att-tab">
+        <div class="card">
+          <div class="card-title">تسجيل الحضور والغياب الشهري</div>
+          <div class="filter-bar">
+            <select id="att-employee" class="form-control" style="min-width:220px">
+              <option value="">اختر الموظف</option>
+            </select>
+            <input type="month" id="att-month" class="form-control" style="width:170px">
+            <button class="btn btn-primary" id="att-load-btn">📅 عرض</button>
+          </div>
+
+          <div id="att-legend" class="flex gap-2" style="flex-wrap:wrap;margin-bottom:14px">
+            <div class="flex items-center gap-1" style="font-size:.8rem;font-weight:700;color:var(--success)">✅ حاضر</div>
+            <div class="flex items-center gap-1" style="font-size:.8rem;font-weight:700;color:var(--danger)">❌ غائب</div>
+            <div class="flex items-center gap-1" style="font-size:.8rem;font-weight:700;color:var(--warning)">⏰ متأخر</div>
+            <div class="flex items-center gap-1" style="font-size:.8rem;font-weight:700;color:var(--info)">🏖️ إجازة</div>
+            <div class="flex items-center gap-1" style="font-size:.8rem;font-weight:700;color:var(--text-muted)">(انقر على اليوم لتغيير الحالة)</div>
+          </div>
+
+          <div id="att-calendar-wrap" class="att-calendar-wrap">
+            <div class="att-cal-header">
+              <div>أحد</div><div>إثنين</div><div>ثلاثاء</div><div>أربعاء</div>
+              <div>خميس</div><div>جمعة</div><div>سبت</div>
+            </div>
+            <div id="att-grid" class="att-grid"></div>
+          </div>
+
+          <div id="att-summary" class="stats-grid" style="margin-top:16px"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

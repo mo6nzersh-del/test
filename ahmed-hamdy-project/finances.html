@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>المالية — أحمد وحمدي</title>
+  <link rel="stylesheet" href="/src/css/styles.css" />
+  <script type="module" src="/src/js/finances.js"></script>
+</head>
+<body>
+  <div class="main-wrapper">
+    <div class="page-header">
+      <div>
+        <div class="page-title">💰 المالية</div>
+        <div class="page-subtitle">تتبع الأموال الواردة والصادرة</div>
+      </div>
+    </div>
+    <div class="page-content">
+      <div class="stats-grid" style="margin-bottom:20px">
+        <div class="stat-card green"><div class="stat-icon">💚</div><div class="stat-label">إجمالي الوارد</div><div class="stat-value" id="total-income">—</div></div>
+        <div class="stat-card red"><div class="stat-icon">❤️</div><div class="stat-label">إجمالي الصادر</div><div class="stat-value" id="total-expense">—</div></div>
+        <div class="stat-card blue"><div class="stat-icon">💙</div><div class="stat-label">صافي الرصيد</div><div class="stat-value" id="net-balance">—</div></div>
+      </div>
+      <div class="card">
+        <div class="card-title">
+          <span>سجل المعاملات المالية</span>
+          <button class="btn btn-primary" id="add-finance-btn">+ إضافة معاملة</button>
+        </div>
+        <div class="filter-bar">
+          <div class="search-box">
+            <input type="text" id="finance-search" class="form-control" placeholder="بحث بالوصف أو العميل...">
+          </div>
+          <select id="finance-type-filter" class="form-control" style="width:auto">
+            <option value="">كل الأنواع</option>
+            <option value="income">وارد</option>
+            <option value="expense">صادر</option>
+          </select>
+          <input type="date" id="fin-from" class="form-control" style="width:145px">
+          <input type="date" id="fin-to" class="form-control" style="width:145px">
+          <button class="btn btn-ghost btn-sm" id="fin-filter-btn">فلتر</button>
+          <button class="btn btn-ghost btn-sm" id="fin-print-btn">🖨️ طباعة</button>
+        </div>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr><th>#</th><th>النوع</th><th>المبلغ</th><th>العميل / الجهة</th><th>الوصف</th><th>التاريخ</th><th>إجراءات</th></tr>
+            </thead>
+            <tbody id="finance-tbody">
+              <tr><td colspan="7"><div class="loading-state"><div class="spinner"></div></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
