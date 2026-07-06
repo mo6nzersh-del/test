@@ -3,90 +3,71 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>المالية - أحمد وحمدي</title>
+  <title>التجار - أحمد وحمدي</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="/assets/auth-guard-C6CJ8_8i.css" />
   <style>
+    /* ── سجل حركات التاجر ── */
+    .record-row{display:flex;align-items:center;gap:12px;padding:10px 14px;
+      border-bottom:1px solid var(--border)}
+    .record-row:last-child{border-bottom:none}
+    .record-badge{display:inline-flex;align-items:center;justify-content:center;
+      font-size:11.5px;font-weight:700;border-radius:6px;padding:3px 10px;
+      white-space:nowrap;min-width:60px}
+    .record-badge.in {background:#e7f5ec;color:#1a6b3a}
+    .record-badge.out{background:#fce8e5;color:#b3432f}
+    .record-main{flex:1}
+    .record-main .title{font-size:14px;font-weight:600;color:var(--ink)}
+    .record-main .meta{font-size:12px;color:var(--muted);margin-top:2px}
+    .record-amount{font-size:15px;font-weight:800;white-space:nowrap}
+    .record-amount.in {color:#1a6b3a}
+    .record-amount.out{color:#b3432f}
+    .delete-btn{border:none;background:transparent;color:var(--muted);
+      font-size:12px;padding:4px 8px;border-radius:6px;cursor:pointer}
+    .delete-btn:hover{background:var(--danger-soft);color:var(--danger)}
+
     /* ── بطاقات الإحصائيات ── */
-    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:20px}
-    .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-      box-shadow:var(--shadow);padding:18px 20px;display:flex;flex-direction:column;gap:6px}
-    .stat-card .sc-label{font-size:12.5px;color:var(--muted);font-weight:600}
-    .stat-card .sc-val{font-size:22px;font-weight:800;color:var(--ink)}
-    .stat-card .sc-sub{font-size:11.5px;color:var(--muted)}
-    .stat-balance{border-top:3px solid var(--primary)}
-    .stat-balance .sc-val{color:var(--primary-dark)}
-    .stat-in   {border-top:3px solid #4caf7d}
-    .stat-in    .sc-val{color:#1a6b3a}
-    .stat-out  {border-top:3px solid #e07070}
-    .stat-out   .sc-val{color:#b3432f}
-    .stat-adv  {border-top:3px solid #7aa0e0}
-    .stat-adv   .sc-val{color:#2a5bbf}
+    .mer-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
+    .mer-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+      padding:14px 16px;box-shadow:var(--shadow)}
+    .mer-stat .msk{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:4px}
+    .mer-stat .msv{font-size:19px;font-weight:800}
+    .mer-stat .mss{font-size:11px;color:var(--muted);margin-top:2px}
 
-    /* ── أزرار الإجراء السريع ── */
-    .quick-actions{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}
-    .qa-btn{display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;
-      border:1.5px solid var(--border);background:var(--surface);font-family:inherit;
-      font-size:13.5px;font-weight:700;cursor:pointer;transition:background .13s,border-color .13s,transform .1s;
-      box-shadow:var(--shadow)}
-    .qa-btn:hover{transform:translateY(-1px)}
-    .qa-btn.t-in {border-color:#4caf7d;color:#1a6b3a;background:#f0fbf4}
-    .qa-btn.t-out{border-color:#e07070;color:#b3432f;background:#fdf3f3}
-    .qa-btn.t-adv{border-color:#7aa0e0;color:#2a5bbf;background:#f0f4fb}
-    .qa-btn.t-mer{border-color:#d4a854;color:#7a4f10;background:#fefaf3}
-    .qa-btn.t-oth{border-color:var(--border);color:var(--muted);background:var(--surface)}
-
-    /* ── فلاتر ── */
-    .filters-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px}
-    .filter-select{border:1.5px solid var(--border);border-radius:8px;padding:7px 12px;
-      background:var(--surface);font-family:inherit;font-size:13px;color:var(--ink);cursor:pointer}
-    .search-input{border:1.5px solid var(--border);border-radius:8px;padding:7px 12px;
-      background:var(--surface);font-family:inherit;font-size:13px;color:var(--ink);
-      flex:1;min-width:160px}
-    .search-input:focus,.filter-select:focus{outline:none;border-color:var(--primary)}
-
-    /* ── بادجات ── */
-    .type-badge{display:inline-block;font-size:11.5px;font-weight:700;
-      border-radius:6px;padding:3px 9px;white-space:nowrap}
-    .tb-advance   {background:#e8f0fb;color:#2a5bbf}
+    /* ── بادجات المالية ── */
+    .type-badge{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:2px 8px}
+    .tb-advance{background:#e8f0fb;color:#2a5bbf}
     .tb-withdrawal{background:#fce8e5;color:#b3432f}
-    .tb-deposit   {background:#e7f5ec;color:#1a6b3a}
-    .tb-merchant  {background:#fdf4e3;color:#7a4f10}
-    .tb-other     {background:#f2f2f2;color:#666}
-    .dir-in {color:#1a6b3a;font-weight:700}
-    .dir-out{color:#b3432f;font-weight:700}
+    .tb-deposit{background:#e7f5ec;color:#1a6b3a}
+    .tb-merchant{background:#fdf4e3;color:#7a4f10}
+    .tb-other{background:#f2f2f2;color:#666}
     .rec-id{font-size:11px;color:var(--muted);font-weight:700;background:var(--bg);
       border:1px solid var(--border);border-radius:6px;padding:2px 7px;white-space:nowrap;
       font-family:monospace,Cairo,sans-serif}
 
-    /* ── نموذج النافذة ── */
-    .type-selector{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
-    .type-opt{display:flex;flex-direction:column;align-items:center;gap:5px;
-      padding:12px 6px;border:1.5px solid var(--border);border-radius:10px;
-      background:var(--surface);cursor:pointer;transition:background .12s,border-color .12s;text-align:center}
-    .type-opt:hover{border-color:var(--primary)}
-    .type-opt.selected{border-color:var(--primary);background:var(--primary-soft)}
-    .type-opt .ico{font-size:22px;line-height:1}
-    .type-opt .lbl{font-size:12px;font-weight:700;color:var(--ink)}
-    .type-opt .sub{font-size:10.5px;color:var(--muted)}
+    /* ── فلتر بار ── */
+    .filter-bar{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+    .filter-bar .field{margin:0}
 
-    .dir-hint{display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:8px;
-      font-size:12.5px;font-weight:700;margin-bottom:12px}
-    .dir-hint.in {background:#e7f5ec;color:#1a6b3a}
-    .dir-hint.out{background:#fce8e5;color:#b3432f}
-    .dir-hint.custom{background:#f2f2f2;color:#555}
+    /* ── toggle group ── */
+    .toggle-group{display:flex;gap:0;border:1.5px solid var(--border);border-radius:8px;overflow:hidden}
+    .toggle-group button{flex:1;border:none;background:var(--surface);padding:8px 18px;
+      font-family:inherit;font-size:13.5px;font-weight:700;color:var(--muted);cursor:pointer;
+      transition:background .12s,color .12s}
+    .toggle-group button.active.in {background:#e7f5ec;color:#1a6b3a}
+    .toggle-group button.active.out{background:#fce8e5;color:#b3432f}
 
     @media print{
       *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-      #topbar,.page-header,.quick-actions,.filters-bar,.row-actions,.modal-overlay,.btn{display:none!important}
+      #topbar,.page-header,.section-tabs,.back-link,.filter-bar,
+      .btn,.row-actions,.modal-overlay{display:none!important}
       body{background:#fff!important}
       .page{max-width:100%!important;padding:10px 20px!important;margin:0!important}
-      .stats-grid{grid-template-columns:repeat(4,1fr)!important;gap:8px!important}
-      .stat-card{box-shadow:none!important;border:1.5px solid #ccc!important;padding:10px!important}
-      .panel{box-shadow:none!important;border:1.5px solid #ccc!important;margin-bottom:14px!important}
-      .data-table th,.data-table td{border:1px solid #ccc!important;padding:5px 8px!important}
-      .data-table th{background:#f0f0f0!important}
+      .panel{box-shadow:none!important;border:1.5px solid #ccc!important;
+        margin-bottom:14px!important;page-break-inside:avoid}
+      .record-row{border:1px solid #eee!important;margin-bottom:4px;border-radius:6px}
+      .delete-btn{display:none!important}
     }
   </style>
 </head>
@@ -95,200 +76,160 @@
   <header id="topbar" class="topbar"></header>
   <main class="page">
 
-    <div class="page-header">
-      <div>
-        <h2>المالية والصندوق</h2>
-        <p>إدارة حركات الصندوق — سلف، مسحوبات، إيداعات، دفعات التجار</p>
-      </div>
-      <button type="button" class="btn outline" onclick="window.print()">🖨️ طباعة التقرير</button>
-    </div>
-
-    <!-- إحصائيات -->
-    <div class="stats-grid">
-      <div class="stat-card stat-balance">
-        <div class="sc-label">💰 رصيد الصندوق الحالي</div>
-        <div class="sc-val" id="stat-balance">—</div>
-        <div class="sc-sub" id="stat-balance-sub">جارِ الحساب...</div>
-      </div>
-      <div class="stat-card stat-in">
-        <div class="sc-label">📥 إجمالي الإيداعات</div>
-        <div class="sc-val" id="stat-in">—</div>
-        <div class="sc-sub" id="stat-in-sub">—</div>
-      </div>
-      <div class="stat-card stat-out">
-        <div class="sc-label">📤 إجمالي المسحوبات</div>
-        <div class="sc-val" id="stat-out">—</div>
-        <div class="sc-sub" id="stat-out-sub">—</div>
-      </div>
-      <div class="stat-card stat-adv">
-        <div class="sc-label">👤 إجمالي السلف</div>
-        <div class="sc-val" id="stat-adv">—</div>
-        <div class="sc-sub" id="stat-adv-sub">—</div>
-      </div>
-    </div>
-
-    <!-- أزرار سريعة -->
-    <div class="quick-actions">
-      <button class="qa-btn t-adv" data-type="advance">👤 سلفة موظف</button>
-      <button class="qa-btn t-out" data-type="withdrawal">📤 سحب من الصندوق</button>
-      <button class="qa-btn t-in"  data-type="deposit">📥 إيداع في الصندوق</button>
-      <button class="qa-btn t-mer" data-type="merchant">🤝 دفعة تاجر</button>
-      <button class="qa-btn t-oth" data-type="other">📝 عملية أخرى</button>
-    </div>
-
-    <!-- جدول الحركات -->
-    <div class="panel">
-      <div class="panel-header">
-        <h3>سجل الحركات المالية</h3>
-        <span id="tx-count" style="font-size:13px;color:var(--muted)"></span>
-      </div>
-      <div class="filters-bar">
-        <select class="filter-select" id="filter-type">
-          <option value="">كل الأنواع</option>
-          <option value="advance">سلفة موظف</option>
-          <option value="withdrawal">سحب من الصندوق</option>
-          <option value="deposit">إيداع في الصندوق</option>
-          <option value="merchant">دفعة تاجر</option>
-          <option value="other">عملية أخرى</option>
-        </select>
-        <select class="filter-select" id="filter-dir">
-          <option value="">كل الاتجاهات</option>
-          <option value="in">داخل ←</option>
-          <option value="out">خارج ←</option>
-        </select>
-        <select class="filter-select" id="filter-month"><option value="">كل الفترات</option></select>
-        <input class="search-input" type="text" id="filter-search" placeholder="ابحث بالاسم أو الوصف..." />
-        <button class="btn small outline" id="reset-filters">مسح الفلاتر</button>
-      </div>
-      <div class="table-wrap">
-        <table class="data-table">
-          <thead><tr>
-            <th>المعرف</th><th>التاريخ</th><th>النوع</th><th>الاتجاه</th>
-            <th>المبلغ</th><th>الجهة</th><th>الوصف</th><th></th>
-          </tr></thead>
-          <tbody id="tx-tbody">
-            <tr><td colspan="8"><div class="empty-state">جارِ التحميل...</div></td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- إعدادات الصندوق -->
-    <div class="panel">
-      <div class="panel-header"><h3>⚙️ إعدادات الصندوق</h3></div>
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-top:4px">
-        <div class="field" style="margin:0;flex:1;min-width:200px">
-          <label for="opening-balance" style="font-size:13px">الرصيد الافتتاحي (ج.م)</label>
-          <input type="number" id="opening-balance" min="0" step="0.01" placeholder="0.00" style="margin-top:4px" />
+    <!-- ═══════ قائمة التجار ═══════ -->
+    <div id="list-section">
+      <div class="page-header">
+        <div>
+          <h2>التجار</h2>
+          <p>إدارة قائمة التجار وسجلات الحساب والدفعات المالية</p>
         </div>
-        <button class="btn small" id="save-opening" style="margin-top:20px">حفظ الرصيد</button>
-        <p style="font-size:12px;color:var(--muted);margin:20px 0 0;flex:100%">
-          الرصيد الافتتاحي هو المبلغ الموجود في الصندوق قبل تسجيل أي حركة في هذا النظام.
-        </p>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <h3>التجار</h3>
+          <button type="button" class="btn small" id="add-merchant-btn">+ إضافة تاجر</button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr>
+              <th>الاسم</th><th>الهاتف</th><th>البريد الإلكتروني</th>
+              <th>الرصيد (الحركات المباشرة)</th><th></th>
+            </tr></thead>
+            <tbody id="merchants-tbody">
+              <tr><td colspan="5"><div class="empty-state">جارِ التحميل...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ تفاصيل التاجر ═══════ -->
+    <div id="detail-section" style="display:none">
+      <span class="back-link" id="back-btn">→ العودة إلى قائمة التجار</span>
+
+      <div class="detail-header">
+        <img class="detail-avatar" id="detail-avatar" src="" alt="" style="display:none" />
+        <div class="detail-info">
+          <h2 id="detail-name">—</h2>
+          <p id="detail-address" style="color:var(--muted);font-size:13px;margin:2px 0 0"></p>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-chip"><div class="k">الهاتف</div><div class="v" id="detail-phone">—</div></div>
+        <div class="info-chip"><div class="k">البريد</div><div class="v" id="detail-email">—</div></div>
+        <div class="info-chip">
+          <div class="k">الرصيد الحالي (الحركات المباشرة)</div>
+          <div class="v" id="detail-balance">—</div>
+        </div>
+      </div>
+
+      <div class="section-tabs">
+        <button type="button" class="active" id="tab-txs">سجل الحركات المباشرة</button>
+        <button type="button" id="tab-fin">💰 دفعات المالية</button>
+      </div>
+
+      <!-- ── تبويب الحركات المباشرة (النظام القديم) ── -->
+      <div class="section-view active" id="view-txs">
+        <div class="panel">
+          <h3 style="padding:16px 20px 0;margin:0;font-size:16px">تسجيل حركة جديدة</h3>
+          <form id="tx-form" style="padding:14px 20px 20px">
+            <div class="toggle-group" style="margin-bottom:14px">
+              <button type="button" class="active in" data-dir="in"  id="dir-in-btn">📥 داخل</button>
+              <button type="button"           class="out" data-dir="out" id="dir-out-btn">📤 خارج</button>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end">
+              <div class="field" style="margin:0">
+                <label for="tx-amount">المبلغ (ج.م)</label>
+                <input type="number" id="tx-amount" required min="0" step="0.01" placeholder="0.00" />
+              </div>
+              <div class="field" style="margin:0">
+                <label for="tx-note">ملاحظة (اختياري)</label>
+                <input type="text" id="tx-note" placeholder="مثال: دفعة أولى" />
+              </div>
+              <button type="submit" class="btn" id="tx-submit-btn">إضافة</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="panel print-target">
+          <div class="panel-header">
+            <h3>سجل الحساب</h3>
+            <button type="button" class="btn small outline" onclick="window.print()">🖨️ طباعة</button>
+          </div>
+          <div class="filter-bar" style="padding:0 20px 14px">
+            <div class="field">
+              <label for="filter-from">من تاريخ</label>
+              <input type="date" id="filter-from" />
+            </div>
+            <div class="field">
+              <label for="filter-to">إلى تاريخ</label>
+              <input type="date" id="filter-to" />
+            </div>
+            <button type="button" class="btn small outline" id="filter-apply-btn">تصفية</button>
+            <button type="button" class="btn small outline" id="filter-clear-btn">مسح</button>
+          </div>
+          <div class="records-list" id="txs-list">
+            <div class="empty-state">جارِ التحميل...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── تبويب دفعات المالية (finance_transactions) ── -->
+      <div class="section-view" id="view-fin">
+        <div class="mer-stats" id="mer-fin-stats"></div>
+        <div class="panel">
+          <div class="panel-header">
+            <h3>دفعات المالية</h3>
+            <a href="/finance.html" class="btn small outline">فتح صفحة المالية →</a>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table">
+              <thead><tr>
+                <th>المعرف</th>
+                <th>التاريخ</th>
+                <th>الاتجاه</th>
+                <th>المبلغ</th>
+                <th>الوصف</th>
+                <th></th>
+              </tr></thead>
+              <tbody id="fin-tbody">
+                <tr><td colspan="6"><div class="empty-state">جارِ التحميل...</div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </main>
 </div>
 
-<!-- ═══════ نافذة إضافة / تعديل حركة مالية ═══════ -->
-<div class="modal-overlay" id="tx-modal">
-  <div class="modal-box" style="max-width:520px">
+<!-- ═══════ نافذة إضافة / تعديل تاجر ═══════ -->
+<div class="modal-overlay" id="merchant-modal">
+  <div class="modal-box">
     <div class="modal-box-header">
-      <h3 id="tx-modal-title">إضافة حركة مالية</h3>
-      <button type="button" class="modal-close" id="tx-modal-close">&times;</button>
+      <h3 id="merchant-modal-title">إضافة تاجر</h3>
+      <button type="button" class="modal-close" id="merchant-modal-close">&times;</button>
     </div>
-    <form id="tx-form">
-      <input type="hidden" id="tx-edit-id" />
-
-      <!-- اختيار النوع -->
-      <div style="margin-bottom:14px">
-        <label style="font-size:13px;font-weight:700;color:var(--muted);display:block;margin-bottom:8px">نوع العملية</label>
-        <div class="type-selector" id="type-selector">
-          <div class="type-opt" data-type="advance">
-            <span class="ico">👤</span><span class="lbl">سلفة موظف</span>
-            <span class="sub">خارج من الصندوق</span>
-          </div>
-          <div class="type-opt" data-type="withdrawal">
-            <span class="ico">📤</span><span class="lbl">سحب</span>
-            <span class="sub">خارج من الصندوق</span>
-          </div>
-          <div class="type-opt" data-type="deposit">
-            <span class="ico">📥</span><span class="lbl">إيداع</span>
-            <span class="sub">داخل إلى الصندوق</span>
-          </div>
-          <div class="type-opt" data-type="merchant">
-            <span class="ico">🤝</span><span class="lbl">دفعة تاجر</span>
-            <span class="sub">داخل أو خارج</span>
-          </div>
-          <div class="type-opt" data-type="other">
-            <span class="ico">📝</span><span class="lbl">أخرى</span>
-            <span class="sub">حدد الاتجاه</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- دلالة الاتجاه -->
-      <div class="dir-hint custom" id="dir-hint">اختر نوع العملية أولاً</div>
-
-      <!-- الاتجاه (merchant / other فقط) -->
-      <div class="field" id="dir-field" style="display:none">
-        <label>اتجاه العملية *</label>
-        <div style="display:flex;gap:10px;margin-top:6px">
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;font-weight:700;color:#1a6b3a">
-            <input type="radio" name="dir" value="in" id="dir-in" /> ← داخل (إيداع / تحصيل)
-          </label>
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;font-weight:700;color:#b3432f">
-            <input type="radio" name="dir" value="out" id="dir-out" /> ← خارج (دفع / صرف)
-          </label>
-        </div>
-      </div>
-
-      <!-- الموظف (advance فقط) -->
-      <div class="field" id="employee-field" style="display:none">
-        <label for="f-employee">الموظف *</label>
-        <select id="f-employee" style="margin-top:4px">
-          <option value="">— اختر الموظف —</option>
-        </select>
-      </div>
-
-      <!-- التاجر (merchant فقط) -->
-      <div class="field" id="merchant-field" style="display:none">
-        <label for="f-merchant">التاجر *</label>
-        <select id="f-merchant" style="margin-top:4px">
-          <option value="">— اختر التاجر —</option>
-          <option value="__manual__">✏️ إدخال يدوي...</option>
-        </select>
-      </div>
-
-      <!-- الاسم اليدوي / جهة الصرف -->
-      <div class="field" id="party-field" style="display:none">
-        <label for="f-party" id="party-label">اسم الجهة</label>
-        <input type="text" id="f-party" placeholder="مثال: محل السيد محمد..." />
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-        <div class="field">
-          <label for="f-amount">المبلغ (ج.م) *</label>
-          <input type="number" id="f-amount" min="0.01" step="0.01" placeholder="0.00" required />
-        </div>
-        <div class="field">
-          <label for="f-date">التاريخ *</label>
-          <input type="date" id="f-date" required />
-        </div>
-      </div>
-
+    <form id="merchant-form">
+      <input type="hidden" id="merchant-id" />
       <div class="field">
-        <label for="f-desc">الوصف / الملاحظات</label>
-        <textarea id="f-desc" rows="2" placeholder="مثال: سلفة لأحمد على حساب راتب يوليو..."
-          style="resize:vertical;min-height:56px"></textarea>
+        <label for="merchant-name">اسم التاجر *</label>
+        <input type="text" id="merchant-name" required placeholder="مثال: محمد علي" />
       </div>
-
-      <div style="display:flex;gap:10px;margin-top:4px">
-        <button type="submit" class="btn" id="tx-save-btn">حفظ العملية</button>
-        <button type="button" class="btn outline" id="tx-cancel-btn">إلغاء</button>
-        <button type="button" class="btn danger small" id="tx-del-btn"
-          style="display:none;margin-right:auto">🗑️ حذف</button>
+      <div class="field">
+        <label for="merchant-address">العنوان</label>
+        <input type="text" id="merchant-address" placeholder="مثال: القاهرة - مدينة نصر" />
       </div>
+      <div class="field">
+        <label for="merchant-phone">رقم الهاتف</label>
+        <input type="text" id="merchant-phone" placeholder="مثال: 01012345678" />
+      </div>
+      <div class="field">
+        <label for="merchant-email">البريد الإلكتروني</label>
+        <input type="email" id="merchant-email" placeholder="مثال: name@example.com" />
+      </div>
+      <button type="submit" class="btn" id="merchant-submit-btn">حفظ التاجر</button>
     </form>
   </div>
 </div>
@@ -300,9 +241,9 @@ import { getAuth, onAuthStateChanged, signOut }
                             from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, collection, doc,
-  addDoc, updateDoc, deleteDoc, setDoc, getDoc,
-  query, where, onSnapshot,
-  serverTimestamp, runTransaction
+  addDoc, updateDoc, deleteDoc,
+  query, where, orderBy, onSnapshot,
+  serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app = initializeApp({
@@ -333,7 +274,7 @@ function renderNav(user){
   document.getElementById("topbar").innerHTML=`
     <div class="topbar-inner">
       <div class="brand"><span class="mark">أ</span><span>أحمد وحمدي</span></div>
-      <nav class="nav-tabs">${pages.map(p=>`<a href="/${p.href}" class="${p.href==="finance.html"?"active":""}">${p.label}</a>`).join("")}</nav>
+      <nav class="nav-tabs">${pages.map(p=>`<a href="/${p.href}" class="${p.href==="merchants.html"?"active":""}">${p.label}</a>`).join("")}</nav>
       <div class="user-chip">
         <span>${user.email??""}</span>
         <button class="icon-btn" id="logout-btn">خروج</button>
@@ -343,31 +284,23 @@ function renderNav(user){
 }
 
 /* ── حالة ── */
-let allTx         = [];
-let employees     = [];
-let merchants     = [];
-let openingBal    = 0;
-let selectedType  = "";
-let editTxId      = null;
-
-const TYPE_CFG = {
-  advance:    {label:"سلفة موظف",       badge:"tb-advance",    dir:"out", fixed:true },
-  withdrawal: {label:"سحب من الصندوق", badge:"tb-withdrawal", dir:"out", fixed:true },
-  deposit:    {label:"إيداع في الصندوق",badge:"tb-deposit",    dir:"in",  fixed:true },
-  merchant:   {label:"دفعة تاجر",       badge:"tb-merchant",   dir:null,  fixed:false},
-  other:      {label:"عملية أخرى",      badge:"tb-other",      dir:null,  fixed:false},
-};
+let merchants      = [];
+let merchantTxs    = [];   // merchantTransactions (النظام الأصلي)
+let finTxs         = [];   // finance_transactions (الجديد)
+let currentMerId   = null;
+let editMerId      = null;
+let txDir          = "in";
+let merFinUnsub    = null;
 
 /* ── أدوات ── */
 const esc = t => { const d=document.createElement("div"); d.textContent=t??""; return d.innerHTML; };
 const fmt = n => new Intl.NumberFormat("ar-EG",{maximumFractionDigits:2}).format(n||0)+" ج.م";
-const today = () => new Date().toISOString().slice(0,10);
-const fmtDate = s => s?new Date(s+"T00:00:00").toLocaleDateString("ar-EG",
-  {year:"numeric",month:"long",day:"numeric"}):"—";
-const fmtMonth = s => {
-  if(!s) return "";
-  const [y,m]=s.split("-");
-  return new Date(Number(y),Number(m)-1,1).toLocaleDateString("ar-EG",{month:"long",year:"numeric"});
+const fmtDate = s => s ? new Date(s+"T00:00:00").toLocaleDateString("ar-EG",
+  {year:"numeric",month:"long",day:"numeric"}) : "—";
+const fmtTs = ts => {
+  if(!ts) return "—";
+  const d=ts.toDate?.()??new Date(ts);
+  return d.toLocaleDateString("ar-EG",{year:"numeric",month:"long",day:"numeric"});
 };
 
 function toast(msg,err=false){
@@ -379,371 +312,301 @@ function toast(msg,err=false){
   t._timer=setTimeout(()=>{ t.className="toast"; },2600);
 }
 
-async function nextFinId(){
-  const cRef=doc(db,"counters","finance_trans");
-  let seqNum=1;
-  await runTransaction(db,async tx=>{
-    const snap=await tx.get(cRef);
-    seqNum=(snap.exists()?snap.data().seq:0)+1;
-    tx.set(cRef,{seq:seqNum},{merge:true});
-  });
-  return "F-"+String(seqNum).padStart(4,"0");
+function calcBalance(merId){
+  return merchantTxs.filter(t=>t.merchantId===merId)
+    .reduce((s,t)=>s+(t.type==="out"?-t.amount:t.amount),0);
 }
 
 /* ── تهيئة ── */
 function init(){
-  setupModal();
-  setupFilters();
-  loadOpeningBalance();
-  loadEmployees();
+  setupMerchantModal();
+  setupDetail();
   loadMerchants();
-  loadTransactions();
-  document.getElementById("save-opening").addEventListener("click",saveOpeningBalance);
+  loadAllMerchantTxs();
+  loadFinTxs();
 }
 
-/* ── الرصيد الافتتاحي ── */
-async function loadOpeningBalance(){
+/* ── نافذة التاجر ── */
+function setupMerchantModal(){
+  const modal=document.getElementById("merchant-modal");
+  document.getElementById("add-merchant-btn").addEventListener("click",()=>openMerModal(null));
+  document.getElementById("merchant-modal-close").addEventListener("click",closeMerModal);
+  modal.addEventListener("click",e=>{ if(e.target===modal) closeMerModal(); });
+  document.getElementById("merchant-form").addEventListener("submit",saveMerchant);
+}
+function openMerModal(mer){
+  document.getElementById("merchant-form").reset();
+  if(mer){
+    editMerId=mer.id;
+    document.getElementById("merchant-modal-title").textContent="تعديل التاجر";
+    document.getElementById("merchant-name").value   =mer.name??"";
+    document.getElementById("merchant-address").value=mer.address??"";
+    document.getElementById("merchant-phone").value  =mer.phone??"";
+    document.getElementById("merchant-email").value  =mer.email??"";
+  } else {
+    editMerId=null;
+    document.getElementById("merchant-modal-title").textContent="إضافة تاجر";
+  }
+  document.getElementById("merchant-modal").classList.add("open");
+}
+function closeMerModal(){ document.getElementById("merchant-modal").classList.remove("open"); editMerId=null; }
+
+async function saveMerchant(e){
+  e.preventDefault();
+  const name=document.getElementById("merchant-name").value.trim(); if(!name) return;
+  const btn=document.getElementById("merchant-submit-btn");
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
   try{
-    const snap=await getDoc(doc(db,"finance_settings","main"));
-    if(snap.exists()){
-      openingBal=snap.data().openingBalance??0;
-      document.getElementById("opening-balance").value=openingBal;
-    }
-  }catch(e){ console.error(e); }
-}
-async function saveOpeningBalance(){
-  const val=Number(document.getElementById("opening-balance").value)||0;
-  try{
-    await setDoc(doc(db,"finance_settings","main"),{openingBalance:val},{merge:true});
-    openingBal=val; updateStats(); toast("تم حفظ الرصيد الافتتاحي");
-  }catch(e){ console.error(e); toast("خطأ",true); }
+    const data={
+      name,
+      address:document.getElementById("merchant-address").value.trim(),
+      phone:  document.getElementById("merchant-phone").value.trim(),
+      email:  document.getElementById("merchant-email").value.trim(),
+    };
+    if(editMerId){ await updateDoc(doc(db,"merchants",editMerId),data); toast("تم تحديث التاجر"); }
+    else { await addDoc(collection(db,"merchants"),{...data,createdAt:serverTimestamp()}); toast("تمت إضافة التاجر"); }
+    closeMerModal();
+  }catch(err){ console.error(err); toast("خطأ أثناء الحفظ",true); }
+  finally{ btn.disabled=false; btn.textContent="حفظ التاجر"; }
 }
 
-/* ── تحميل الموظفين ── */
-function loadEmployees(){
-  onSnapshot(collection(db,"employees"),snap=>{
-    employees=snap.docs.map(d=>({id:d.id,...d.data()}));
-    const sel=document.getElementById("f-employee");
-    const cur=sel.value;
-    sel.innerHTML='<option value="">— اختر الموظف —</option>';
-    employees.forEach(e=>{
-      const o=document.createElement("option");
-      o.value=e.id;
-      o.textContent=e.name+(e.jobTitle?` — ${e.jobTitle}`:"");
-      sel.appendChild(o);
-    });
-    if(cur) sel.value=cur;
-  });
-}
-
-/* ── تحميل التجار ── */
+/* ── تحميل البيانات ── */
 function loadMerchants(){
   onSnapshot(collection(db,"merchants"),snap=>{
     merchants=snap.docs.map(d=>({id:d.id,...d.data()}));
-    rebuildMerchantSelect();
-  });
+    renderList();
+    if(currentMerId) fillHeader();
+  },err=>{ console.error(err); });
 }
 
-function rebuildMerchantSelect(curId=""){
-  const sel=document.getElementById("f-merchant");
-  const cur=curId||sel.value;
-  sel.innerHTML='<option value="">— اختر التاجر —</option>';
-  merchants.forEach(m=>{
-    const o=document.createElement("option");
-    o.value=m.id; o.textContent=m.name;
-    sel.appendChild(o);
-  });
-  const manual=document.createElement("option");
-  manual.value="__manual__"; manual.textContent="✏️ إدخال يدوي...";
-  sel.appendChild(manual);
-  if(cur) sel.value=cur;
-
-  sel.addEventListener("change",()=>{
-    const partyField=document.getElementById("party-field");
-    const partyLabel=document.getElementById("party-label");
-    if(sel.value==="__manual__"){
-      partyField.style.display="block";
-      partyLabel.textContent="اسم التاجر (يدوي)";
-      document.getElementById("f-party").placeholder="اكتب اسم التاجر...";
-    } else {
-      partyField.style.display="none";
-    }
-  });
+function loadAllMerchantTxs(){
+  onSnapshot(collection(db,"merchantTransactions"),snap=>{
+    merchantTxs=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderList();
+    if(currentMerId){ fillHeader(); renderTxsList(); }
+  },err=>{ console.error(err); });
 }
 
-/* ── تحميل الحركات ── */
-function loadTransactions(){
-  onSnapshot(collection(db,"finance_transactions"),snap=>{
-    allTx=snap.docs.map(d=>({id:d.id,...d.data()}))
-      .filter(t=>t._active!==false)
-      .sort((a,b)=>{
-        if(b.date!==a.date) return b.date>a.date?1:-1;
-        const ta=a.createdAt?.seconds??0, tb=b.createdAt?.seconds??0;
-        return tb-ta;
-      });
-    buildMonthFilter();
-    renderTable();
-    updateStats();
-  });
+function loadFinTxs(){
+  // كل عمليات المالية من نوع تاجر
+  const q=query(collection(db,"finance_transactions"),where("type","==","merchant"));
+  onSnapshot(q,snap=>{
+    finTxs=snap.docs.map(d=>({id:d.id,...d.data()})).filter(t=>t._active!==false);
+    if(currentMerId){ renderFinStats(); renderFinTxsList(); }
+  },err=>{ console.error(err); });
 }
 
-/* ── فلتر الأشهر ── */
-function buildMonthFilter(){
-  const months=new Set(allTx.map(t=>(t.date??"").slice(0,7)).filter(Boolean));
-  const sel=document.getElementById("filter-month");
-  const cur=sel.value;
-  sel.innerHTML='<option value="">كل الفترات</option>';
-  [...months].sort((a,b)=>b.localeCompare(a)).forEach(m=>{
-    const o=document.createElement("option");
-    o.value=m; o.textContent=fmtMonth(m+"-01");
-    sel.appendChild(o);
-  });
-  if(cur) sel.value=cur;
-}
-
-/* ── الإحصائيات ── */
-function updateStats(){
-  const totalIn =allTx.filter(t=>t.dir==="in") .reduce((s,t)=>s+(t.amount||0),0);
-  const totalOut=allTx.filter(t=>t.dir==="out").reduce((s,t)=>s+(t.amount||0),0);
-  const totalAdv=allTx.filter(t=>t.type==="advance").reduce((s,t)=>s+(t.amount||0),0);
-  const balance =openingBal+totalIn-totalOut;
-  document.getElementById("stat-balance").textContent=fmt(balance);
-  document.getElementById("stat-balance-sub").textContent=`رصيد افتتاحي: ${fmt(openingBal)}`;
-  document.getElementById("stat-in").textContent =fmt(totalIn);
-  document.getElementById("stat-in-sub").textContent =`${allTx.filter(t=>t.dir==="in").length} عملية`;
-  document.getElementById("stat-out").textContent=fmt(totalOut);
-  document.getElementById("stat-out-sub").textContent=`${allTx.filter(t=>t.dir==="out").length} عملية`;
-  document.getElementById("stat-adv").textContent=fmt(totalAdv);
-  document.getElementById("stat-adv-sub").textContent=`${allTx.filter(t=>t.type==="advance").length} سلفة`;
-}
-
-/* ── الجدول ── */
-function renderTable(){
-  const typeF  =document.getElementById("filter-type").value;
-  const dirF   =document.getElementById("filter-dir").value;
-  const monthF =document.getElementById("filter-month").value;
-  const searchF=document.getElementById("filter-search").value.toLowerCase().trim();
-
-  let rows=allTx.filter(t=>{
-    if(typeF  &&t.type!==typeF)  return false;
-    if(dirF   &&t.dir!==dirF)   return false;
-    if(monthF &&!(t.date??"").startsWith(monthF)) return false;
-    if(searchF){
-      const hay=[t.finId,t.partyName,t.merchantName,t.employeeName,t.description].join(" ").toLowerCase();
-      if(!hay.includes(searchF)) return false;
-    }
-    return true;
-  });
-
-  document.getElementById("tx-count").textContent=`${rows.length} عملية`;
-  const tbody=document.getElementById("tx-tbody");
-  if(!rows.length){
-    tbody.innerHTML='<tr><td colspan="8"><div class="empty-state">لا توجد عمليات مطابقة</div></td></tr>';
+/* ── قائمة التجار ── */
+function renderList(){
+  const tbody=document.getElementById("merchants-tbody");
+  if(!merchants.length){
+    tbody.innerHTML='<tr><td colspan="5"><div class="empty-state">لا يوجد تجار مسجلون بعد</div></td></tr>';
     return;
   }
   tbody.innerHTML="";
-  rows.forEach(t=>{
-    const cfg=TYPE_CFG[t.type]??{label:t.type,badge:"tb-other"};
-    const party=t.type==="advance"?(t.employeeName||"—")
-      :t.type==="merchant"?(t.merchantName||t.partyName||"—")
-      :(t.partyName||"—");
+  merchants.forEach(mer=>{
+    const bal=calcBalance(mer.id);
     const tr=document.createElement("tr");
     tr.innerHTML=`
-      <td><span class="rec-id">${esc(t.finId||"—")}</span></td>
-      <td style="white-space:nowrap;font-size:13px">${esc(fmtDate(t.date))}</td>
-      <td><span class="type-badge ${cfg.badge}">${esc(cfg.label)}</span></td>
-      <td class="${t.dir==="in"?"dir-in":"dir-out"}">${t.dir==="in"?"← داخل":"← خارج"}</td>
-      <td style="font-weight:700;white-space:nowrap">${fmt(t.amount)}</td>
-      <td style="font-size:13px;color:var(--muted)">${esc(party)}</td>
-      <td style="font-size:13px;color:var(--muted);max-width:200px">${esc(t.description||"—")}</td>
+      <td><span class="link-cell" data-id="${mer.id}">${esc(mer.name)}</span></td>
+      <td>${esc(mer.phone)||"—"}</td>
+      <td>${esc(mer.email)||"—"}</td>
+      <td style="font-weight:700;color:${bal>=0?"var(--primary-dark)":"var(--danger)"}">${fmt(bal)}</td>
       <td><div class="row-actions">
-        <button class="edit" data-id="${t.id}">تعديل</button>
-        <button class="del"  data-id="${t.id}">حذف</button>
+        <button class="edit" data-id="${mer.id}">تعديل</button>
+        <button class="del"  data-id="${mer.id}">حذف</button>
       </div></td>`;
     tbody.appendChild(tr);
   });
-  tbody.querySelectorAll(".edit").forEach(btn=>
-    btn.addEventListener("click",()=>openModal(allTx.find(t=>t.id===btn.dataset.id))));
-  tbody.querySelectorAll(".del").forEach(btn=>
-    btn.addEventListener("click",()=>deleteTx(btn.dataset.id)));
+  tbody.querySelectorAll(".link-cell").forEach(el=>el.addEventListener("click",()=>openDetail(el.dataset.id)));
+  tbody.querySelectorAll(".edit").forEach(el=>el.addEventListener("click",()=>{
+    const m=merchants.find(x=>x.id===el.dataset.id); if(m) openMerModal(m);
+  }));
+  tbody.querySelectorAll(".del").forEach(el=>el.addEventListener("click",()=>deleteMer(el.dataset.id)));
 }
 
-/* ── فلاتر ── */
-function setupFilters(){
-  ["filter-type","filter-dir","filter-month","filter-search"].forEach(id=>{
-    document.getElementById(id).addEventListener("input",renderTable);
-    document.getElementById(id).addEventListener("change",renderTable);
+async function deleteMer(id){
+  if(!confirm("هل تريد حذف هذا التاجر؟")) return;
+  try{ await deleteDoc(doc(db,"merchants",id)); toast("تم حذف التاجر"); }
+  catch(err){ console.error(err); toast("خطأ",true); }
+}
+
+/* ── صفحة التفاصيل ── */
+function setupDetail(){
+  document.getElementById("back-btn").addEventListener("click",backToList);
+  document.getElementById("tab-txs").addEventListener("click",()=>switchTab("txs"));
+  document.getElementById("tab-fin").addEventListener("click",()=>switchTab("fin"));
+
+  // أزرار الاتجاه
+  document.getElementById("dir-in-btn").addEventListener("click",()=>setDir("in"));
+  document.getElementById("dir-out-btn").addEventListener("click",()=>setDir("out"));
+
+  // نموذج الحركة
+  document.getElementById("tx-form").addEventListener("submit",addTx);
+
+  // فلاتر
+  document.getElementById("filter-apply-btn").addEventListener("click",renderTxsList);
+  document.getElementById("filter-clear-btn").addEventListener("click",()=>{
+    document.getElementById("filter-from").value="";
+    document.getElementById("filter-to").value="";
+    renderTxsList();
   });
-  document.getElementById("reset-filters").addEventListener("click",()=>{
-    ["filter-type","filter-dir","filter-month"].forEach(id=>document.getElementById(id).value="");
-    document.getElementById("filter-search").value="";
-    renderTable();
+}
+
+function setDir(d){
+  txDir=d;
+  document.getElementById("dir-in-btn").classList.toggle("active",d==="in");
+  document.getElementById("dir-in-btn").classList.toggle("in",d==="in");
+  document.getElementById("dir-out-btn").classList.toggle("active",d==="out");
+  document.getElementById("dir-out-btn").classList.toggle("out",d==="out");
+}
+
+function switchTab(t){
+  ["txs","fin"].forEach(id=>{
+    document.getElementById("tab-"+id).classList.toggle("active",id===t);
+    document.getElementById("view-"+id).classList.toggle("active",id===t);
   });
+  if(t==="fin"){ renderFinStats(); renderFinTxsList(); }
 }
 
-/* ── حذف ── */
-async function deleteTx(id){
-  if(!confirm("هل تريد حذف هذه العملية؟")) return;
-  try{
-    await updateDoc(doc(db,"finance_transactions",id),{_active:false,deletedAt:serverTimestamp()});
-    toast("تم حذف العملية");
-  }catch(e){ console.error(e); toast("خطأ",true); }
+function openDetail(id){
+  currentMerId=id;
+  document.getElementById("list-section").style.display="none";
+  document.getElementById("detail-section").style.display="block";
+  switchTab("txs");
+  fillHeader(); renderTxsList();
 }
 
-/* ── نافذة الإضافة / التعديل ── */
-function setupModal(){
-  const modal=document.getElementById("tx-modal");
-  document.querySelectorAll(".qa-btn[data-type]").forEach(btn=>
-    btn.addEventListener("click",()=>openModal(null,btn.dataset.type)));
-  document.getElementById("tx-modal-close").addEventListener("click",closeModal);
-  document.getElementById("tx-cancel-btn").addEventListener("click",closeModal);
-  document.getElementById("tx-del-btn").addEventListener("click",()=>{
-    if(editTxId) deleteTx(editTxId).then(closeModal);
-  });
-  modal.addEventListener("click",e=>{ if(e.target===modal) closeModal(); });
-  document.querySelectorAll(".type-opt").forEach(opt=>
-    opt.addEventListener("click",()=>selectType(opt.dataset.type)));
-  document.querySelectorAll("input[name='dir']").forEach(r=>
-    r.addEventListener("change",updateDirHint));
-  document.getElementById("tx-form").addEventListener("submit",saveTx);
+function backToList(){
+  currentMerId=null;
+  document.getElementById("list-section").style.display="block";
+  document.getElementById("detail-section").style.display="none";
 }
 
-function openModal(tx=null,preType=null){
-  document.getElementById("tx-form").reset();
-  editTxId=null; selectedType="";
-  document.getElementById("tx-modal-title").textContent=tx?"تعديل العملية":"إضافة حركة مالية";
-  document.getElementById("f-date").value=tx?.date??today();
-  document.getElementById("tx-del-btn").style.display="none";
-  document.querySelectorAll(".type-opt").forEach(o=>o.classList.remove("selected"));
-
-  if(tx){
-    editTxId=tx.id;
-    document.getElementById("f-amount").value =tx.amount??0;
-    document.getElementById("f-desc").value   =tx.description??"";
-    document.getElementById("f-party").value  =tx.partyName??"";
-    document.getElementById("f-employee").value=tx.employeeId??"";
-    if(tx.merchantId) document.getElementById("f-merchant").value=tx.merchantId;
-    else if(tx.partyName) document.getElementById("f-merchant").value="__manual__";
-    if(tx.dir) document.querySelector(`input[name='dir'][value='${tx.dir}']`)?.click();
-    document.getElementById("tx-del-btn").style.display="inline-flex";
-    selectType(tx.type);
-  } else if(preType){
-    selectType(preType);
-  }
-  document.getElementById("tx-modal").classList.add("open");
-}
-function closeModal(){ document.getElementById("tx-modal").classList.remove("open"); editTxId=null; selectedType=""; }
-
-function selectType(type){
-  if(!TYPE_CFG[type]) return;
-  selectedType=type;
-  document.querySelectorAll(".type-opt").forEach(o=>o.classList.toggle("selected",o.dataset.type===type));
-  const cfg=TYPE_CFG[type];
-
-  // الاتجاه
-  const dirField=document.getElementById("dir-field");
-  if(cfg.fixed){ dirField.style.display="none"; document.querySelector(`input[name='dir'][value='${cfg.dir}']`).checked=true; }
-  else { dirField.style.display="block"; }
-
-  // الموظف
-  document.getElementById("employee-field").style.display=type==="advance"?"block":"none";
-
-  // التاجر
-  const merField=document.getElementById("merchant-field");
-  merField.style.display=type==="merchant"?"block":"none";
-
-  // جهة الصرف النصية
-  const partyField=document.getElementById("party-field");
-  const partyLabel=document.getElementById("party-label");
-  if(type==="withdrawal"||type==="deposit"){
-    partyField.style.display="block";
-    partyLabel.textContent="جهة الصرف / المصدر";
-    document.getElementById("f-party").placeholder="مثال: إيجار، مصروفات إدارية...";
-  } else if(type==="other"){
-    partyField.style.display="block";
-    partyLabel.textContent="اسم الجهة";
-    document.getElementById("f-party").placeholder="اختياري";
-  } else if(type==="merchant"){
-    // تعتمد الرؤية على قيمة القائمة (تظهر عند الاختيار اليدوي)
-    const merSel=document.getElementById("f-merchant").value;
-    if(merSel==="__manual__"){
-      partyField.style.display="block";
-      partyLabel.textContent="اسم التاجر (يدوي)";
-      document.getElementById("f-party").placeholder="اكتب اسم التاجر...";
-    } else {
-      partyField.style.display="none";
-    }
-  } else {
-    partyField.style.display="none";
-  }
-  updateDirHint();
+function fillHeader(){
+  const mer=merchants.find(m=>m.id===currentMerId); if(!mer) return;
+  document.getElementById("detail-name").textContent   =mer.name??"";
+  document.getElementById("detail-address").textContent=mer.address||"لا يوجد عنوان";
+  document.getElementById("detail-phone").textContent  =mer.phone||"—";
+  document.getElementById("detail-email").textContent  =mer.email||"—";
+  const bal=calcBalance(currentMerId);
+  const balEl=document.getElementById("detail-balance");
+  balEl.textContent=fmt(bal);
+  balEl.style.color=bal>=0?"var(--primary-dark)":"var(--danger)";
 }
 
-function updateDirHint(){
-  const hint=document.getElementById("dir-hint");
-  const cfg=TYPE_CFG[selectedType];
-  if(!cfg){ hint.className="dir-hint custom"; hint.textContent="اختر نوع العملية أولاً"; return; }
-  const dir=cfg.fixed?cfg.dir:(document.querySelector("input[name='dir']:checked")?.value??null);
-  if(!dir){ hint.className="dir-hint custom"; hint.textContent="حدد اتجاه العملية"; }
-  else if(dir==="in"){ hint.className="dir-hint in"; hint.textContent="✅ هذه العملية ستُضاف إلى رصيد الصندوق"; }
-  else { hint.className="dir-hint out"; hint.textContent="⚠️ هذه العملية ستُخصم من رصيد الصندوق"; }
-}
-
-async function saveTx(e){
+/* ── إضافة حركة مباشرة ── */
+async function addTx(e){
   e.preventDefault();
-  if(!selectedType){ toast("اختر نوع العملية",true); return; }
-  const cfg=TYPE_CFG[selectedType];
-  const amount=Number(document.getElementById("f-amount").value);
+  const amount=Number(document.getElementById("tx-amount").value);
   if(!amount||amount<=0){ toast("أدخل مبلغاً صحيحاً",true); return; }
-  const dir=cfg.fixed?cfg.dir:(document.querySelector("input[name='dir']:checked")?.value??"");
-  if(!dir){ toast("حدد اتجاه العملية",true); return; }
-
-  // ── التحقق من الموظف (سلفة) ──
-  const empId=selectedType==="advance"?document.getElementById("f-employee").value:"";
-  if(selectedType==="advance"&&!empId){ toast("اختر الموظف أولاً",true); return; }
-  const emp=employees.find(e=>e.id===empId);
-
-  // ── التاجر ──
-  let merchantId="", merchantName="", partyName="";
-  if(selectedType==="merchant"){
-    const merSel=document.getElementById("f-merchant").value;
-    if(merSel&&merSel!=="__manual__"){
-      merchantId=merSel;
-      merchantName=merchants.find(m=>m.id===merSel)?.name??"";
-    } else {
-      partyName=document.getElementById("f-party").value.trim();
-      merchantName=partyName;
-      if(!partyName){ toast("أدخل اسم التاجر أو اختره من القائمة",true); return; }
-    }
-    if(!merchantId&&!partyName){ toast("حدد التاجر أو أدخل اسمه يدوياً",true); return; }
-  } else {
-    partyName=document.getElementById("f-party").value.trim();
-  }
-
-  const btn=document.getElementById("tx-save-btn");
+  const note=document.getElementById("tx-note").value.trim();
+  const mer=merchants.find(m=>m.id===currentMerId);
+  const btn=document.getElementById("tx-submit-btn");
   btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
-
   try{
-    const data={
-      type:selectedType, dir, amount,
-      date:document.getElementById("f-date").value,
-      description:document.getElementById("f-desc").value.trim(),
-      partyName, merchantId, merchantName,
-      employeeId:empId, employeeName:emp?.name??"",
-      _active:true,
-    };
-    if(editTxId){
-      await updateDoc(doc(db,"finance_transactions",editTxId),{...data,updatedAt:serverTimestamp()});
-      toast("تم تحديث العملية");
-    } else {
-      const finId=await nextFinId();
-      await addDoc(collection(db,"finance_transactions"),
-        {...data,finId,createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
-      toast("تمت الإضافة — المعرف: "+finId);
-    }
-    closeModal();
-  }catch(err){ console.error(err); toast("خطأ أثناء الحفظ",true); }
-  finally{ btn.disabled=false; btn.textContent="حفظ العملية"; }
+    await addDoc(collection(db,"merchantTransactions"),{
+      merchantId:currentMerId, merchantName:mer?.name??"",
+      amount, type:txDir, note, createdAt:serverTimestamp(),
+    });
+    e.target.reset(); toast("تمت إضافة الحركة");
+  }catch(err){ console.error(err); toast("خطأ",true); }
+  finally{ btn.disabled=false; btn.textContent="إضافة"; }
+}
+
+/* ── عرض الحركات المباشرة ── */
+function renderTxsList(){
+  const list=document.getElementById("txs-list");
+  const fromVal=document.getElementById("filter-from").value;
+  const toVal  =document.getElementById("filter-to").value;
+  const fromD  =fromVal?new Date(fromVal+"T00:00:00"):null;
+  const toD    =toVal  ?new Date(toVal  +"T23:59:59"):null;
+
+  let rows=merchantTxs.filter(t=>t.merchantId===currentMerId);
+  rows=rows.filter(t=>{
+    const d=t.createdAt?.toDate?.()??null;
+    if(!d) return true;
+    if(fromD&&d<fromD) return false;
+    if(toD  &&d>toD  ) return false;
+    return true;
+  });
+  rows=rows.sort((a,b)=>{
+    const ta=a.createdAt?.seconds??0, tb=b.createdAt?.seconds??0;
+    return tb-ta;
+  });
+
+  if(!rows.length){
+    list.innerHTML='<div class="empty-state">لا توجد حركات في هذه الفترة</div>';
+    return;
+  }
+  list.innerHTML="";
+  rows.forEach(t=>{
+    const div=document.createElement("div");
+    div.className="record-row";
+    div.innerHTML=`
+      <span class="record-badge ${t.type}">${t.type==="in"?"داخل":"خارج"}</span>
+      <div class="record-main">
+        <div class="title">${esc(t.note)||(t.type==="in"?"دفعة واردة":"دفعة صادرة")}</div>
+        <div class="meta">#${t.id.slice(0,6)} · ${fmtTs(t.createdAt)}</div>
+      </div>
+      <div class="record-amount ${t.type}">${fmt(t.amount)}</div>
+      <button class="delete-btn" data-id="${t.id}">🗑️</button>`;
+    list.appendChild(div);
+  });
+  list.querySelectorAll(".delete-btn").forEach(btn=>btn.addEventListener("click",async()=>{
+    if(!confirm("هل تريد حذف هذه الحركة؟")) return;
+    try{ await deleteDoc(doc(db,"merchantTransactions",btn.dataset.id)); toast("تم الحذف"); }
+    catch(err){ console.error(err); toast("خطأ",true); }
+  }));
+}
+
+/* ── دفعات المالية (finance_transactions) ── */
+function renderFinStats(){
+  const myTxs=finTxs.filter(t=>t.merchantId===currentMerId);
+  const totalIn  =myTxs.filter(t=>t.dir==="in") .reduce((s,t)=>s+(t.amount||0),0);
+  const totalOut =myTxs.filter(t=>t.dir==="out").reduce((s,t)=>s+(t.amount||0),0);
+  const net      =totalIn-totalOut;
+  document.getElementById("mer-fin-stats").innerHTML=`
+    <div class="mer-stat" style="border-top:3px solid #4caf7d">
+      <div class="msk">📥 إجمالي التحصيل</div>
+      <div class="msv" style="color:#1a6b3a">${fmt(totalIn)}</div>
+      <div class="mss">${myTxs.filter(t=>t.dir==="in").length} عملية</div>
+    </div>
+    <div class="mer-stat" style="border-top:3px solid #e07070">
+      <div class="msk">📤 إجمالي المدفوعات</div>
+      <div class="msv" style="color:#b3432f">${fmt(totalOut)}</div>
+      <div class="mss">${myTxs.filter(t=>t.dir==="out").length} عملية</div>
+    </div>
+    <div class="mer-stat" style="border-top:3px solid var(--primary)">
+      <div class="msk">💰 الصافي</div>
+      <div class="msv" style="color:${net>=0?"var(--primary-dark)":"var(--danger)"}">${fmt(Math.abs(net))}</div>
+      <div class="mss">${net>=0?"لصالحنا":"علينا"}</div>
+    </div>`;
+}
+
+function renderFinTxsList(){
+  const myTxs=finTxs.filter(t=>t.merchantId===currentMerId)
+    .sort((a,b)=>b.date>a.date?1:b.date<a.date?-1:0);
+  const tbody=document.getElementById("fin-tbody"); if(!tbody) return;
+  if(!myTxs.length){
+    tbody.innerHTML='<tr><td colspan="6"><div class="empty-state">لا توجد دفعات مالية مسجلة لهذا التاجر</div></td></tr>';
+    return;
+  }
+  const DIR_LBL={in:"← داخل (تحصيل)",out:"← خارج (دفع)"};
+  tbody.innerHTML="";
+  myTxs.forEach(t=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td><span class="rec-id">${esc(t.finId||"—")}</span></td>
+      <td style="font-size:13px;white-space:nowrap">${esc(fmtDate(t.date))}</td>
+      <td class="${t.dir==="in"?"dir-in":"dir-out"}"
+          style="font-weight:700;color:${t.dir==="in"?"#1a6b3a":"#b3432f"}">
+        ${DIR_LBL[t.dir]??""}</td>
+      <td style="font-weight:700;white-space:nowrap">${fmt(t.amount)}</td>
+      <td style="font-size:13px;color:var(--muted)">${esc(t.description||"—")}</td>
+      <td><a href="/finance.html" class="btn small outline" style="font-size:11px">تعديل في المالية</a></td>`;
+    tbody.appendChild(tr);
+  });
 }
 </script>
 </body>
