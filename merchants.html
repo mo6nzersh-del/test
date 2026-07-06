@@ -560,9 +560,7 @@ function _buildAllRows(){
 
   const direct=merchantTxs.filter(t=>t.merchantId===currentMerId).map(t=>({
     _src: t.source==="loading" ? "loading" : "direct",
-    seqId: t.source==="loading" && t.opId
-      ? t.opId.slice(0,8).toUpperCase()
-      : (t.txId||"—"),
+    seqId: t.txId || (t.opId ? t.opId.slice(0,8).toUpperCase() : "—"),
     dateStr:_toDateStr(t),
     dateSecs:_toSecs(t),
     dir:t.type,
