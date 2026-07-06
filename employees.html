@@ -96,6 +96,19 @@
     .dir-out{color:#b3432f;font-weight:700}
     .dir-in{color:#1a6b3a;font-weight:700}
 
+    /* ── حالة صرف الراتب ── */
+    .pay-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:13px 18px;border-radius:10px;border:2px solid var(--border);
+      background:var(--surface);margin-bottom:12px}
+    .pay-bar.paid{border-color:#6abf8a;background:#edf8f1}
+    .pay-bar.unpaid{border-color:#e8c547;background:#fefdf4}
+    .pay-bar-left{display:flex;flex-direction:column;gap:3px}
+    .pay-badge{display:inline-flex;align-items:center;gap:6px;
+      font-size:13.5px;font-weight:800}
+    .pay-badge.paid{color:#1a6b3a}
+    .pay-badge.unpaid{color:#8a6010}
+    .pay-meta{font-size:11.5px;color:var(--muted)}
+
     /* ── عناصر الطباعة ── */
     .print-only{display:none}
     .screen-only{display:table-cell}
@@ -296,6 +309,9 @@
           <span id="month-label" class="month-label"></span>
           <button type="button" class="btn small outline" id="next-btn">التالي ←</button>
         </div>
+        <!-- شريط تأكيد صرف الراتب -->
+        <div id="pay-status-bar" class="print-hide"></div>
+
         <div class="panel" id="salary-panel">
           <div class="panel-header print-hide">
             <h3>ملخص الشهر والراتب</h3>
@@ -621,16 +637,18 @@ function renderNav(user) {
 }
 
 /* ── حالة عامة ── */
-let employees    = [];
-let dailyAtt     = [];
-let empFinTxs    = [];
-let currentEmpId = null;
-let photoFile    = null;
-let editEmpId    = null;
-let attUnsub     = null;
-let finUnsub     = null;
-let calYear      = new Date().getFullYear();
-let calMonth     = new Date().getMonth();
+let employees     = [];
+let dailyAtt      = [];
+let empFinTxs     = [];
+let currentEmpId  = null;
+let photoFile     = null;
+let editEmpId     = null;
+let attUnsub      = null;
+let finUnsub      = null;
+let payUnsub      = null;   // مستمع حالة صرف الراتب
+let salaryPayRec  = null;   // null=جارِ التحميل | false=لم يُصرف | object=تم الصرف
+let calYear       = new Date().getFullYear();
+let calMonth      = new Date().getMonth();
 const pendingDays = new Set();
 let attModalDate  = null;
 let attModalRecId = null;
@@ -1053,6 +1071,10 @@ function backToList(){
   currentEmpId=null;
   if(attUnsub){ attUnsub(); attUnsub=null; }
   if(finUnsub){ finUnsub(); finUnsub=null; }
+  if(payUnsub){ payUnsub(); payUnsub=null; }
+  salaryPayRec=null;
+  const psBar=document.getElementById("pay-status-bar");
+  if(psBar) psBar.innerHTML="";
   document.getElementById("list-section").style.display="block";
   document.getElementById("detail-section").style.display="none";
 }
@@ -1094,6 +1116,9 @@ function changeMonth(delta){
   calMonth+=delta;
   if(calMonth>11){ calMonth=0; calYear++; }
   if(calMonth<0) { calMonth=11; calYear--; }
+  // إعادة تعيين حالة الصرف قبل تحميل الشهر الجديد
+  salaryPayRec=null;
+  if(payUnsub){ payUnsub(); payUnsub=null; }
   loadMonthAtt();
 }
 
@@ -1102,6 +1127,7 @@ function loadMonthAtt(){
   if(!currentEmpId) return;
   document.getElementById("month-label").textContent=arabicMonth(calMonth,calYear);
   document.getElementById("cal-title").textContent=`تقويم الحضور — ${arabicMonth(calMonth,calYear)}`;
+  loadSalaryPayStatus();   // تحميل حالة صرف الراتب لهذا الشهر
   if(attUnsub){ attUnsub(); attUnsub=null; }
   const first=`${calYear}-${String(calMonth+1).padStart(2,"0")}-01`;
   const last=localDate(new Date(calYear,calMonth+1,0));
@@ -1124,6 +1150,101 @@ function loadMonthAtt(){
     console.error(err);
     document.getElementById("cal-container").innerHTML='<div class="empty-state">خطأ في تحميل السجل</div>';
   });
+}
+
+/* ─────────────────────────────────
+   تأكيد صرف الراتب
+───────────────────────────────── */
+
+/* تحميل حالة صرف الشهر الحالي من Firestore */
+function loadSalaryPayStatus(){
+  if(!currentEmpId) return;
+  if(payUnsub){ payUnsub(); payUnsub=null; }
+  salaryPayRec=null;
+  renderPayStatus();
+  const curMonthStr=`${calYear}-${String(calMonth+1).padStart(2,"0")}`;
+  const payDocRef=doc(db,"salary_payments",`${currentEmpId}_${curMonthStr}`);
+  payUnsub=onSnapshot(payDocRef,snap=>{
+    salaryPayRec=snap.exists()?{id:snap.id,...snap.data()}:false;
+    renderPayStatus();
+  },err=>{ console.error(err); salaryPayRec=false; renderPayStatus(); });
+}
+
+/* رسم شريط حالة الصرف */
+function renderPayStatus(){
+  const bar=document.getElementById("pay-status-bar"); if(!bar) return;
+  const monthLabel=arabicMonth(calMonth,calYear);
+  if(salaryPayRec===null){
+    bar.innerHTML=`<div class="pay-bar">
+      <span style="color:var(--muted);font-size:13px">⏳ جارِ التحقق من حالة الصرف...</span>
+    </div>`;
+    return;
+  }
+  if(salaryPayRec){
+    const paidDate=salaryPayRec.paidAt?.toDate?.();
+    const paidStr=paidDate
+      ?paidDate.toLocaleDateString("ar-EG-u-nu-latn",{year:"numeric",month:"long",day:"numeric"}):"";
+    bar.innerHTML=`
+      <div class="pay-bar paid">
+        <div class="pay-bar-left">
+          <div class="pay-badge paid">✅ تم صرف راتب ${monthLabel}</div>
+          ${paidStr?`<div class="pay-meta">بتاريخ ${paidStr}${salaryPayRec.paidBy?" · "+salaryPayRec.paidBy:""}</div>`:""}
+        </div>
+        <button type="button" class="btn small outline" id="unpay-btn">↩️ إلغاء التأكيد</button>
+      </div>`;
+    document.getElementById("unpay-btn")?.addEventListener("click",unmarkSalaryPaid);
+  } else {
+    bar.innerHTML=`
+      <div class="pay-bar unpaid">
+        <div class="pay-badge unpaid">⏳ راتب ${monthLabel} لم يُصرف بعد</div>
+        <button type="button" class="btn small" id="pay-btn"
+          style="background:#1a6b3a;border-color:#1a6b3a;color:#fff;flex-shrink:0">
+          💰 تأكيد صرف الراتب
+        </button>
+      </div>`;
+    document.getElementById("pay-btn")?.addEventListener("click",markSalaryPaid);
+  }
+}
+
+/* تأكيد صرف الراتب */
+async function markSalaryPaid(){
+  if(!currentEmpId) return;
+  const monthLabel=arabicMonth(calMonth,calYear);
+  if(!confirm(`هل تريد تأكيد صرف راتب ${monthLabel}؟\nبعد التأكيد سينتقل التطبيق إلى الشهر التالي تلقائياً.`)) return;
+  const btn=document.getElementById("pay-btn");
+  if(btn){ btn.disabled=true; btn.innerHTML='<span class="spinner"></span> جارِ الحفظ...'; }
+  try{
+    const emp=employees.find(e=>e.id===currentEmpId);
+    const curUser=auth.currentUser;
+    const curMonthStr=`${calYear}-${String(calMonth+1).padStart(2,"0")}`;
+    await setDoc(doc(db,"salary_payments",`${currentEmpId}_${curMonthStr}`),{
+      employeeId:   currentEmpId,
+      employeeName: emp?.name??"",
+      monthStr:     curMonthStr,
+      paidAt:       serverTimestamp(),
+      paidBy:       curUser?.email??"",
+    });
+    toast(`✅ تم تأكيد صرف راتب ${monthLabel}`);
+    // انتقال تلقائي للشهر التالي بعد لحظة
+    setTimeout(()=>changeMonth(+1), 1400);
+  }catch(err){
+    console.error(err);
+    toast("خطأ أثناء الحفظ",true);
+    // إعادة الزر لحالته الطبيعية عند الخطأ
+    renderPayStatus();
+  }
+}
+
+/* إلغاء تأكيد الصرف */
+async function unmarkSalaryPaid(){
+  if(!currentEmpId) return;
+  const monthLabel=arabicMonth(calMonth,calYear);
+  if(!confirm(`هل تريد إلغاء تأكيد صرف راتب ${monthLabel}؟`)) return;
+  try{
+    const curMonthStr=`${calYear}-${String(calMonth+1).padStart(2,"0")}`;
+    await deleteDoc(doc(db,"salary_payments",`${currentEmpId}_${curMonthStr}`));
+    toast("تم إلغاء تأكيد الصرف");
+  }catch(err){ console.error(err); toast("خطأ أثناء الحذف",true); }
 }
 
 /* ── تحميل الحركات المالية للموظف ── */
