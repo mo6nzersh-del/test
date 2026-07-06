@@ -43,6 +43,7 @@
     .cal-day-cell{white-space:nowrap;min-width:90px}
     .cal-day-num{font-size:16px;font-weight:800;color:var(--ink);display:inline-block;width:26px}
     .cal-day-name{font-size:11.5px;color:var(--muted);margin-right:3px}
+    .cal-day-date{font-size:11px;color:var(--muted);margin-right:6px;font-family:monospace,Cairo,sans-serif;direction:ltr;display:inline-block}
 
     /* معرف السجل */
     .rec-id{font-size:11px;color:var(--muted);font-weight:700;background:var(--bg);
@@ -100,34 +101,52 @@
     .screen-only{display:table-cell}
 
 
-    /* ── بطاقة العمل المعاد تصميمها ── */
-    .id-card{background:linear-gradient(145deg,#132d1e 0%,#2f6f4f 60%,#3d8a63 100%);
-      border-radius:20px;padding:0;overflow:hidden;max-width:440px;
-      box-shadow:0 12px 40px rgba(0,0,0,.28);color:#fff}
-    .id-card-top{display:flex;align-items:center;gap:13px;padding:15px 20px 13px;
-      border-bottom:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.2)}
-    .id-card-top-logo{width:42px;height:42px;object-fit:contain;border-radius:8px;
-      background:#fff;padding:4px;flex-shrink:0}
-    .id-card-top-brand{flex:1}
-    .id-card-top-name{font-size:16px;font-weight:900;line-height:1.1}
-    .id-card-top-sub{font-size:10.5px;opacity:.6;margin-top:2px}
-    .id-card-badge{font-size:10px;font-weight:700;background:rgba(255,255,255,.18);
-      border:1px solid rgba(255,255,255,.28);padding:4px 10px;border-radius:20px;white-space:nowrap}
-    .id-card-body2{display:flex;gap:18px;padding:20px 20px 16px;align-items:flex-start}
-    .id-card-photo-wrap{flex-shrink:0;width:84px;height:84px;border-radius:50%;
-      border:3px solid rgba(255,255,255,.4);overflow:hidden;
-      background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center}
+    /* ── بطاقة العمل الاحترافية ── */
+    .id-card{background:#fff;border-radius:16px;overflow:hidden;max-width:480px;
+      box-shadow:0 8px 36px rgba(0,0,0,.16);border:1px solid #dde8e2;font-family:Cairo,sans-serif}
+    .id-card-hdr{background:linear-gradient(135deg,#0d2618 0%,#1a4a2e 55%,#2c6648 100%);
+      padding:13px 18px;display:flex;align-items:center;gap:11px;position:relative}
+    .id-card-hdr::after{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+      background:linear-gradient(90deg,#b8881e,#e8c547,#f5d96b,#e8c547,#b8881e)}
+    .id-card-hdr-logo{width:38px;height:38px;border-radius:7px;background:#fff;
+      padding:4px;object-fit:contain;flex-shrink:0}
+    .id-card-hdr-brand{flex:1}
+    .id-card-hdr-name{color:#fff;font-size:15px;font-weight:900;line-height:1.2}
+    .id-card-hdr-sub{color:rgba(255,255,255,.6);font-size:10px;margin-top:1px}
+    .id-card-hdr-badge{background:linear-gradient(135deg,#b8881e,#e0b830);color:#0d2618;
+      font-size:9px;font-weight:800;padding:4px 11px;border-radius:20px;
+      letter-spacing:.4px;white-space:nowrap;flex-shrink:0}
+
+    .id-card-body{display:flex}
+    .id-card-photo-col{background:linear-gradient(180deg,#1a4a2e,#2f6f4f);
+      width:110px;flex-shrink:0;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;padding:20px 12px;gap:9px}
+    .id-card-photo-circle{width:78px;height:78px;border-radius:50%;
+      border:2.5px solid rgba(255,255,255,.45);overflow:hidden;
+      background:rgba(255,255,255,.12);display:flex;align-items:center;justify-content:center}
     .id-card-photo-img{width:100%;height:100%;object-fit:cover}
-    .id-card-photo-ph{font-size:36px;opacity:.6}
-    .id-card-info2{flex:1}
-    .id-card-emp-name{font-size:20px;font-weight:900;margin-bottom:3px;line-height:1.2}
-    .id-card-emp-job{font-size:12px;opacity:.7;margin-bottom:13px;font-weight:600}
-    .id-card-rows2{display:flex;flex-direction:column;gap:7px}
-    .id-card-row2{display:flex;align-items:center;gap:8px;font-size:12px}
-    .id-card-row2-lbl{opacity:.55;min-width:68px}
-    .id-card-row2-val{font-weight:700}
-    .id-card-footer2{display:flex;align-items:center;justify-content:space-between;
-      padding:10px 20px;background:rgba(0,0,0,.2);font-size:10px;opacity:.62}
+    .id-card-photo-ph{font-size:32px;opacity:.65}
+    .id-card-photo-label{color:rgba(255,255,255,.75);font-size:9.5px;font-weight:700;
+      text-align:center;letter-spacing:.5px}
+
+    .id-card-info-col{flex:1;padding:16px 18px;display:flex;flex-direction:column;gap:11px}
+    .id-card-emp-name{font-size:19px;font-weight:900;color:#0d2618;line-height:1.2;margin:0}
+    .id-card-emp-job{display:inline-block;background:#eaf5ee;color:#1a4a2e;
+      font-size:11px;font-weight:700;padding:3px 11px;border-radius:20px;
+      border:1px solid #c0ddc9;margin-top:3px}
+    .id-card-fields{display:flex;flex-direction:column;gap:7px;margin-top:2px}
+    .id-card-field{display:flex;align-items:center;gap:7px;font-size:12px}
+    .id-card-field-icon{width:24px;height:24px;border-radius:6px;background:#f0f7f3;
+      display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0}
+    .id-card-field-lbl{color:#999;font-size:10.5px;min-width:62px}
+    .id-card-field-val{font-weight:800;color:#111}
+
+    .id-card-ftr{border-top:1px solid #e8eee9;background:#f5faf7;
+      padding:9px 18px;display:flex;align-items:center;justify-content:space-between}
+    .id-card-ftr-date{font-size:10px;color:#888}
+    .id-card-ftr-bars{display:flex;gap:2px;align-items:flex-end}
+    .id-card-ftr-bar{width:3px;background:#2f6f4f;border-radius:1.5px}
+    .id-card-ftr-seal{font-size:10px;color:#1a4a2e;font-weight:800}
 
     /* ── قسيمة الراتب (مخفية في الشاشة - للطباعة) ── */
     #payslip-print{display:none}
@@ -141,6 +160,7 @@
       body{background:#fff!important}
       .page{max-width:100%!important;padding:0!important;margin:0!important}
       .print-only{display:table-cell!important}
+      .attendance-calendar caption.print-only{display:table-caption!important}
       .screen-only{display:none!important}
       .section-view{display:none!important}
       .section-view.active{display:block!important}
@@ -204,9 +224,11 @@
       .ps-footer span{border-top:1px solid #999;padding-top:4px;min-width:120px;text-align:center}
 
       /* بطاقة العمل في الطباعة */
-      .id-card{max-width:100%!important;
-        background:linear-gradient(145deg,#132d1e 0%,#2f6f4f 60%,#3d8a63 100%)!important;
-        page-break-inside:avoid}
+      .id-card{max-width:100%!important;background:#fff!important;
+        border:1px solid #ccc!important;page-break-inside:avoid}
+      .id-card-hdr{background:linear-gradient(135deg,#0d2618,#1a4a2e,#2c6648)!important}
+      .id-card-photo-col{background:linear-gradient(180deg,#1a4a2e,#2f6f4f)!important}
+      .id-card-ftr-bar{background:#2f6f4f!important}
     }
   </style>
 </head>
@@ -332,41 +354,64 @@
             <button type="button" class="btn small outline" onclick="window.print()">🖨️ طباعة البطاقة</button>
           </div>
           <div class="id-card">
-            <!-- شريط علوي -->
-            <div class="id-card-top">
-              <img src="https://i.imgur.com/NsN1HgC.png" class="id-card-top-logo" alt="شعار"
+            <!-- رأس البطاقة -->
+            <div class="id-card-hdr">
+              <img src="https://i.imgur.com/NsN1HgC.png" class="id-card-hdr-logo" alt="شعار"
                    onerror="this.style.display='none'" />
-              <div class="id-card-top-brand">
-                <div class="id-card-top-name">أحمد وحمدي</div>
-                <div class="id-card-top-sub">نظام إدارة الموظفين</div>
+              <div class="id-card-hdr-brand">
+                <div class="id-card-hdr-name">أحمد وحمدي</div>
+                <div class="id-card-hdr-sub">نظام إدارة الموظفين الداخلي</div>
               </div>
-              <div class="id-card-badge">بطاقة عمل رسمية</div>
+              <div class="id-card-hdr-badge">بطاقة عمل رسمية</div>
             </div>
             <!-- جسم البطاقة -->
-            <div class="id-card-body2">
-              <div class="id-card-photo-wrap">
-                <img id="card-photo" src="" alt="" class="id-card-photo-img" style="display:none" />
-                <div class="id-card-photo-ph" id="card-photo-ph">👤</div>
+            <div class="id-card-body">
+              <!-- عمود الصورة -->
+              <div class="id-card-photo-col">
+                <div class="id-card-photo-circle">
+                  <img id="card-photo" src="" alt="" class="id-card-photo-img" style="display:none" />
+                  <div class="id-card-photo-ph" id="card-photo-ph">👤</div>
+                </div>
+                <div class="id-card-photo-label">موظف</div>
               </div>
-              <div class="id-card-info2">
-                <div class="id-card-emp-name" id="card-name">—</div>
-                <div class="id-card-emp-job" id="card-job"></div>
-                <div class="id-card-rows2">
-                  <div class="id-card-row2">
-                    <span class="id-card-row2-lbl">رقم الهوية</span>
-                    <span class="id-card-row2-val" id="card-idnum">—</span>
+              <!-- عمود البيانات -->
+              <div class="id-card-info-col">
+                <div>
+                  <div class="id-card-emp-name" id="card-name">—</div>
+                  <div class="id-card-emp-job" id="card-job"></div>
+                </div>
+                <div class="id-card-fields">
+                  <div class="id-card-field">
+                    <div class="id-card-field-icon">🪪</div>
+                    <span class="id-card-field-lbl">رقم الهوية</span>
+                    <span class="id-card-field-val" id="card-idnum">—</span>
                   </div>
-                  <div class="id-card-row2">
-                    <span class="id-card-row2-lbl">الهاتف</span>
-                    <span class="id-card-row2-val" id="card-phone">—</span>
+                  <div class="id-card-field">
+                    <div class="id-card-field-icon">📞</div>
+                    <span class="id-card-field-lbl">الهاتف</span>
+                    <span class="id-card-field-val" id="card-phone">—</span>
                   </div>
                 </div>
               </div>
             </div>
-            <!-- تذييل -->
-            <div class="id-card-footer2">
-              <span>تاريخ الإصدار: <span id="card-issue-date"></span></span>
-              <span>✦ أحمد وحمدي</span>
+            <!-- تذييل البطاقة -->
+            <div class="id-card-ftr">
+              <span class="id-card-ftr-date">تاريخ الإصدار: <span id="card-issue-date"></span></span>
+              <div class="id-card-ftr-bars">
+                <div class="id-card-ftr-bar" style="height:14px"></div>
+                <div class="id-card-ftr-bar" style="height:9px"></div>
+                <div class="id-card-ftr-bar" style="height:16px"></div>
+                <div class="id-card-ftr-bar" style="height:7px"></div>
+                <div class="id-card-ftr-bar" style="height:13px"></div>
+                <div class="id-card-ftr-bar" style="height:11px"></div>
+                <div class="id-card-ftr-bar" style="height:16px"></div>
+                <div class="id-card-ftr-bar" style="height:9px"></div>
+                <div class="id-card-ftr-bar" style="height:12px"></div>
+                <div class="id-card-ftr-bar" style="height:7px"></div>
+                <div class="id-card-ftr-bar" style="height:15px"></div>
+                <div class="id-card-ftr-bar" style="height:10px"></div>
+              </div>
+              <span class="id-card-ftr-seal">✦ أحمد وحمدي</span>
             </div>
           </div>
         </div>
@@ -603,14 +648,14 @@ function buildDeductMonthSelect(currentVal=""){
     const y=d.getFullYear(), m=d.getMonth();
     opts.push({
       val:`${y}-${String(m+1).padStart(2,"0")}`,
-      label:d.toLocaleDateString("ar-EG",{month:"long",year:"numeric"})
+      label:d.toLocaleDateString(LATN,{month:"long",year:"numeric"})
     });
   }
   sel.innerHTML='<option value="">— اختر شهر الخصم —</option>';
   // إذا كانت القيمة المحفوظة شهراً قديماً خارج النطاق، أضفه مع تنبيه
   if(currentVal&&!opts.find(o=>o.val===currentVal)){
     const [y,m]=currentVal.split("-").map(Number);
-    const oldLabel=new Date(y,m-1,1).toLocaleDateString("ar-EG",{month:"long",year:"numeric"});
+    const oldLabel=new Date(y,m-1,1).toLocaleDateString(LATN,{month:"long",year:"numeric"});
     const o=document.createElement("option");
     o.value=currentVal; o.textContent=`${oldLabel} (شهر سابق — محفوظ)`;
     o.selected=true;
@@ -626,16 +671,19 @@ function buildDeductMonthSelect(currentVal=""){
   if(!currentVal) sel.value=opts[0].val;
 }
 
+
 /* ── أدوات ── */
 const esc = t => { const d=document.createElement("div"); d.textContent=t??""; return d.innerHTML; };
-const fmt = n => new Intl.NumberFormat("ar-EG",{maximumFractionDigits:2}).format(n||0)+" ج.م";
+/* دائماً أرقام إنجليزية مع نصوص عربية */
+const LATN = "ar-EG-u-nu-latn";
+const fmt = n => new Intl.NumberFormat(LATN,{maximumFractionDigits:2}).format(n||0)+" ج.م";
 const localDate = d => {
   const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),dd=String(d.getDate()).padStart(2,"0");
   return `${y}-${m}-${dd}`;
 };
-const arabicDay   = d => d.toLocaleDateString("ar-EG",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
-const arabicMonth = (m,y) => new Date(y,m,1).toLocaleDateString("ar-EG",{month:"long",year:"numeric"});
-const fmtDate     = s => s ? new Date(s+"T00:00:00").toLocaleDateString("ar-EG",
+const arabicDay   = d => d.toLocaleDateString(LATN,{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+const arabicMonth = (m,y) => new Date(y,m,1).toLocaleDateString(LATN,{month:"long",year:"numeric"});
+const fmtDate     = s => s ? new Date(s+"T00:00:00").toLocaleDateString(LATN,
   {year:"numeric",month:"long",day:"numeric"}) : "—";
 
 function toast(msg,err=false){
@@ -1037,7 +1085,7 @@ function fillIdCard(){
     if(phPh) phPh.style.display="flex";
   }
   const issueDateEl=document.getElementById("card-issue-date");
-  if(issueDateEl) issueDateEl.textContent=new Date().toLocaleDateString("ar-EG",
+  if(issueDateEl) issueDateEl.textContent=new Date().toLocaleDateString("ar-EG-u-nu-latn",
     {year:"numeric",month:"long",day:"numeric"});
 }
 
@@ -1186,21 +1234,28 @@ function renderCalendar(){
           data-open-modal="${dateStr}" data-modal-status="" data-modal-rid="">➕</button>`;
     const printCell=`<span class="status-text${status?" st-"+status:""}">${statusLabel||"—"}</span>
       ${attId?`<span class="print-rec-id"> (${attId})</span>`:""}`;
+    const dayDD=String(day).padStart(2,"0");
+    const dayMM=String(calMonth+1).padStart(2,"0");
     rows+=`
       <tr class="cal-row${weekend?" weekend":""}">
         <td class="cal-day-cell">
           <span class="cal-day-num">${day}</span>
           <span class="cal-day-name">${dayName}</span>
+          <span class="cal-day-date">${calYear}/${dayMM}/${dayDD}</span>
         </td>
         <td class="screen-only"><div class="status-group">${btns}</div></td>
         <td class="screen-only" style="width:1%;white-space:nowrap"><div class="status-group">${actions}</div></td>
         <td class="print-only" colspan="2">${printCell}</td>
       </tr>`;
   }
+  const monthTitle=arabicMonth(calMonth,calYear);
   container.innerHTML=`
     <table class="attendance-calendar">
+      <caption class="print-only" style="caption-side:top;text-align:center;font-size:13px;font-weight:900;color:#1a3f2b;padding:6px 0 8px;letter-spacing:.3px">
+        كشف الحضور والغياب — ${monthTitle}
+      </caption>
       <thead><tr>
-        <th>اليوم</th>
+        <th>اليوم والتاريخ</th>
         <th class="screen-only">الحالة</th>
         <th class="screen-only">المعرف</th>
         <th class="print-only" colspan="2">الحالة</th>
