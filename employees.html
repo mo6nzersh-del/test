@@ -7,6 +7,8 @@
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="/assets/auth-guard-C6CJ8_8i.css" />
+  <!-- مكتبة تصدير PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <style>
     /* ── شريط التنقل بين الأشهر ── */
     .month-nav{display:flex;align-items:center;justify-content:space-between;gap:16px;
@@ -95,6 +97,20 @@
     .tb-other{background:#f2f2f2;color:#666}
     .dir-out{color:#b3432f;font-weight:700}
     .dir-in{color:#1a6b3a;font-weight:700}
+
+    /* ── سجل العمليات في الحركات المالية ── */
+    .audit-log{margin-top:5px;font-size:10.5px}
+    .audit-log summary{cursor:pointer;color:var(--muted);list-style:none;
+      display:inline-flex;align-items:center;gap:4px;padding:2px 6px;
+      border:1px solid var(--border);border-radius:6px;background:var(--bg);
+      white-space:nowrap;user-select:none}
+    .audit-log summary:hover{background:var(--primary-soft)}
+    .audit-log summary::-webkit-details-marker{display:none}
+    .audit-entries{margin-top:5px;display:flex;flex-direction:column;gap:4px;
+      border-right:2px solid var(--border);padding-right:8px}
+    .audit-entry{display:flex;flex-direction:column;gap:1px}
+    .audit-entry-action{font-weight:700;color:var(--ink);font-size:10.5px}
+    .audit-entry-by{color:var(--muted);font-size:10px}
 
     /* ── حالة صرف الراتب ── */
     .pay-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;
@@ -267,7 +283,7 @@
           <table class="data-table">
             <thead><tr>
               <th></th><th>الاسم</th><th>المسمى الوظيفي</th>
-              <th>الهاتف</th><th>الراتب الشهري</th><th></th>
+              <th>الهاتف</th><th>الراتب الشهp�ي</th><th></th>
             </tr></thead>
             <tbody id="employees-tbody">
               <tr><td colspan="6"><div class="empty-state">جارِ التحميل...</div></td></tr>
@@ -315,7 +331,10 @@
         <div class="panel" id="salary-panel">
           <div class="panel-header print-hide">
             <h3>ملخص الشهر والراتب</h3>
-            <button type="button" class="btn small outline" onclick="window.print()">🖨️ طباعة</button>
+            <div style="display:flex;gap:8px">
+              <button type="button" class="btn small outline" id="download-pdf-btn">📥 تحميل PDF</button>
+              <button type="button" class="btn small outline" onclick="window.print()">🖨️ طباعة</button>
+            </div>
           </div>
           <div class="info-grid" id="salary-summary"></div>
         </div>
@@ -352,10 +371,11 @@
                 <th>الاتجاه</th>
                 <th>المبلغ</th>
                 <th>الوصف</th>
+                <th>سجل العمليات</th>
                 <th></th>
               </tr></thead>
               <tbody id="fin-tbody">
-                <tr><td colspan="7"><div class="empty-state">جارِ التحميل...</div></td></tr>
+                <tr><td colspan="8"><div class="empty-state">جارِ التحميل...</div></td></tr>
               </tbody>
             </table>
           </div>
@@ -367,7 +387,10 @@
         <div class="panel print-target">
           <div class="panel-header print-hide">
             <h3>بطاقة العمل</h3>
-            <button type="button" class="btn small outline" onclick="window.print()">🖨️ طباعة البطاقة</button>
+            <div style="display:flex;gap:8px">
+              <button type="button" class="btn small outline" id="download-id-pdf-btn">📥 تحميل PDF</button>
+              <button type="button" class="btn small outline" onclick="window.print()">🖨️ طباعة البطاقة</button>
+            </div>
           </div>
           <div class="id-card">
             <!-- رأس البطاقة -->
@@ -595,7 +618,7 @@ import { getStorage, ref as sRef, uploadBytes, getDownloadURL }
 
 const app  = initializeApp({
   apiKey:            "AIzaSyDQsaNVskKiV2cwPVlJDixpTD1S-Dhp7gs",
-  authDomain:        "reta-and-hamd.firebaseapp.com",
+  authDomain:        "reta-and-hamd.firebaseap�.com",
   projectId:         "reta-and-hamd",
   storageBucket:     "reta-and-hamd.firebasestorage.app",
   messagingSenderId: "220767743863",
@@ -969,13 +992,20 @@ async function saveAdvTx(e){
       deductMonth: advType==="advance"?deductMonth:"",
       _active:     true,
     };
+    const curUser=auth.currentUser;
+    const byEmail=curUser?.email??"غير معروف";
     if(advEditId){
-      await updateDoc(doc(db,"finance_transactions",advEditId),{...data,updatedAt:serverTimestamp()});
+      await updateDoc(doc(db,"finance_transactions",advEditId),{
+        ...data, updatedAt:serverTimestamp(), updatedBy:byEmail
+      });
       toast("تم تحديث السجل");
     } else {
       const finId=await nextFinId();
-      await addDoc(collection(db,"finance_transactions"),
-        {...data, finId, createdAt:serverTimestamp(), updatedAt:serverTimestamp()});
+      await addDoc(collection(db,"finance_transactions"),{
+        ...data, finId,
+        createdAt:serverTimestamp(), createdBy:byEmail,
+        updatedAt:serverTimestamp(), updatedBy:byEmail,
+      });
       toast("تمت الإضافة — المعرف: "+finId);
     }
     closeAdvModal();
@@ -987,7 +1017,10 @@ async function deleteAdvTx(){
   if(!advEditId) return;
   if(!confirm("هل تريد حذف هذا السجل؟")) return;
   try{
-    await updateDoc(doc(db,"finance_transactions",advEditId),{_active:false,deletedAt:serverTimestamp()});
+    const byEmail=auth.currentUser?.email??"غير معروف";
+    await updateDoc(doc(db,"finance_transactions",advEditId),{
+      _active:false, deletedAt:serverTimestamp(), deletedBy:byEmail
+    });
     toast("تم حذف السجل"); closeAdvModal();
   }catch(err){ console.error(err); toast("خطأ أثناء الحذف",true); }
 }
@@ -1047,6 +1080,8 @@ function setupDetail(){
   document.getElementById("tab-id").addEventListener("click",()=>switchTab("id"));
   document.getElementById("prev-btn").addEventListener("click",()=>changeMonth(-1));
   document.getElementById("next-btn").addEventListener("click",()=>changeMonth(+1));
+  document.getElementById("download-pdf-btn").addEventListener("click",downloadPDF);
+  document.getElementById("download-id-pdf-btn").addEventListener("click",downloadIdCardPDF);
 }
 
 function switchTab(t){
@@ -1285,10 +1320,45 @@ function renderEmpFinStats(){
     </div>`;
 }
 
+/* تنسيق Timestamp لعرض التاريخ والساعة */
+function fmtTS(ts){
+  if(!ts?.toDate) return "—";
+  return ts.toDate().toLocaleString(LATN,{
+    year:"numeric",month:"short",day:"numeric",
+    hour:"2-digit",minute:"2-digit"
+  });
+}
+
+function auditBlock(t){
+  const entries=[];
+  if(t.createdAt||t.createdBy){
+    entries.push(`<div class="audit-entry">
+      <span class="audit-entry-action">➕ أُنشئ</span>
+      <span class="audit-entry-by">${esc(t.createdBy||"—")} · ${fmtTS(t.createdAt)}</span>
+    </div>`);
+  }
+  if((t.updatedAt||t.updatedBy) && t.updatedBy && t.updatedBy!==t.createdBy){
+    entries.push(`<div class="audit-entry">
+      <span class="audit-entry-action">✏️ عُدِّل</span>
+      <span class="audit-entry-by">${esc(t.updatedBy||"—")} · ${fmtTS(t.updatedAt)}</span>
+    </div>`);
+  } else if(t.updatedAt && t.updatedBy && t.updatedAt?.seconds !== t.createdAt?.seconds){
+    entries.push(`<div class="audit-entry">
+      <span class="audit-entry-action">✏️ آخر تعديل</span>
+      <span class="audit-entry-by">${esc(t.updatedBy||"—")} · ${fmtTS(t.updatedAt)}</span>
+    </div>`);
+  }
+  if(!entries.length) return '<span style="font-size:10.5px;color:var(--muted)">—</span>';
+  return `<details class="audit-log">
+    <summary>📋 سجل (${entries.length})</summary>
+    <div class="audit-entries">${entries.join("")}</div>
+  </details>`;
+}
+
 function renderEmpFinTxs(){
   const tbody=document.getElementById("fin-tbody"); if(!tbody) return;
   if(!empFinTxs.length){
-    tbody.innerHTML='<tr><td colspan="7"><div class="empty-state">لا توجد حركات مالية لهذا الموظف</div></td></tr>';
+    tbody.innerHTML='<tr><td colspan="8"><div class="empty-state">لا توجد حركات مالية لهذا الموظف</div></td></tr>';
     return;
   }
   const DIR_LBL={in:"← داخل",out:"← خارج"};
@@ -1303,6 +1373,7 @@ function renderEmpFinTxs(){
       <td class="${t.dir==="in"?"dir-in":"dir-out"}">${DIR_LBL[t.dir]??""}</td>
       <td style="font-weight:700;white-space:nowrap">${fmt(t.amount)}</td>
       <td style="font-size:13px;color:var(--muted)">${esc(t.description||"—")}</td>
+      <td style="min-width:120px">${auditBlock(t)}</td>
       <td><div class="row-actions">
         <button class="edit-fin" data-id="${t.id}">تعديل</button>
         <button class="del-fin"  data-id="${t.id}">حذف</button>
@@ -1315,7 +1386,10 @@ function renderEmpFinTxs(){
   tbody.querySelectorAll(".del-fin").forEach(btn=>btn.addEventListener("click",async()=>{
     if(!confirm("هل تريد حذف هذا السجل؟")) return;
     try{
-      await updateDoc(doc(db,"finance_transactions",btn.dataset.id),{_active:false,deletedAt:serverTimestamp()});
+      const byEmail=auth.currentUser?.email??"غير معروف";
+      await updateDoc(doc(db,"finance_transactions",btn.dataset.id),{
+        _active:false, deletedAt:serverTimestamp(), deletedBy:byEmail
+      });
       toast("تم حذف السجل");
     }catch(err){ console.error(err); toast("خطأ أثناء الحذف",true); }
   }));
@@ -1432,6 +1506,87 @@ async function setDay(dateStr,newStatus,_rid){
     document.querySelectorAll(`.status-btn[data-date="${dateStr}"]`)
       .forEach(b=>{ b.disabled=false; b.style.opacity=""; });
   }
+}
+
+/* ─────────────────────────────────
+   تحميل PDF
+───────────────────────────────── */
+
+/* PDF قسيمة الراتب + كشف الحضور */
+async function downloadPDF(){
+  if(!window.html2pdf){ toast("مكتبة PDF لم تُحمَّل، تحقق من الاتصال بالإنترنت",true); return; }
+  const btn=document.getElementById("download-pdf-btn");
+  if(btn){ btn.disabled=true; btn.innerHTML='<span class="spinner"></span> جارِ التحضير...'; }
+  try{
+    const emp=employees.find(e=>e.id===currentEmpId);
+    const monthLabel=arabicMonth(calMonth,calYear);
+    const empName=emp?.name??"الموظف";
+
+    const wrapper=document.createElement("div");
+    wrapper.dir="rtl";
+    wrapper.style.cssText="font-family:Cairo,sans-serif;background:#fff;width:100%;box-sizing:border-box";
+
+    // قسيمة الراتب
+    const payslip=document.getElementById("payslip-print");
+    if(payslip) wrapper.appendChild(payslip.cloneNode(true));
+
+    // فاصل صفحة
+    const pb=document.createElement("div");
+    pb.style.cssText="page-break-before:always;break-before:page;height:0;clear:both";
+    wrapper.appendChild(pb);
+
+    // رأس كشف الحضور
+    const calHdr=document.createElement("div");
+    calHdr.style.cssText="text-align:center;font-size:14px;font-weight:900;color:#1a3f2b;padding:10px 0 12px";
+    calHdr.textContent=`كشف الحضور والغياب — ${monthLabel}`;
+    wrapper.appendChild(calHdr);
+
+    // كشف الحضور
+    const calCont=document.getElementById("cal-container");
+    if(calCont){
+      const calClone=calCont.cloneNode(true);
+      calClone.querySelectorAll(".screen-only").forEach(el=>el.style.display="none");
+      calClone.querySelectorAll(".print-only").forEach(el=>{
+        el.style.display=el.tagName.toLowerCase()==="td"?"table-cell":"block";
+      });
+      calClone.querySelectorAll(".row-actions,.del-att-btn,.status-btn,.cal-hint").forEach(el=>el.remove());
+      wrapper.appendChild(calClone);
+    }
+
+    const mn=String(calMonth+1).padStart(2,"0");
+    await window.html2pdf().set({
+      margin:      [12,10],
+      filename:    `قسيمة-راتب-${empName}-${calYear}-${mn}.pdf`,
+      html2canvas: { scale:2, useCORS:true, allowTaint:true, letterRendering:true },
+      jsPDF:       { unit:"mm", format:"a4", orientation:"portrait" },
+      pagebreak:   { mode:["css","legacy"] },
+    }).from(wrapper).save();
+  }catch(err){ console.error(err); toast("خطأ أثناء تحضير الملف",true); }
+  finally{ if(btn){ btn.disabled=false; btn.innerHTML="📥 تحميل PDF"; } }
+}
+
+/* PDF بطاقة العمل */
+async function downloadIdCardPDF(){
+  if(!window.html2pdf){ toast("مكتبة PDF لم تُحمَّل، تحقق من الاتصال بالإنترنت",true); return; }
+  const btn=document.getElementById("download-id-pdf-btn");
+  if(btn){ btn.disabled=true; btn.innerHTML='<span class="spinner"></span>'; }
+  try{
+    const emp=employees.find(e=>e.id===currentEmpId);
+    const empName=emp?.name??"الموظف";
+    const card=document.querySelector(".id-card");
+    if(!card){ toast("لم يُعثر على البطاقة",true); return; }
+    const wrapper=document.createElement("div");
+    wrapper.dir="rtl";
+    wrapper.style.cssText="font-family:Cairo,sans-serif;background:#f0f4f2;padding:24px;display:flex;justify-content:center";
+    wrapper.appendChild(card.cloneNode(true));
+    await window.html2pdf().set({
+      margin:      0,
+      filename:    `بطاقة-عمل-${empName}.pdf`,
+      html2canvas: { scale:3, useCORS:true, allowTaint:true },
+      jsPDF:       { unit:"mm", format:[120,80], orientation:"landscape" },
+    }).from(wrapper).save();
+  }catch(err){ console.error(err); toast("خطأ أثناء تحضير الملف",true); }
+  finally{ if(btn){ btn.disabled=false; btn.innerHTML="📥 تحميل PDF"; } }
 }
 
 /* ── ملخص الراتب ── */
