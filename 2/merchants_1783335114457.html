@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>التجار - أحمد وحمدي</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="stylesheet" href="/assets/auth-guard-C6CJ8_8i.css" />
+</head>
+<body>
+<div id="app">
+  <header id="topbar" class="topbar"></header>
+  <main class="page">
+
+    <!-- ═══════ قائمة التجار ═══════ -->
+    <div id="list-section">
+      <div class="page-header">
+        <div>
+          <h2>التجار</h2>
+          <p>إدارة قائمة التجار وسجلات الحساب الخاصة بكل تاجر</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <h3>التجار</h3>
+          <button type="button" class="btn small" id="add-merchant-btn">+ إضافة تاجر</button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>الاسم</th>
+                <th>الهاتف</th>
+                <th>البريد الإلكتروني</th>
+                <th>الرصيد الحالي</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="merchants-table-body">
+              <tr><td colspan="5"><div class="empty-state">جارِ التحميل...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ تفاصيل التاجر ═══════ -->
+    <div id="detail-section" style="display:none;">
+      <span class="back-link" id="back-to-list">→ العودة إلى قائمة التجار</span>
+
+      <div class="detail-header">
+        <div class="detail-info">
+          <h2 id="detail-name">—</h2>
+          <p id="detail-address" style="color:var(--muted);font-size:13.5px;margin:0">—</p>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-chip"><div class="k">الهاتف</div><div class="v" id="detail-phone">—</div></div>
+        <div class="info-chip"><div class="k">البريد الإلكتروني</div><div class="v" id="detail-email">—</div></div>
+        <div class="info-chip"><div class="k">الرصيد الحالي</div><div class="v" id="detail-balance">—</div></div>
+        <div class="info-chip"><div class="k">عدد الحركات</div><div class="v" id="detail-tx-count">—</div></div>
+      </div>
+
+      <!-- نموذج الحركة الجديدة -->
+      <div class="panel">
+        <div class="panel-header">
+          <h3>تسجيل حركة جديدة</h3>
+        </div>
+        <form id="transaction-form">
+          <div class="toggle-group" style="margin-bottom:14px;max-width:260px;">
+            <button type="button" class="active in" data-type="in" id="tx-type-in">← داخل (تحصيل)</button>
+            <button type="button" class="out" data-type="out" id="tx-type-out">خارج (دفع) ←</button>
+          </div>
+          <div class="form-grid">
+            <div class="field" style="margin-bottom:0;">
+              <label for="tx-amount">المبلغ (ج.م)</label>
+              <input type="number" id="tx-amount" required min="0.01" step="0.01" placeholder="0.00" />
+            </div>
+            <div class="field" style="margin-bottom:0;">
+              <label for="tx-date">التاريخ</label>
+              <input type="date" id="tx-date" />
+            </div>
+            <div class="field" style="margin-bottom:0;">
+              <label for="tx-note">ملاحظة (اختياري)</label>
+              <input type="text" id="tx-note" placeholder="مثال: دفعة أولى — فاتورة رقم 55" />
+            </div>
+            <button type="submit" class="btn" id="tx-submit-btn">إضافة الحركة</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- سجل الحساب -->
+      <div class="panel print-target">
+        <div class="panel-header">
+          <h3>سجل الحساب</h3>
+          <button type="button" class="btn small outline" id="print-statement-btn">🖨️ طباعة السجل</button>
+        </div>
+        <div class="filter-bar">
+          <div class="field">
+            <label for="filter-from">من تاريخ</label>
+            <input type="date" id="filter-from" />
+          </div>
+          <div class="field">
+            <label for="filter-to">إلى تاريخ</label>
+            <input type="date" id="filter-to" />
+          </div>
+          <button type="button" class="btn small outline" id="filter-apply-btn">تصفية</button>
+          <button type="button" class="btn small outline" id="filter-clear-btn">إلغاء التصفية</button>
+        </div>
+
+        <!-- ملخص الفترة -->
+        <div class="info-grid" id="period-summary" style="display:none;margin-bottom:18px;"></div>
+
+        <div class="records-list" id="transactions-list">
+          <div class="empty-state">جارِ التحميل...</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ═══════ نافذة إضافة / تعديل تاجر ═══════ -->
+<div class="modal-overlay" id="merchant-modal">
+  <div class="modal-box">
+    <div class="modal-box-header">
+      <h3 id="merchant-modal-title">إضافة تاجر</h3>
+      <button type="button" class="modal-close" id="merchant-modal-close">&times;</button>
+    </div>
+    <form id="merchant-form">
+      <input type="hidden" id="merchant-id" />
+      <div class="field">
+        <label for="merchant-name">اسم التاجر *</label>
+        <input type="text" id="merchant-name" required placeholder="مثال: محمد علي" />
+      </div>
+      <div class="field">
+        <label for="merchant-address">العنوان</label>
+        <input type="text" id="merchant-address" placeholder="مثال: القاهرة - مدينة نصر" />
+      </div>
+      <div class="field">
+        <label for="merchant-phone">رقم الهاتف</label>
+        <input type="text" id="merchant-phone" placeholder="مثال: 01012345678" />
+      </div>
+      <div class="field">
+        <label for="merchant-email">البريد الإلكتروني</label>
+        <input type="email" id="merchant-email" placeholder="مثال: name@example.com" />
+      </div>
+      <button type="submit" class="btn" id="merchant-submit-btn">حفظ التاجر</button>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════ Firebase + المنطق ═══════ -->
+<script type="module">
+import { initializeApp }       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut }
+                                from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore, collection, doc,
+  addDoc, updateDoc, deleteDoc,
+  query, orderBy, onSnapshot,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+/* ── Firebase ── */
+const app  = initializeApp({
+  apiKey:            "AIzaSyDQsaNVskKiV2cwPVlJDixpTD1S-Dhp7gs",
+  authDomain:        "reta-and-hamd.firebaseapp.com",
+  projectId:         "reta-and-hamd",
+  storageBucket:     "reta-and-hamd.firebasestorage.app",
+  messagingSenderId: "220767743863",
+  appId:             "1:220767743863:web:2ecd37bd5830a39ec1bb72"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+/* ── حارس المصادقة ── */
+onAuthStateChanged(auth, user => {
+  if (!user) { window.location.href = "/"; return; }
+  renderNav(user);
+  init();
+});
+
+/* ── شريط التنقل ── */
+function renderNav(user) {
+  const pages = [
+    { href:"dashboard.html", label:"الرئيسية" },
+    { href:"products.html",  label:"المنتجات"  },
+    { href:"merchants.html", label:"التجار"    },
+    { href:"employees.html", label:"الموظفين"  },
+    { href:"finance.html",   label:"المالية"   },
+  ];
+  document.getElementById("topbar").innerHTML = `
+    <div class="topbar-inner">
+      <div class="brand"><span class="mark">أ</span><span>أحمد وحمدي</span></div>
+      <nav class="nav-tabs">${pages.map(p=>`<a href="/${p.href}" class="${p.href==="merchants.html"?"active":""}">${p.label}</a>`).join("")}</nav>
+      <div class="user-chip">
+        <span>${user.email??""}</span>
+        <button class="icon-btn" id="logout-btn">خروج</button>
+      </div>
+    </div>`;
+  document.getElementById("logout-btn").addEventListener("click",
+    () => signOut(auth).then(() => location.href = "/"));
+}
+
+/* ── الحالة العامة ── */
+let merchants         = [];
+let allMerchantTxns   = [];  // كل الحركات لجميع التجار (للقائمة الرئيسية)
+let currentTxns       = [];  // حركات التاجر المفتوح حالياً (للعرض التفصيلي)
+let currentMerchantId = null;
+let txType            = "in";
+let editMerchantId    = null;
+
+/* ── أدوات مساعدة ── */
+const esc = t => { const d=document.createElement("div"); d.textContent=t??""; return d.innerHTML; };
+const fmt = n => new Intl.NumberFormat("ar-EG",{maximumFractionDigits:2}).format(n||0)+" ج.م";
+const fmtDate = s => s
+  ? new Date(s+"T00:00:00").toLocaleDateString("ar-EG",{year:"numeric",month:"long",day:"numeric"})
+  : "—";
+
+function toast(msg, err=false){
+  let t = document.getElementById("toast");
+  if(!t){ t=document.createElement("div"); t.id="toast"; t.className="toast"; document.body.appendChild(t); }
+  t.textContent = msg;
+  t.className = `toast show${err?" error-toast":""}`;
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => { t.className="toast"; }, 2600);
+}
+
+/* حساب رصيد تاجر من قائمة حركاته */
+function calcBalance(txns){
+  return txns.reduce((sum, tx) => sum + (tx.type==="in" ? tx.amount : -tx.amount), 0);
+}
+
+/* ── تهيئة ── */
+function init(){
+  setupMerchantModal();
+  setupDetailSection();
+  loadMerchants();
+}
+
+/* ─────────────────────────────────
+   نافذة إضافة / تعديل تاجر
+───────────────────────────────── */
+function setupMerchantModal(){
+  const modal = document.getElementById("merchant-modal");
+  document.getElementById("add-merchant-btn").addEventListener("click", () => openMerchantModal(null));
+  document.getElementById("merchant-modal-close").addEventListener("click", closeMerchantModal);
+  modal.addEventListener("click", e => { if(e.target===modal) closeMerchantModal(); });
+  document.getElementById("merchant-form").addEventListener("submit", saveMerchant);
+}
+
+function openMerchantModal(merchant){
+  document.getElementById("merchant-form").reset();
+  if(merchant){
+    editMerchantId = merchant.id;
+    document.getElementById("merchant-modal-title").textContent = "تعديل التاجر";
+    document.getElementById("merchant-name").value    = merchant.name    ?? "";
+    document.getElementById("merchant-address").value = merchant.address ?? "";
+    document.getElementById("merchant-phone").value   = merchant.phone   ?? "";
+    document.getElementById("merchant-email").value   = merchant.email   ?? "";
+  } else {
+    editMerchantId = null;
+    document.getElementById("merchant-modal-title").textContent = "إضافة تاجر";
+  }
+  document.getElementById("merchant-modal").classList.add("open");
+}
+
+function closeMerchantModal(){
+  document.getElementById("merchant-modal").classList.remove("open");
+  editMerchantId = null;
+}
+
+async function saveMerchant(e){
+  e.preventDefault();
+  const name    = document.getElementById("merchant-name").value.trim();
+  if(!name) return;
+  const address = document.getElementById("merchant-address").value.trim();
+  const phone   = document.getElementById("merchant-phone").value.trim();
+  const email   = document.getElementById("merchant-email").value.trim();
+  const btn     = document.getElementById("merchant-submit-btn");
+  btn.disabled  = true; btn.innerHTML = '<span class="spinner"></span>';
+  try{
+    if(editMerchantId){
+      await updateDoc(doc(db,"merchants",editMerchantId),{name,address,phone,email});
+      toast("تم تحديث بيانات التاجر");
+    } else {
+      await addDoc(collection(db,"merchants"),{name,address,phone,email,createdAt:serverTimestamp()});
+      toast("تمت إضافة التاجر بنجاح");
+    }
+    closeMerchantModal();
+  }catch(err){ console.error(err); toast("حدث خطأ أثناء الحفظ",true); }
+  finally{ btn.disabled=false; btn.textContent="حفظ التاجر"; }
+}
+
+async function deleteMerchant(id){
+  if(!confirm("هل تريد حذف هذا التاجر وكل حركاته؟ لا يمكن التراجع.")) return;
+  try{
+    await deleteDoc(doc(db,"merchants",id));
+    toast("تم حذف التاجر");
+  }catch(err){ console.error(err); toast("حدث خطأ أثناء الحذف",true); }
+}
+
+/* ─────────────────────────────────
+   تحميل التجار (real-time)
+───────────────────────────────── */
+function loadMerchants(){
+  // تحميل التجار
+  const qM = query(collection(db,"merchants"), orderBy("createdAt","desc"));
+  onSnapshot(qM, snap => {
+    merchants = snap.docs.map(d => ({id:d.id,...d.data()}));
+    renderMerchantList();
+    if(currentMerchantId) fillDetailHeader();
+  }, err => {
+    console.error(err);
+    document.getElementById("merchants-table-body").innerHTML =
+      '<tr><td colspan="5"><div class="empty-state">خطأ في تحميل البيانات</div></td></tr>';
+  });
+
+  // تحميل كل الحركات لجميع التجار دفعة واحدة (للرصيد في القائمة)
+  onSnapshot(collection(db,"merchantTransactions"), snap => {
+    allMerchantTxns = snap.docs.map(d => ({id:d.id,...d.data()}));
+    renderMerchantList();
+    if(currentMerchantId){
+      currentTxns = allMerchantTxns.filter(t => t.merchantId === currentMerchantId);
+      updateDetailBalance();
+      renderTransactions();
+    }
+  }, err => console.error("خطأ في تحميل الحركات:", err));
+}
+
+function renderMerchantList(){
+  const tbody = document.getElementById("merchants-table-body");
+  if(!merchants.length){
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">لا يوجد تجار مسجلون بعد</div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = "";
+  merchants.forEach(m => {
+    const tr = document.createElement("tr");
+    // حساب الرصيد من الحركات الكلية لجميع التجار
+    const balance = calcBalance(allMerchantTxns.filter(t => t.merchantId === m.id));
+    tr.innerHTML = `
+      <td><span class="link-cell" data-id="${m.id}">${esc(m.name)}</span></td>
+      <td>${esc(m.phone)||"—"}</td>
+      <td>${esc(m.email)||"—"}</td>
+      <td style="font-weight:700;color:${balance>=0?"var(--primary-dark)":"var(--danger)"}">${fmt(balance)}</td>
+      <td>
+        <div class="row-actions">
+          <button type="button" class="edit" data-id="${m.id}">تعديل</button>
+          <button type="button" class="del"  data-id="${m.id}">حذف</button>
+        </div>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll(".link-cell").forEach(el =>
+    el.addEventListener("click", () => openDetail(el.dataset.id)));
+  tbody.querySelectorAll(".edit").forEach(el =>
+    el.addEventListener("click", () => {
+      const m = merchants.find(x => x.id === el.dataset.id);
+      if(m) openMerchantModal(m);
+    }));
+  tbody.querySelectorAll(".del").forEach(el =>
+    el.addEventListener("click", () => deleteMerchant(el.dataset.id)));
+}
+
+/* ─────────────────────────────────
+   قسم تفاصيل التاجر
+───────────────────────────────── */
+function setupDetailSection(){
+  document.getElementById("back-to-list").addEventListener("click", backToList);
+
+  // أزرار نوع الحركة
+  document.getElementById("tx-type-in").addEventListener("click",  () => setTxType("in"));
+  document.getElementById("tx-type-out").addEventListener("click", () => setTxType("out"));
+
+  // نموذج الحركة
+  document.getElementById("transaction-form").addEventListener("submit", saveTransaction);
+
+  // تصفية التاريخ
+  document.getElementById("filter-apply-btn").addEventListener("click", renderTransactions);
+  document.getElementById("filter-clear-btn").addEventListener("click", () => {
+    document.getElementById("filter-from").value = "";
+    document.getElementById("filter-to").value   = "";
+    renderTransactions();
+  });
+
+  // طباعة
+  document.getElementById("print-statement-btn").addEventListener("click", () => window.print());
+
+  // تعيين تاريخ اليوم افتراضياً
+  document.getElementById("tx-date").value = new Date().toISOString().slice(0,10);
+}
+
+function setTxType(type){
+  txType = type;
+  document.getElementById("tx-type-in").classList.toggle("active", type==="in");
+  document.getElementById("tx-type-out").classList.toggle("active", type==="out");
+}
+
+function openDetail(merchantId){
+  currentMerchantId = merchantId;
+  document.getElementById("list-section").style.display   = "none";
+  document.getElementById("detail-section").style.display = "block";
+  fillDetailHeader();
+  loadMerchantTransactions();
+}
+
+function backToList(){
+  currentMerchantId = null;
+  currentTxns = [];
+  document.getElementById("list-section").style.display   = "block";
+  document.getElementById("detail-section").style.display = "none";
+}
+
+function fillDetailHeader(){
+  const m = merchants.find(x => x.id === currentMerchantId);
+  if(!m) return;
+  document.getElementById("detail-name").textContent    = m.name ?? "";
+  document.getElementById("detail-address").textContent = m.address || "لا يوجد عنوان مسجل";
+  document.getElementById("detail-phone").textContent   = m.phone || "—";
+  document.getElementById("detail-email").textContent   = m.email || "—";
+}
+
+/* ─────────────────────────────────
+   فتح تفاصيل تاجر — يُصفِّي من allMerchantTxns
+───────────────────────────────── */
+function loadMerchantTransactions(){
+  if(!currentMerchantId) return;
+  currentTxns = allMerchantTxns.filter(t => t.merchantId === currentMerchantId)
+    .sort((a,b) => {
+      const ta = a.createdAt?.seconds ?? 0;
+      const tb = b.createdAt?.seconds ?? 0;
+      return tb - ta;
+    });
+  updateDetailBalance();
+  renderTransactions();
+}
+
+function updateDetailBalance(){
+  const balance = calcBalance(currentTxns);
+  const balEl   = document.getElementById("detail-balance");
+  const countEl = document.getElementById("detail-tx-count");
+  if(balEl){
+    balEl.textContent = fmt(balance);
+    balEl.style.color = balance >= 0 ? "var(--primary-dark)" : "var(--danger)";
+  }
+  if(countEl) countEl.textContent = currentTxns.length + " حركة";
+}
+
+/* ─────────────────────────────────
+   عرض الحركات مع فلتر التاريخ
+───────────────────────────────── */
+function renderTransactions(){
+  const list    = document.getElementById("transactions-list");
+  const fromVal = document.getElementById("filter-from").value;
+  const toVal   = document.getElementById("filter-to").value;
+  const fromDate = fromVal ? new Date(fromVal+"T00:00:00") : null;
+  const toDate   = toVal   ? new Date(toVal+"T23:59:59")   : null;
+
+  let filtered = currentTxns.filter(tx => {
+    if(!tx.merchantId || tx.merchantId !== currentMerchantId) return false;
+    const d = tx.createdAt?.toDate ? tx.createdAt.toDate()
+            : tx.date ? new Date(tx.date+"T00:00:00") : null;
+    if(d){
+      if(fromDate && d < fromDate) return false;
+      if(toDate   && d > toDate)   return false;
+    }
+    return true;
+  });
+
+  // ملخص الفترة
+  const summaryEl = document.getElementById("period-summary");
+  if(fromVal || toVal){
+    const totalIn  = filtered.filter(t=>t.type==="in") .reduce((s,t)=>s+t.amount,0);
+    const totalOut = filtered.filter(t=>t.type==="out").reduce((s,t)=>s+t.amount,0);
+    const net      = totalIn - totalOut;
+    summaryEl.style.display = "grid";
+    summaryEl.innerHTML = `
+      <div class="info-chip" style="background:#e7f5ec">
+        <div class="k">📥 إجمالي الداخل</div>
+        <div class="v" style="color:#1a6b3a">${fmt(totalIn)}</div>
+      </div>
+      <div class="info-chip" style="background:#fce8e5">
+        <div class="k">📤 إجمالي الخارج</div>
+        <div class="v" style="color:var(--danger)">${fmt(totalOut)}</div>
+      </div>
+      <div class="info-chip" style="background:${net>=0?"var(--primary-soft)":"#fce8e5"}">
+        <div class="k">💰 صافي الفترة</div>
+        <div class="v" style="color:${net>=0?"var(--primary-dark)":"var(--danger)"}">${fmt(net)}</div>
+      </div>`;
+  } else {
+    summaryEl.style.display = "none";
+  }
+
+  if(!filtered.length){
+    list.innerHTML = '<div class="empty-state">لا توجد حركات في هذه الفترة</div>';
+    return;
+  }
+
+  list.innerHTML = "";
+  filtered.forEach(tx => {
+    const txDate = tx.createdAt?.toDate
+      ? tx.createdAt.toDate().toLocaleDateString("ar-EG",{year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"})
+      : tx.date ? fmtDate(tx.date) : "الآن";
+
+    const row = document.createElement("div");
+    row.className = "record-row";
+    row.innerHTML = `
+      <span class="record-badge ${tx.type}">${tx.type==="in"?"← داخل":"خارج ←"}</span>
+      <div class="record-main">
+        <div class="title">${esc(tx.note)||(tx.type==="in"?"دفعة واردة":"دفعة صادرة")}</div>
+        <div class="meta">${txDate}</div>
+      </div>
+      <div class="record-amount ${tx.type}">${fmt(tx.amount)}</div>
+      <button class="delete-btn" data-id="${tx.id}" title="حذف">🗑️</button>`;
+    list.appendChild(row);
+  });
+
+  list.querySelectorAll(".delete-btn").forEach(btn =>
+    btn.addEventListener("click", () => deleteTransaction(btn.dataset.id)));
+}
+
+/* ─────────────────────────────────
+   إضافة حركة جديدة
+───────────────────────────────── */
+async function saveTransaction(e){
+  e.preventDefault();
+  const amount = Number(document.getElementById("tx-amount").value);
+  if(!amount || !currentMerchantId) return;
+  const note = document.getElementById("tx-note").value.trim();
+  const date = document.getElementById("tx-date").value;
+  const m    = merchants.find(x => x.id === currentMerchantId);
+  const btn  = document.getElementById("tx-submit-btn");
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
+  try{
+    await addDoc(collection(db,"merchantTransactions"),{
+      merchantId:   currentMerchantId,
+      merchantName: m?.name ?? "",
+      amount,
+      note,
+      date,
+      type: txType,
+      createdAt: serverTimestamp(),
+    });
+    e.target.reset();
+    document.getElementById("tx-date").value = new Date().toISOString().slice(0,10);
+    setTxType("in");
+    toast("تمت إضافة الحركة بنجاح");
+  }catch(err){ console.error(err); toast("خطأ أثناء الإضافة",true); }
+  finally{ btn.disabled=false; btn.textContent="إضافة الحركة"; }
+}
+
+/* ─────────────────────────────────
+   حذف حركة
+───────────────────────────────── */
+async function deleteTransaction(id){
+  if(!confirm("هل تريد حذف هذه الحركة؟")) return;
+  try{
+    await deleteDoc(doc(db,"merchantTransactions",id));
+    toast("تم حذف الحركة");
+  }catch(err){ console.error(err); toast("خطأ أثناء الحذف",true); }
+}
+</script>
+</body>
+</html>
