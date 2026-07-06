@@ -28,12 +28,16 @@
     .delete-btn:hover{background:var(--danger-soft);color:var(--danger)}
 
     /* ── بطاقات الإحصائيات ── */
-    .mer-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:16px}
-    .mer-stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
-      padding:14px 16px;box-shadow:var(--shadow)}
-    .mer-stat .msk{font-size:12px;color:var(--muted);font-weight:600;margin-bottom:4px}
-    .mer-stat .msv{font-size:19px;font-weight:800}
-    .mer-stat .mss{font-size:11px;color:var(--muted);margin-top:2px}
+    .mer-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:20px}
+    .mer-stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+      padding:18px 20px;box-shadow:0 2px 8px rgba(0,0,0,.07);transition:transform .12s,box-shadow .12s}
+    .mer-stat:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.11)}
+    .mer-stat .msk{font-size:13px;color:var(--ink);font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+    .mer-stat .msv{font-size:26px;font-weight:900;letter-spacing:-.5px;margin-bottom:4px}
+    .mer-stat .mss{font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.5}
+    .mer-stat.stat-in {background:linear-gradient(135deg,#e8f8ee 0%,#f4fcf7 100%);border-color:#a8dbb7}
+    .mer-stat.stat-out{background:linear-gradient(135deg,#fde8e5 0%,#fff4f2 100%);border-color:#f0b3a8}
+    .mer-stat.stat-net{background:linear-gradient(135deg,#e8f0fb 0%,#f4f8ff 100%);border-color:#a8c2f0}
 
     /* ── بادجات المالية ── */
     .type-badge{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:2px 8px}
@@ -131,9 +135,17 @@
       <div class="panel print-target">
         <div class="panel-header">
           <h3>كشف الحساب الموحد</h3>
-          <div style="display:flex;gap:8px;flex-wrap:wrap">
-            <button type="button" class="btn small" id="add-fin-tx-btn">+ دفعة مالية</button>
-            <button type="button" class="btn small outline" id="export-csv-btn">📥 تصدير CSV</button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button type="button" id="add-fin-tx-btn"
+              style="display:inline-flex;align-items:center;gap:7px;background:#1a6b3a;color:#fff;
+                     border:none;border-radius:8px;padding:9px 18px;font-size:14px;font-weight:800;
+                     font-family:inherit;cursor:pointer;box-shadow:0 2px 8px rgba(26,107,58,.3);
+                     transition:background .15s,transform .1s"
+              onmouseover="this.style.background='#145c30'"
+              onmouseout="this.style.background='#1a6b3a'">
+              💳 تسجيل دفعة مالية
+            </button>
+            <button type="button" class="btn small outline" id="export-csv-btn">📥 CSV</button>
             <button type="button" class="btn small outline" onclick="window.print()">🖨️ طباعة</button>
           </div>
         </div>
@@ -620,21 +632,36 @@ function renderUnifiedStats(){
   const filtIn =all.filter(t=>t.dir==="in") .reduce((s,t)=>s+t.amount,0);
   const filtOut=all.filter(t=>t.dir==="out").reduce((s,t)=>s+t.amount,0);
   const isFiltered=document.getElementById("filter-from").value||document.getElementById("filter-to").value;
+  const inCount =allFull.filter(t=>t.dir==="in").length;
+  const outCount=allFull.filter(t=>t.dir==="out").length;
   document.getElementById("mer-unified-stats").innerHTML=`
-    <div class="mer-stat" style="border-top:3px solid #4caf7d">
-      <div class="msk">📥 ${isFiltered?"بضائع الفترة (على التاجر)":"إجمالي الوارد على التاجر"}</div>
+    <div class="mer-stat stat-in">
+      <div class="msk">📦 إجمالي مسحوبات هذا التاجر${isFiltered?" (الفترة)":""}</div>
       <div class="msv" style="color:#1a6b3a">${fmt(isFiltered?filtIn:totalIn)}</div>
-      <div class="mss">${all.filter(t=>t.dir==="in").length} حركة${isFiltered?" في الفترة":""} — مبلغ واجب السداد</div>
+      <div class="mss">
+        <strong style="color:#1a6b3a">${inCount} عملية تحميل</strong>
+        <br/>البضائع التي أخذها التاجر من المخزن — هذا ما يدين به
+      </div>
     </div>
-    <div class="mer-stat" style="border-top:3px solid #e07070">
-      <div class="msk">📤 ${isFiltered?"مدفوعات الفترة":"إجمالي المدفوعات"}</div>
+    <div class="mer-stat stat-out">
+      <div class="msk">💳 إجمالي مدفوعات التاجر${isFiltered?" (الفترة)":""}</div>
       <div class="msv" style="color:#b3432f">${fmt(isFiltered?filtOut:totalOut)}</div>
-      <div class="mss">${all.filter(t=>t.dir==="out").length} دفعة${isFiltered?" في الفترة":""}</div>
+      <div class="mss">
+        <strong style="color:#b3432f">${outCount} دفعة</strong>
+        <br/>المبالغ التي دفعها التاجر فعلياً حتى الآن
+      </div>
     </div>
-    <div class="mer-stat" style="border-top:3px solid var(--primary)">
-      <div class="msk">💰 صافي المستحق على التاجر</div>
-      <div class="msv" style="color:${net>=0?"var(--primary-dark)":"var(--danger)"}">${fmt(Math.abs(net))}</div>
-      <div class="mss">${net>=0?"على التاجر دفعه لنا":"رصيد لصالح التاجر"} — ${allFull.length} عملية إجمالاً</div>
+    <div class="mer-stat stat-net">
+      <div class="msk">💰 المبلغ المستحق على هذا التاجر</div>
+      <div class="msv" style="color:${net>=0?"#1a4bbf":"var(--danger)"}">
+        ${fmt(Math.abs(net))}
+      </div>
+      <div class="mss">
+        <strong style="color:${net>=0?"#1a4bbf":"var(--danger)"}">
+          ${net>=0?"⚠️ على التاجر سداد هذا المبلغ":"✅ رصيد دائن — التاجر دفع أكثر"}
+        </strong>
+        <br/>${allFull.length} عملية إجمالاً (مسحوبات − مدفوعات)
+      </div>
     </div>`;
 }
 
