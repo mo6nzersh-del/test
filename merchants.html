@@ -183,13 +183,13 @@
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer;
             background:#e8f8ee;border:2px solid #a8dbb7;border-radius:8px;padding:10px 14px;
             font-size:14px;font-weight:700;color:#1a6b3a;transition:border-color .12s">
-            <input type="radio" name="fin_dir" value="in" id="fin-dir-in" checked />
+            <input type="radio" name="fin_dir" value="out" id="fin-dir-in" checked />
             💳 دفعة من التاجر — تسديد مستحقات
           </label>
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer;
             background:#e8f0fb;border:2px solid #a8c2f0;border-radius:8px;padding:10px 14px;
             font-size:14px;font-weight:700;color:#1a4bbf;transition:border-color .12s">
-            <input type="radio" name="fin_dir" value="out" id="fin-dir-out" />
+            <input type="radio" name="fin_dir" value="in" id="fin-dir-out" />
             ➕ إضافة مبلغ على هذا التاجر
           </label>
         </div>
@@ -647,21 +647,21 @@ function renderUnifiedStats(){
         <br/>البضائع التي أخذها التاجر من المخزن — هذا ما يدين به
       </div>
     </div>
-    <div class="mer-stat stat-out">
+    <div class="mer-stat stat-net">
       <div class="msk">💳 إجمالي مدفوعات التاجر${isFiltered?" (الفترة)":""}</div>
-      <div class="msv" style="color:#b3432f">${fmt(isFiltered?filtOut:totalOut)}</div>
+      <div class="msv" style="color:#1a4bbf">${fmt(isFiltered?filtOut:totalOut)}</div>
       <div class="mss">
-        <strong style="color:#b3432f">${outCount} دفعة</strong>
+        <strong style="color:#1a4bbf">${outCount} دفعة</strong>
         <br/>المبالغ التي دفعها التاجر فعلياً حتى الآن
       </div>
     </div>
-    <div class="mer-stat stat-net">
+    <div class="mer-stat stat-out">
       <div class="msk">💰 المبلغ المستحق على هذا التاجر</div>
-      <div class="msv" style="color:${net>=0?"#1a4bbf":"var(--danger)"}">
+      <div class="msv" style="color:${net>=0?"#b3432f":"#1a6b3a"}">
         ${fmt(Math.abs(net))}
       </div>
       <div class="mss">
-        <strong style="color:${net>=0?"#1a4bbf":"var(--danger)"}">
+        <strong style="color:${net>=0?"#b3432f":"#1a6b3a"}">
           ${net>=0?"⚠️ على التاجر سداد هذا المبلغ":"✅ رصيد دائن — التاجر دفع أكثر"}
         </strong>
         <br/>${allFull.length} عملية إجمالاً (مسحوبات − مدفوعات)
