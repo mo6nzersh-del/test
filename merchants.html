@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>التجار - أحمد وحمدي</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script type="module" crossorigin src="/assets/merchants-Dy2XUbzk.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/auth-guard-DMMO1gWE.js">
+    <link rel="modulepreload" crossorigin href="/assets/nav-C4LmEyvm.js">
+    <link rel="stylesheet" crossorigin href="/assets/auth-guard-C6CJ8_8i.css">
+  </head>
+  <body>
+    <div id="app">
+      <header id="topbar" class="topbar"></header>
+      <main class="page">
+        <div id="list-section">
+          <div class="page-header">
+            <div>
+              <h2>التجار</h2>
+              <p>إدارة قائمة التجار وسجلات الحساب الخاصة بكل تاجر</p>
+            </div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header">
+              <h3>التجار</h3>
+              <button type="button" class="btn small" id="add-merchant-btn">+ إضافة تاجر</button>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>الاسم</th>
+                    <th>الهاتف</th>
+                    <th>البريد الإلكتروني</th>
+                    <th>الرصيد</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="merchants-table-body">
+                  <tr><td colspan="5"><div class="empty-state">جارِ التحميل...</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="detail-section" style="display:none;">
+          <span class="back-link" id="back-to-list">→ العودة إلى قائمة التجار</span>
+
+          <div class="detail-header">
+            <img class="detail-avatar" id="detail-avatar" src="" alt="" style="display:none;" />
+            <div class="detail-info">
+              <h2 id="detail-name">—</h2>
+              <p id="detail-address">—</p>
+            </div>
+          </div>
+
+          <div class="info-grid">
+            <div class="info-chip"><div class="k">الهاتف</div><div class="v" id="detail-phone">—</div></div>
+            <div class="info-chip"><div class="k">البريد الإلكتروني</div><div class="v" id="detail-email">—</div></div>
+            <div class="info-chip"><div class="k">الرصيد الحالي</div><div class="v" id="detail-balance">—</div></div>
+          </div>
+
+          <div class="panel">
+            <h3>تسجيل حركة فلوس جديدة</h3>
+            <form id="transaction-form">
+              <div class="toggle-group" style="margin-bottom: 14px;">
+                <button type="button" class="active in" data-type="in" id="tx-type-in">داخل</button>
+                <button type="button" class="out" data-type="out" id="tx-type-out">خارج</button>
+              </div>
+              <div class="form-grid">
+                <div class="field" style="margin-bottom:0;">
+                  <label for="tx-amount">المبلغ (ج.م)</label>
+                  <input type="number" id="tx-amount" required min="0" step="0.01" placeholder="0.00" />
+                </div>
+                <div class="field" style="margin-bottom:0;">
+                  <label for="tx-note">ملاحظة (اختياري)</label>
+                  <input type="text" id="tx-note" placeholder="مثال: دفعة أولى" />
+                </div>
+                <button type="submit" class="btn" id="tx-submit-btn">إضافة الحركة</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="panel print-target">
+            <div class="panel-header">
+              <h3>سجل الحساب</h3>
+              <button type="button" class="btn small outline" id="print-statement-btn">طباعة / تصدير السجل</button>
+            </div>
+            <div class="filter-bar">
+              <div class="field">
+                <label for="filter-from">من تاريخ</label>
+                <input type="date" id="filter-from" />
+              </div>
+              <div class="field">
+                <label for="filter-to">إلى تاريخ</label>
+                <input type="date" id="filter-to" />
+              </div>
+              <button type="button" class="btn small outline" id="filter-apply-btn">تصفية</button>
+              <button type="button" class="btn small outline" id="filter-clear-btn">إلغاء التصفية</button>
+            </div>
+            <div class="records-list" id="transactions-list">
+              <div class="empty-state">جارِ التحميل...</div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <div class="modal-overlay" id="merchant-modal">
+      <div class="modal-box">
+        <div class="modal-box-header">
+          <h3 id="merchant-modal-title">إضافة تاجر</h3>
+          <button type="button" class="modal-close" id="merchant-modal-close">&times;</button>
+        </div>
+        <form id="merchant-form">
+          <input type="hidden" id="merchant-id" />
+          <div class="field">
+            <label for="merchant-name">اسم التاجر</label>
+            <input type="text" id="merchant-name" required placeholder="مثال: محمد علي" />
+          </div>
+          <div class="field">
+            <label for="merchant-address">العنوان</label>
+            <input type="text" id="merchant-address" placeholder="مثال: القاهرة - مدينة نصر" />
+          </div>
+          <div class="field">
+            <label for="merchant-phone">رقم الهاتف</label>
+            <input type="text" id="merchant-phone" placeholder="مثال: 01012345678" />
+          </div>
+          <div class="field">
+            <label for="merchant-email">البريد الإلكتروني</label>
+            <input type="email" id="merchant-email" placeholder="مثال: name@example.com" />
+          </div>
+          <button type="submit" class="btn" id="merchant-submit-btn">حفظ التاجر</button>
+        </form>
+      </div>
+    </div>
+
+  </body>
+</html>
