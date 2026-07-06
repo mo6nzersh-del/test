@@ -408,7 +408,8 @@ function loadMerchants(){
 }
 
 function loadAllMerchantTxs(){
-  onSnapshot(collection(db,"merchantTransactions"),snap=>{
+  const q=query(collection(db,"merchantTransactions"),orderBy("createdAt","desc"));
+  onSnapshot(q,snap=>{
     merchantTxs=snap.docs.map(d=>({id:d.id,...d.data()}));
     renderList();
     if(currentMerId){ fillHeader(); refreshLedger(); }
@@ -630,7 +631,7 @@ function _buildAllRows(){
   const toD    =toVal  ?toVal  :"";
 
   const direct=merchantTxs.filter(t=>t.merchantId===currentMerId).map(t=>({
-    _src:"direct",
+    _src: t.source==="loading" ? "loading" : "direct",
     seqId:t.txId||"—",
     dateStr:_toDateStr(t),
     dateSecs:_toSecs(t),
@@ -727,7 +728,9 @@ function renderUnifiedList(){
     div.className="record-row";
     const typeBadge=t._src==="finance"
       ?`<span style="font-size:10px;background:#fdf4e3;color:#7a4f10;border-radius:5px;padding:2px 7px;font-weight:700;white-space:nowrap">مالية</span>`
-      :`<span style="font-size:10px;background:#f0f4fb;color:#2a5bbf;border-radius:5px;padding:2px 7px;font-weight:700;white-space:nowrap">مباشرة</span>`;
+      :t._src==="loading"
+        ?`<span style="font-size:10px;background:#edf7ed;color:#2e7d32;border-radius:5px;padding:2px 7px;font-weight:700;white-space:nowrap">📦 تحميل</span>`
+        :`<span style="font-size:10px;background:#f0f4fb;color:#2a5bbf;border-radius:5px;padding:2px 7px;font-weight:700;white-space:nowrap">مباشرة</span>`;
     const dateDisp=t.dateStr
       ? new Date(t.dateStr+"T00:00:00").toLocaleDateString("ar-EG",{year:"numeric",month:"short",day:"numeric"})
       : "—";
@@ -748,9 +751,14 @@ function renderUnifiedList(){
     list.appendChild(div);
   });
   list.querySelectorAll(".delete-btn").forEach(btn=>btn.addEventListener("click",async()=>{
-    if(!confirm("هل تريد حذف هذه الحركة؟")) return;
+    const src=btn.dataset.src;
+    const isLoading=src==="loading";
+    const msg=isLoading
+      ?"حذف هذه المعاملة لن يُعيد الكميات للمخزن. هل تريد المتابعة؟"
+      :"هل تريد حذف هذه الحركة؟";
+    if(!confirm(msg)) return;
     try{
-      if(btn.dataset.src==="direct"){
+      if(src==="direct"||src==="loading"){
         await deleteDoc(doc(db,"merchantTransactions",btn.dataset.id));
       } else {
         await updateDoc(doc(db,"finance_transactions",btn.dataset.id),{_active:false,deletedAt:serverTimestamp()});
@@ -775,7 +783,7 @@ function exportLedgerCSV(){
     t.dir==="in"?"داخل (تحصيل)":"خارج (دفع)",
     t.amount,
     `"${(t.note||"").replace(/"/g,'""')}"`,
-    t._src==="finance"?"مالية":"مباشرة",
+    t._src==="finance"?"مالية":t._src==="loading"?"تحميل":"مباشرة",
   ].join(","));
   const csv=BOM+header+"\n"+rows.join("\n");
   const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
