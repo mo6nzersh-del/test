@@ -40,10 +40,11 @@ function fmtDateTime(ts) {
   return d.toLocaleString("ar-EG", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
-/* serial ID: W{warehouseIndex}-{5-digit sequence} */
+/* serial ID: W{warehouseIndex}-{5-digit sequence} — always auto-generated */
 function generateSerial(warehouseId) {
   const idx = warehouses.findIndex(w => w.id === warehouseId);
   const whNum = idx >= 0 ? idx + 1 : 1;
+  // count existing products in this warehouse (already loaded) + 1
   const count = products.filter(p => p.warehouseId === warehouseId).length + 1;
   return `W${whNum}-${String(count).padStart(5, "0")}`;
 }
@@ -288,7 +289,8 @@ function openProductModal(product, warehouseId) {
     title.textContent = "تعديل المنتج";
     document.getElementById("product-id").value = product.id;
     document.getElementById("product-name").value = product.name || "";
-    document.getElementById("product-serial").value = product.serialId || "";
+    // serial is always readonly – keep existing value when editing
+    document.getElementById("product-serial").value = product.serialId || generateSerial(product.warehouseId || warehouseId);
     document.getElementById("product-desc").value = product.description || "";
     document.getElementById("product-quantity").value = product.quantity ?? "";
     document.getElementById("product-qty-type").value = product.quantityType || "قطعة";
@@ -297,7 +299,8 @@ function openProductModal(product, warehouseId) {
   } else {
     title.textContent = "إضافة منتج";
     document.getElementById("product-id").value = "";
-    if (warehouseId) document.getElementById("product-serial").value = generateSerial(warehouseId);
+    // always auto-generate serial for new products
+    document.getElementById("product-serial").value = warehouseId ? generateSerial(warehouseId) : "";
   }
   modal.classList.add("open");
 }
@@ -864,16 +867,24 @@ function loadActivityLog() {
   onSnapshot(q, snap => {
     if (countEl) countEl.textContent = `${snap.size} عملية`;
     if (snap.empty) {
-      tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">لا توجد عمليات مسجلة بعد</div></td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">لا توجد عمليات مسجلة بعد</div></td></tr>';
       return;
     }
     tbody.innerHTML = "";
+    let rowNum = snap.size; // newest = highest number
     snap.forEach(docSnap => {
       const d = docSnap.data();
       const badgeMap = { production: ["log-prod","إنتاج"], transfer: ["log-transfer","تحويل"], loading: ["log-load","تحميل"] };
       const [cls, label] = badgeMap[d.type] ?? ["log-prod", d.type];
+      const seqLabel = `OP-${String(rowNum).padStart(5, "0")}`;
+      rowNum--;
       const tr = document.createElement("tr");
       tr.innerHTML = `
+        <td>
+          <span style="font-family:monospace;font-size:11px;font-weight:700;color:var(--muted);
+            background:var(--bg);border-radius:5px;padding:3px 6px;border:1px solid var(--border);
+            white-space:nowrap">${seqLabel}</span>
+        </td>
         <td><span class="log-badge ${cls}">${label}</span></td>
         <td>
           <div style="font-weight:700;font-size:13px">${esc(d.summary || "")}</div>
@@ -891,7 +902,7 @@ function loadActivityLog() {
         catch (err) { console.error(err); showToast("حدث خطأ", true); }
       });
     });
-  }, err => { console.error(err); tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">حدث خطأ</div></td></tr>'; });
+  }, err => { console.error(err); tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">حدث خطأ</div></td></tr>'; });
 }
 
 /* ══════════════════════════════════════
