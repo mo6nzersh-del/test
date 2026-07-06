@@ -1,23 +1,576 @@
-import{r as F,u as M,a as w,d as y,b as S,c as x,s as L,q as U,o as G,e as A,f as N,w as P}from"./auth-guard-DMMO1gWE.js";import{r as V,s as a,f as j}from"./nav-C4LmEyvm.js";import{f as z}from"./image-utils-ix_Ztzsr.js";const J="/";let u=[],C=[],p=null,v=null,b=null;F(e=>{V(`${J}employees.html`,e),K(),Z(),W()});function D(e){const t=document.createElement("div");return t.textContent=e??"",t.innerHTML}function g(e){return new Intl.NumberFormat("ar-EG",{maximumFractionDigits:2}).format(e||0)+" ج.م"}function B(e){return e?e.toDate?e.toDate():new Date(e):null}function K(){const e=document.getElementById("employee-modal"),t=document.getElementById("add-employee-btn"),n=document.getElementById("employee-modal-close"),o=document.getElementById("employee-form"),l=document.getElementById("employee-photo"),c=document.getElementById("file-drop-label"),s=document.getElementById("image-preview"),f=document.getElementById("file-drop-text");t.addEventListener("click",()=>q(null)),n.addEventListener("click",T),e.addEventListener("click",d=>{d.target===e&&T()}),c.addEventListener("click",d=>{d.preventDefault(),l.click()}),l.addEventListener("change",()=>{const d=l.files[0];d&&(b=d,s.src=URL.createObjectURL(d),s.style.display="block",f.textContent=d.name)}),o.addEventListener("submit",Q)}function q(e){const t=document.getElementById("employee-modal"),n=document.getElementById("employee-modal-title"),o=document.getElementById("employee-form"),l=document.getElementById("image-preview"),c=document.getElementById("file-drop-text");o.reset(),b=null,l.style.display="none",c.textContent="اضغط لاختيار صورة",document.getElementById("employee-daily-hours").value=8,e?(v=e.id,n.textContent="تعديل الموظف",document.getElementById("employee-name").value=e.name??"",document.getElementById("employee-phone").value=e.phone??"",document.getElementById("employee-idcard").value=e.idCardNumber??"",document.getElementById("employee-salary").value=e.monthlySalary??"",document.getElementById("employee-hourly").value=e.hourlyRate??"",document.getElementById("employee-overtime").value=e.overtimeRate??"",document.getElementById("employee-daily-hours").value=e.dailyHours??8,e.photoUrl&&(l.src=e.photoUrl,l.style.display="block",c.textContent="الصورة الحالية")):(v=null,n.textContent="إضافة موظف"),t.classList.add("open")}function T(){document.getElementById("employee-modal").classList.remove("open"),v=null,b=null}async function Q(e){e.preventDefault();const t=document.getElementById("employee-name").value.trim();if(!t)return;const n=document.getElementById("employee-phone").value.trim(),o=document.getElementById("employee-idcard").value.trim(),l=Number(document.getElementById("employee-salary").value)||0,c=Number(document.getElementById("employee-hourly").value)||0,s=Number(document.getElementById("employee-overtime").value)||0,f=Number(document.getElementById("employee-daily-hours").value)||8,d=document.getElementById("employee-submit-btn");d.disabled=!0,d.innerHTML='<span class="spinner"></span>';try{let m=null;v&&(m=u.find(i=>i.id===v)?.photoUrl??null),b&&(m=await z(b));const h={name:t,phone:n,idCardNumber:o,monthlySalary:l,hourlyRate:c,overtimeRate:s,dailyHours:f,photoUrl:m};v?(await M(w(y,"employees",v),h),a("تم تحديث بيانات الموظف")):(await S(x(y,"employees"),{...h,createdAt:L()}),a("تمت إضافة الموظف بنجاح")),T()}catch(m){console.error(m),a("حدث خطأ أثناء الحفظ",!0)}finally{d.disabled=!1,d.textContent="حفظ الموظف"}}function W(){const e=U(x(y,"employees"),G("createdAt","desc"));A(e,t=>{u=t.docs.map(n=>({id:n.id,...n.data()})),X(),p&&O()},t=>{console.error(t),document.getElementById("employees-table-body").innerHTML='<tr><td colspan="5"><div class="empty-state">حدث خطأ في تحميل الموظفين</div></td></tr>'})}function X(){const e=document.getElementById("employees-table-body");if(u.length===0){e.innerHTML='<tr><td colspan="5"><div class="empty-state">لا يوجد موظفون مسجلون بعد</div></td></tr>';return}e.innerHTML="",u.forEach(t=>{const n=document.createElement("tr");n.innerHTML=`
-      <td>${t.photoUrl?`<img class="row-thumb" src="${t.photoUrl}" alt="${D(t.name)}" />`:'<div class="row-thumb"></div>'}</td>
-      <td><span class="link-cell" data-id="${t.id}">${D(t.name)}</span></td>
-      <td>${D(t.phone)||"—"}</td>
-      <td>${t.monthlySalary?g(t.monthlySalary):"—"}</td>
+/**
+ * employees.js — نظام الموظفين المعدّل
+ *
+ * التغييرات الرئيسية:
+ * - حُذف نظام تسجيل الحضور بالساعات (دخول/خروج)
+ * - تم استبداله بتقويم شهري يُحدَّد فيه كل يوم:
+ *   حضور | غائب | إجازة براتب | إجازة بدون راتب
+ * - يُحسب الراتب تلقائياً بناءً على أيام الحضور
+ * - حُذفت حقول: ساعة عادية، ساعة إضافية، ساعات يومية
+ *
+ * الاستيراد من نفس الوحدات الأصلية — استبدل الكود المُجمَّع بهذا المصدر وأعد البناء.
+ */
+
+import {
+  r as setupAuth,   // onAuthStateChanged / page guard
+  u as updateDoc,   // updateDoc
+  a as docRef,      // doc
+  d as db,          // Firestore instance
+  b as addDoc,      // addDoc
+  c as collection,  // collection
+  s as serverTimestamp, // serverTimestamp
+  q as fsQuery,     // query
+  e as onSnapshot,  // onSnapshot
+  f as deleteDoc,   // deleteDoc
+  w as where,       // where
+} from "./auth-guard-DMMO1gWE.js";
+
+import { r as renderNav, s as showToast } from "./nav-C4LmEyvm.js";
+import { f as processImage } from "./image-utils-ix_Ztzsr.js";
+
+// ─── الحالة العامة ────────────────────────────────────────────────────────────
+let employees = [];          // كل الموظفين
+let dailyAttendance = [];    // سجلات الحضور اليومي للموظف الحالي في الشهر الحالي (مصفاة بالتاريخ، بلا تكرار)
+let currentEmployeeId = null;
+let currentPhoto = null;     // ملف الصورة قبل الرفع
+let editEmployeeId = null;   // معرف الموظف الذي يُعدَّل
+let attendanceUnsubscribe = null; // إلغاء اشتراك Firestore
+
+// الشهر/السنة المعروضان في التقويم
+let calYear  = new Date().getFullYear();
+let calMonth = new Date().getMonth(); // 0-indexed
+
+/**
+ * مجموعة لحجب التكرار: يحمل قيم dateStr للأيام التي يجري حفظها حالياً.
+ * عند الضغط على زر حالة يوم ما، يُضاف تاريخه هنا حتى يكتمل الطلب.
+ */
+const pendingDays = new Set();
+
+// ─── التهيئة ──────────────────────────────────────────────────────────────────
+setupAuth(user => {
+  renderNav("employees.html", user);
+  setupEmployeeModal();
+  setupDetailNavigation();
+  loadEmployees();
+});
+
+// ─── أدوات مساعدة ─────────────────────────────────────────────────────────────
+function escapeHtml(str) {
+  const d = document.createElement("div");
+  d.textContent = str ?? "";
+  return d.innerHTML;
+}
+
+function formatMoney(n) {
+  return new Intl.NumberFormat("ar-EG", { maximumFractionDigits: 2 }).format(n || 0) + " ج.م";
+}
+
+/** يُعيد سلسلة YYYY-MM-DD من كائن Date محلي (بدون UTC) */
+function toLocalDateStr(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
+}
+
+/** يُعيد اسم الشهر العربي */
+function arabicMonthName(month, year) {
+  return new Date(year, month, 1).toLocaleDateString("ar-EG", { month: "long", year: "numeric" });
+}
+
+// ─── نافذة إضافة / تعديل الموظف ──────────────────────────────────────────────
+function setupEmployeeModal() {
+  const modal      = document.getElementById("employee-modal");
+  const addBtn     = document.getElementById("add-employee-btn");
+  const closeBtn   = document.getElementById("employee-modal-close");
+  const form       = document.getElementById("employee-form");
+  const photoInput = document.getElementById("employee-photo");
+  const dropLabel  = document.getElementById("file-drop-label");
+  const preview    = document.getElementById("image-preview");
+  const dropText   = document.getElementById("file-drop-text");
+
+  addBtn.addEventListener("click",  () => openEmployeeModal(null));
+  closeBtn.addEventListener("click", closeEmployeeModal);
+  modal.addEventListener("click",   e => { if (e.target === modal) closeEmployeeModal(); });
+
+  dropLabel.addEventListener("click", e => { e.preventDefault(); photoInput.click(); });
+  photoInput.addEventListener("change", () => {
+    const file = photoInput.files[0];
+    if (!file) return;
+    currentPhoto = file;
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = "block";
+    dropText.textContent = file.name;
+  });
+
+  form.addEventListener("submit", saveEmployee);
+}
+
+function openEmployeeModal(employee) {
+  const modal    = document.getElementById("employee-modal");
+  const title    = document.getElementById("employee-modal-title");
+  const form     = document.getElementById("employee-form");
+  const preview  = document.getElementById("image-preview");
+  const dropText = document.getElementById("file-drop-text");
+
+  form.reset();
+  currentPhoto = null;
+  preview.style.display = "none";
+  dropText.textContent = "اضغط لاختيار صورة";
+
+  if (employee) {
+    editEmployeeId = employee.id;
+    title.textContent = "تعديل الموظف";
+    document.getElementById("employee-name").value   = employee.name   ?? "";
+    document.getElementById("employee-phone").value  = employee.phone  ?? "";
+    document.getElementById("employee-idcard").value = employee.idCardNumber ?? "";
+    document.getElementById("employee-salary").value = employee.monthlySalary ?? "";
+    if (employee.photoUrl) {
+      preview.src = employee.photoUrl;
+      preview.style.display = "block";
+      dropText.textContent = "الصورة الحالية";
+    }
+  } else {
+    editEmployeeId = null;
+    title.textContent = "إضافة موظف";
+  }
+
+  modal.classList.add("open");
+}
+
+function closeEmployeeModal() {
+  document.getElementById("employee-modal").classList.remove("open");
+  editEmployeeId = null;
+  currentPhoto   = null;
+}
+
+async function saveEmployee(e) {
+  e.preventDefault();
+
+  const name   = document.getElementById("employee-name").value.trim();
+  if (!name) return;
+
+  const phone   = document.getElementById("employee-phone").value.trim();
+  const idcard  = document.getElementById("employee-idcard").value.trim();
+  const salary  = Number(document.getElementById("employee-salary").value) || 0;
+  const saveBtn = document.getElementById("employee-submit-btn");
+
+  saveBtn.disabled   = true;
+  saveBtn.innerHTML  = '<span class="spinner"></span>';
+
+  try {
+    let photoUrl = null;
+    if (editEmployeeId) {
+      photoUrl = employees.find(emp => emp.id === editEmployeeId)?.photoUrl ?? null;
+    }
+    if (currentPhoto) {
+      photoUrl = await processImage(currentPhoto);
+    }
+
+    const data = { name, phone, idCardNumber: idcard, monthlySalary: salary, photoUrl };
+
+    if (editEmployeeId) {
+      await updateDoc(docRef(db, "employees", editEmployeeId), data);
+      showToast("تم تحديث بيانات الموظف");
+    } else {
+      await addDoc(collection(db, "employees"), { ...data, createdAt: serverTimestamp() });
+      showToast("تمت إضافة الموظف بنجاح");
+    }
+
+    closeEmployeeModal();
+  } catch (err) {
+    console.error(err);
+    showToast("حدث خطأ أثناء الحفظ", true);
+  } finally {
+    saveBtn.disabled   = false;
+    saveBtn.textContent = "حفظ الموظف";
+  }
+}
+
+// ─── تحميل الموظفين من Firestore ──────────────────────────────────────────────
+function loadEmployees() {
+  const q = fsQuery(collection(db, "employees"));
+  onSnapshot(q, snap => {
+    employees = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderEmployeeList();
+    if (currentEmployeeId) fillDetailHeader();
+  }, err => {
+    console.error(err);
+    document.getElementById("employees-table-body").innerHTML =
+      '<tr><td colspan="5"><div class="empty-state">حدث خطأ في تحميل الموظفين</div></td></tr>';
+  });
+}
+
+function renderEmployeeList() {
+  const tbody = document.getElementById("employees-table-body");
+  if (!employees.length) {
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">لا يوجد موظفون مسجلون بعد</div></td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = "";
+  employees.forEach(emp => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${emp.photoUrl
+        ? `<img class="row-thumb" src="${emp.photoUrl}" alt="${escapeHtml(emp.name)}" />`
+        : '<div class="row-thumb"></div>'}</td>
+      <td><span class="link-cell" data-id="${emp.id}">${escapeHtml(emp.name)}</span></td>
+      <td>${escapeHtml(emp.phone) || "—"}</td>
+      <td>${emp.monthlySalary ? formatMoney(emp.monthlySalary) : "—"}</td>
       <td>
         <div class="row-actions">
-          <button type="button" class="edit" data-id="${t.id}">تعديل</button>
-          <button type="button" class="del" data-id="${t.id}">حذف</button>
+          <button type="button" class="edit" data-id="${emp.id}">تعديل</button>
+          <button type="button" class="del"  data-id="${emp.id}">حذف</button>
         </div>
       </td>
-    `,e.appendChild(n)}),e.querySelectorAll(".link-cell").forEach(t=>{t.addEventListener("click",()=>_(t.dataset.id))}),e.querySelectorAll(".edit").forEach(t=>{t.addEventListener("click",()=>{const n=u.find(o=>o.id===t.dataset.id);n&&q(n)})}),e.querySelectorAll(".del").forEach(t=>{t.addEventListener("click",()=>Y(t.dataset.id))})}async function Y(e){try{await N(w(y,"employees",e)),a("تم حذف الموظف")}catch(t){console.error(t),a("حدث خطأ أثناء الحذف",!0)}}function Z(){document.getElementById("back-to-list").addEventListener("click",ee),document.getElementById("tab-attendance").addEventListener("click",()=>H("attendance")),document.getElementById("tab-idcard").addEventListener("click",()=>H("idcard")),document.getElementById("check-in-btn").addEventListener("click",ne),document.getElementById("check-out-btn").addEventListener("click",oe),document.getElementById("filter-apply-btn").addEventListener("click",R),document.getElementById("filter-clear-btn").addEventListener("click",()=>{document.getElementById("filter-from").value="",document.getElementById("filter-to").value="",R()}),document.getElementById("print-attendance-btn").addEventListener("click",()=>window.print()),document.getElementById("print-idcard-btn").addEventListener("click",()=>window.print())}function H(e){document.getElementById("tab-attendance").classList.toggle("active",e==="attendance"),document.getElementById("tab-idcard").classList.toggle("active",e==="idcard"),document.getElementById("view-attendance").classList.toggle("active",e==="attendance"),document.getElementById("view-idcard").classList.toggle("active",e==="idcard")}function _(e){p=e,document.getElementById("list-section").style.display="none",document.getElementById("detail-section").style.display="block",H("attendance"),O(),te()}function ee(){p=null,document.getElementById("list-section").style.display="block",document.getElementById("detail-section").style.display="none"}function O(){const e=u.find(o=>o.id===p);if(!e)return;document.getElementById("detail-name").textContent=e.name??"",document.getElementById("detail-idcard").textContent=e.idCardNumber?`رقم البطاقة: ${e.idCardNumber}`:"لا يوجد رقم بطاقة مسجل",document.getElementById("detail-phone").textContent=e.phone||"—",document.getElementById("detail-salary").textContent=e.monthlySalary?g(e.monthlySalary):"—",document.getElementById("detail-hourly").textContent=e.hourlyRate?g(e.hourlyRate):"—",document.getElementById("detail-overtime").textContent=e.overtimeRate?g(e.overtimeRate):"—",document.getElementById("detail-daily-hours").textContent=e.dailyHours?`${e.dailyHours} ساعة`:"—";const t=document.getElementById("detail-avatar");e.photoUrl?(t.src=e.photoUrl,t.style.display="block"):t.style.display="none",document.getElementById("idcard-name").textContent=e.name??"",document.getElementById("idcard-id").textContent=`رقم البطاقة: ${e.idCardNumber||"—"}`,document.getElementById("idcard-phone").textContent=`الهاتف: ${e.phone||"—"}`;const n=document.getElementById("idcard-photo");e.photoUrl?(n.src=e.photoUrl,n.style.display="block"):n.style.display="none"}function te(){const e=U(x(y,"attendance"),P("employeeId","==",p));A(e,t=>{C=t.docs.map(n=>({id:n.id,...n.data()})).sort((n,o)=>(B(o.checkIn)?.getTime()??0)-(B(n.checkIn)?.getTime()??0)),R()},t=>{console.error(t),document.getElementById("attendance-list").innerHTML='<div class="empty-state">حدث خطأ في تحميل سجل الحضور</div>'})}async function ne(){const e=u.find(n=>n.id===p);if(C.find(n=>!n.checkOut)){a("يوجد تسجيل حضور مفتوح بالفعل، سجل الخروج أولاً",!0);return}try{await S(x(y,"attendance"),{employeeId:p,employeeName:e?.name??"",checkIn:L(),checkOut:null,createdAt:L()}),a("تم تسجيل الحضور")}catch(n){console.error(n),a("حدث خطأ أثناء تسجيل الحضور",!0)}}async function oe(){const e=C.find(t=>!t.checkOut);if(!e){a("لا يوجد تسجيل حضور مفتوح",!0);return}try{await M(w(y,"attendance",e.id),{checkOut:L()}),a("تم تسجيل الخروج")}catch(t){console.error(t),a("حدث خطأ أثناء تسجيل الخروج",!0)}}function de(e,t){const n=t?.dailyHours||8,o=t?.hourlyRate||0,l=t?.overtimeRate||o,c=Math.min(e,n),s=Math.max(0,e-n);return{normalHours:c,otHours:s,pay:c*o+s*l}}function R(){const e=document.getElementById("attendance-list"),t=document.getElementById("attendance-summary"),n=u.find(r=>r.id===p),o=document.getElementById("filter-from").value,l=document.getElementById("filter-to").value,c=o?new Date(o+"T00:00:00"):null,s=l?new Date(l+"T23:59:59"):null,f=C.filter(r=>{const i=B(r.checkIn);return i?!(c&&i<c||s&&i>s):!0});let d=0,m=0,h=0;f.length===0?e.innerHTML='<div class="empty-state">لا توجد سجلات حضور في هذه الفترة</div>':(e.innerHTML="",f.forEach(r=>{const i=B(r.checkIn),E=B(r.checkOut);let k=0,I={otHours:0,pay:0};i&&E&&(k=(E-i)/36e5,I=de(k,n),d+=k,m+=I.otHours,h+=I.pay);const $=document.createElement("div");$.className="record-row",$.innerHTML=`
-        <span class="record-badge ${E?"in":"out"}">${E?"مكتمل":"مفتوح"}</span>
-        <div class="record-main">
-          <div class="title">${i?j(i):"—"} ${i?i.toLocaleTimeString("ar-EG",{hour:"2-digit",minute:"2-digit"}):""} ← ${E?E.toLocaleTimeString("ar-EG",{hour:"2-digit",minute:"2-digit"}):"لم يسجل الخروج"}</div>
-          <div class="meta">${E?`${k.toFixed(1)} ساعة · إضافي ${I.otHours.toFixed(1)} ساعة · ${g(I.pay)}`:"بانتظار تسجيل الخروج"}</div>
-        </div>
-        <button class="delete-btn" data-id="${r.id}">حذف</button>
-      `,e.appendChild($)}),e.querySelectorAll(".delete-btn").forEach(r=>{r.addEventListener("click",()=>le(r.dataset.id))})),t.innerHTML=`
-    <div class="info-chip"><div class="k">إجمالي الساعات</div><div class="v">${d.toFixed(1)} ساعة</div></div>
-    <div class="info-chip"><div class="k">ساعات إضافية</div><div class="v">${m.toFixed(1)} ساعة</div></div>
-    <div class="info-chip"><div class="k">إجمالي المستحق</div><div class="v">${g(h)}</div></div>
-  `}async function le(e){try{await N(w(y,"attendance",e)),a("تم الحذف")}catch(t){console.error(t),a("حدث خطأ أثناء الحذف",!0)}}
+    `;
+    tbody.appendChild(tr);
+  });
+
+  tbody.querySelectorAll(".link-cell").forEach(el =>
+    el.addEventListener("click", () => openEmployeeDetail(el.dataset.id)));
+  tbody.querySelectorAll(".edit").forEach(el =>
+    el.addEventListener("click", () => {
+      const emp = employees.find(e => e.id === el.dataset.id);
+      if (emp) openEmployeeModal(emp);
+    }));
+  tbody.querySelectorAll(".del").forEach(el =>
+    el.addEventListener("click", () => deleteEmployee(el.dataset.id)));
+}
+
+async function deleteEmployee(id) {
+  if (!confirm("هل تريد حذف هذا الموظف؟")) return;
+  try {
+    await deleteDoc(docRef(db, "employees", id));
+    showToast("تم حذف الموظف");
+  } catch (err) {
+    console.error(err);
+    showToast("حدث خطأ أثناء الحذف", true);
+  }
+}
+
+// ─── صفحة التفاصيل ────────────────────────────────────────────────────────────
+function setupDetailNavigation() {
+  document.getElementById("back-to-list").addEventListener("click", backToList);
+  document.getElementById("tab-attendance").addEventListener("click", () => switchTab("attendance"));
+  document.getElementById("tab-idcard").addEventListener("click",    () => switchTab("idcard"));
+  document.getElementById("prev-month-btn").addEventListener("click", () => changeMonth(-1));
+  document.getElementById("next-month-btn").addEventListener("click", () => changeMonth(+1));
+}
+
+function switchTab(tab) {
+  document.getElementById("tab-attendance").classList.toggle("active", tab === "attendance");
+  document.getElementById("tab-idcard").classList.toggle("active",    tab === "idcard");
+  document.getElementById("view-attendance").classList.toggle("active", tab === "attendance");
+  document.getElementById("view-idcard").classList.toggle("active",    tab === "idcard");
+}
+
+function openEmployeeDetail(id) {
+  currentEmployeeId = id;
+  calYear  = new Date().getFullYear();
+  calMonth = new Date().getMonth();
+
+  document.getElementById("list-section").style.display   = "none";
+  document.getElementById("detail-section").style.display = "block";
+  switchTab("attendance");
+
+  fillDetailHeader();
+  fillIdCard();
+  loadMonthAttendance();
+}
+
+function backToList() {
+  currentEmployeeId = null;
+  if (attendanceUnsubscribe) { attendanceUnsubscribe(); attendanceUnsubscribe = null; }
+  document.getElementById("list-section").style.display   = "block";
+  document.getElementById("detail-section").style.display = "none";
+}
+
+function fillDetailHeader() {
+  const emp = employees.find(e => e.id === currentEmployeeId);
+  if (!emp) return;
+
+  document.getElementById("detail-name").textContent   = emp.name ?? "";
+  document.getElementById("detail-idcard").textContent = emp.idCardNumber
+    ? `رقم البطاقة: ${emp.idCardNumber}` : "لا يوجد رقم بطاقة";
+  document.getElementById("detail-phone").textContent  = emp.phone || "—";
+  document.getElementById("detail-salary").textContent = emp.monthlySalary ? formatMoney(emp.monthlySalary) : "—";
+
+  const avatar = document.getElementById("detail-avatar");
+  if (emp.photoUrl) { avatar.src = emp.photoUrl; avatar.style.display = "block"; }
+  else { avatar.style.display = "none"; }
+}
+
+function fillIdCard() {
+  const emp = employees.find(e => e.id === currentEmployeeId);
+  if (!emp) return;
+
+  document.getElementById("idcard-name").textContent  = emp.name ?? "";
+  document.getElementById("idcard-id").textContent    = `رقم البطاقة: ${emp.idCardNumber || "—"}`;
+  document.getElementById("idcard-phone").textContent = `الهاتف: ${emp.phone || "—"}`;
+
+  const photo = document.getElementById("idcard-photo");
+  if (emp.photoUrl) { photo.src = emp.photoUrl; photo.style.display = "block"; }
+  else { photo.style.display = "none"; }
+}
+
+// ─── تغيير الشهر ──────────────────────────────────────────────────────────────
+function changeMonth(delta) {
+  calMonth += delta;
+  if (calMonth > 11) { calMonth = 0;  calYear++; }
+  if (calMonth < 0)  { calMonth = 11; calYear--; }
+  loadMonthAttendance();
+}
+
+// ─── تحميل الحضور الشهري من Firestore ────────────────────────────────────────
+function loadMonthAttendance() {
+  if (!currentEmployeeId) return;
+
+  // تحديث التسمية
+  const label = document.getElementById("month-label");
+  if (label) label.textContent = arabicMonthName(calMonth, calYear);
+
+  // تحديث عنوان لوحة التقويم
+  const panelTitle = document.getElementById("calendar-panel-title");
+  if (panelTitle) panelTitle.textContent = `تقويم الحضور — ${arabicMonthName(calMonth, calYear)}`;
+
+  // إلغاء الاشتراك السابق
+  if (attendanceUnsubscribe) { attendanceUnsubscribe(); attendanceUnsubscribe = null; }
+
+  // نطاق الشهر كسلاسل YYYY-MM-DD
+  const firstDay = `${calYear}-${String(calMonth + 1).padStart(2, "0")}-01`;
+  const lastDay  = toLocalDateStr(new Date(calYear, calMonth + 1, 0)); // آخر يوم في الشهر
+
+  // الاستعلام بـ employeeId + نطاق التاريخ
+  const q = fsQuery(
+    collection(db, "daily_attendance"),
+    where("employeeId", "==", currentEmployeeId),
+    where("date", ">=", firstDay),
+    where("date", "<=", lastDay)
+  );
+
+  document.getElementById("calendar-container").innerHTML =
+    '<div class="empty-state">جارِ التحميل...</div>';
+
+  attendanceUnsubscribe = onSnapshot(q, snap => {
+    dailyAttendance = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderCalendar();
+    renderSalarySummary();
+  }, err => {
+    console.error(err);
+    document.getElementById("calendar-container").innerHTML =
+      '<div class="empty-state">حدث خطأ في تحميل السجل</div>';
+  });
+}
+
+// ─── رسم التقويم الشهري ───────────────────────────────────────────────────────
+function renderCalendar() {
+  const container = document.getElementById("calendar-container");
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  const dayNames = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
+
+  const STATUSES = [
+    { key: "present",      label: "حضور",           cls: "s-present"  },
+    { key: "absent",       label: "غائب",            cls: "s-absent"   },
+    { key: "paid_leave",   label: "إجازة براتب",      cls: "s-paid"     },
+    { key: "unpaid_leave", label: "إجازة بدون راتب", cls: "s-unpaid"   },
+  ];
+
+  let rows = "";
+  for (let day = 1; day <= daysInMonth; day++) {
+    const date       = new Date(calYear, calMonth, day);
+    const dateStr    = toLocalDateStr(date);
+    const dayName    = dayNames[date.getDay()];
+    const isWeekend  = date.getDay() === 5 || date.getDay() === 6;
+    const record     = dailyAttendance.find(r => r.date === dateStr);
+    const status     = record?.status ?? "";
+    const recordId   = record?.id ?? "";
+
+    // أزرار الحالة
+    const btns = STATUSES.map(s => `
+      <button type="button"
+        class="status-btn ${s.cls}${status === s.key ? " active" : ""}"
+        data-date="${dateStr}"
+        data-status="${s.key}"
+        data-record-id="${recordId}">
+        ${s.label}
+      </button>`).join("");
+
+    // صف الطباعة (نص الحالة عوضاً عن الأزرار)
+    const statusText = STATUSES.find(s => s.key === status)?.label ?? "—";
+
+    rows += `
+      <tr class="cal-row${isWeekend ? " weekend" : ""}${status ? " has-status" : ""}" data-date="${dateStr}">
+        <td class="cal-day-cell">
+          <span class="cal-day-num">${day}</span>
+          <span class="cal-day-name">${dayName}</span>
+        </td>
+        <td class="cal-status-cell screen-only">${btns}</td>
+        <td class="cal-status-print print-only status-text ${status ? "st-" + status : ""}">${statusText}</td>
+      </tr>`;
+  }
+
+  container.innerHTML = `
+    <table class="attendance-calendar">
+      <thead>
+        <tr>
+          <th>اليوم</th>
+          <th class="screen-only">الحالة</th>
+          <th class="print-only">الحالة</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+
+  // ربط أحداث الأزرار
+  container.querySelectorAll(".status-btn").forEach(btn => {
+    btn.addEventListener("click", () => setDayStatus(
+      btn.dataset.date,
+      btn.dataset.status,
+      btn.dataset.recordId
+    ));
+  });
+}
+
+// ─── تعيين حالة اليوم ─────────────────────────────────────────────────────────
+/**
+ * يُحدّد حالة يوم معين في سجل الحضور.
+ *
+ * الاستراتيجية:
+ * 1. يحجب أي ضغطة ثانية على نفس اليوم حتى يكتمل الطلب (pendingDays).
+ * 2. يبحث عن سجل موجود في الذاكرة (dailyAttendance) بدلاً من الاعتماد فقط
+ *    على recordId المُمرَّر من الـ DOM — لأن snapshot قد يتأخر.
+ * 3. إذا ضُغط على الحالة ذاتها مرتين، يُحذف السجل (إلغاء التحديد).
+ * 4. يُحدِّث dailyAttendance محلياً فوراً (optimistic update) قبل انتظار
+ *    snapshot جديد، مما يمنع التكرار في الضغطات السريعة.
+ */
+async function setDayStatus(dateStr, newStatus, _recordIdFromDom) {
+  if (!currentEmployeeId) return;
+
+  // حجب التكرار: إذا كان اليوم قيد المعالجة، تجاهل الضغطة
+  if (pendingDays.has(dateStr)) return;
+  pendingDays.add(dateStr);
+
+  // تعطيل أزرار هذا اليوم فوراً في الـ UI
+  document.querySelectorAll(`.status-btn[data-date="${dateStr}"]`)
+    .forEach(b => { b.disabled = true; b.style.opacity = "0.5"; });
+
+  const emp = employees.find(e => e.id === currentEmployeeId);
+
+  // البحث في الذاكرة (أحدث من DOM)
+  const existing = dailyAttendance.find(r => r.date === dateStr);
+
+  try {
+    if (existing) {
+      if (existing.status === newStatus) {
+        // نفس الحالة → إلغاء التحديد
+        await deleteDoc(docRef(db, "daily_attendance", existing.id));
+        // تحديث محلي فوري
+        dailyAttendance = dailyAttendance.filter(r => r.date !== dateStr);
+      } else {
+        await updateDoc(docRef(db, "daily_attendance", existing.id), {
+          status:    newStatus,
+          updatedAt: serverTimestamp(),
+        });
+        // تحديث محلي فوري
+        existing.status = newStatus;
+      }
+    } else {
+      // إضافة سجل جديد
+      const docSnap = await addDoc(collection(db, "daily_attendance"), {
+        employeeId:   currentEmployeeId,
+        employeeName: emp?.name ?? "",
+        date:         dateStr,
+        status:       newStatus,
+        createdAt:    serverTimestamp(),
+        updatedAt:    serverTimestamp(),
+      });
+      // تحديث محلي فوري
+      dailyAttendance.push({ id: docSnap.id, date: dateStr, status: newStatus,
+                              employeeId: currentEmployeeId });
+    }
+
+    // إعادة رسم التقويم والملخص بناءً على البيانات المحلية المحدَّثة
+    renderCalendar();
+    renderSalarySummary();
+
+  } catch (err) {
+    console.error(err);
+    showToast("حدث خطأ أثناء الحفظ", true);
+  } finally {
+    // رفع الحجب وإعادة تفعيل الأزرار
+    pendingDays.delete(dateStr);
+    document.querySelectorAll(`.status-btn[data-date="${dateStr}"]`)
+      .forEach(b => { b.disabled = false; b.style.opacity = ""; });
+  }
+}
+
+// ─── ملخص الراتب ──────────────────────────────────────────────────────────────
+function renderSalarySummary() {
+  const emp = employees.find(e => e.id === currentEmployeeId);
+  const summaryEl = document.getElementById("attendance-summary");
+  if (!summaryEl) return;
+
+  const monthlySalary = emp?.monthlySalary ?? 0;
+  const daysInMonth   = new Date(calYear, calMonth + 1, 0).getDate();
+  const dailyRate     = monthlySalary > 0 ? monthlySalary / daysInMonth : 0;
+
+  // إزالة التكرار: الاحتفاظ بآخر سجل لكل تاريخ فقط (حماية من بيانات قديمة مكررة)
+  const dedupedMap = new Map();
+  dailyAttendance.forEach(r => dedupedMap.set(r.date, r));
+  const deduped = Array.from(dedupedMap.values());
+
+  const presentDays     = deduped.filter(r => r.status === "present").length;
+  const absentDays      = deduped.filter(r => r.status === "absent").length;
+  const paidLeaveDays   = deduped.filter(r => r.status === "paid_leave").length;
+  const unpaidLeaveDays = deduped.filter(r => r.status === "unpaid_leave").length;
+  const markedDays      = presentDays + absentDays + paidLeaveDays + unpaidLeaveDays;
+  const unmarkedDays    = daysInMonth - markedDays;
+
+  // الأيام المدفوعة = حضور + إجازة براتب
+  const paidDays   = presentDays + paidLeaveDays;
+  const netSalary  = paidDays * dailyRate;
+  const deductions = (absentDays + unpaidLeaveDays) * dailyRate;
+
+  const emp_name = emp?.name ?? "الموظف";
+
+  summaryEl.innerHTML = `
+    <div class="info-chip chip-present">
+      <div class="k">✅ أيام الحضور</div>
+      <div class="v">${presentDays} يوم</div>
+    </div>
+    <div class="info-chip chip-absent">
+      <div class="k">❌ أيام الغياب</div>
+      <div class="v">${absentDays} يوم</div>
+    </div>
+    <div class="info-chip chip-paid">
+      <div class="k">🏖️ إجازة براتب</div>
+      <div class="v">${paidLeaveDays} يوم</div>
+    </div>
+    <div class="info-chip chip-unpaid">
+      <div class="k">🚫 إجازة بدون راتب</div>
+      <div class="v">${unpaidLeaveDays} يوم</div>
+    </div>
+    <div class="info-chip">
+      <div class="k">⬜ أيام غير مسجلة</div>
+      <div class="v">${unmarkedDays} يوم</div>
+    </div>
+    <div class="info-chip chip-total">
+      <div class="k">إجمالي أيام الشهر</div>
+      <div class="v">${daysInMonth} يوم</div>
+    </div>
+    <div class="info-chip chip-rate">
+      <div class="k">أجر اليوم الواحد</div>
+      <div class="v">${formatMoney(dailyRate)}</div>
+    </div>
+    <div class="info-chip chip-deduct">
+      <div class="k">إجمالي الخصومات</div>
+      <div class="v">${formatMoney(deductions)}</div>
+    </div>
+    <div class="info-chip chip-net" style="grid-column: 1 / -1;">
+      <div class="k">💰 الراتب المستحق — ${emp_name} — ${arabicMonthName(calMonth, calYear)}</div>
+      <div class="v salary-big">${formatMoney(netSalary)}</div>
+    </div>
+  `;
+}

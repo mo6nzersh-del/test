@@ -6,16 +6,19 @@
     <title>الموظفين - أحمد وحمدي</title>
     <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <script type="module" crossorigin src="/assets/employees-DflTjNXH.js"></script>
+    <script type="module" crossorigin src="/assets/employees.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/auth-guard-DMMO1gWE.js">
     <link rel="modulepreload" crossorigin href="/assets/nav-C4LmEyvm.js">
     <link rel="modulepreload" crossorigin href="/assets/image-utils-ix_Ztzsr.js">
     <link rel="stylesheet" crossorigin href="/assets/auth-guard-C6CJ8_8i.css">
+    <link rel="stylesheet" href="/assets/employees-extra.css">
   </head>
   <body>
     <div id="app">
       <header id="topbar" class="topbar"></header>
       <main class="page">
+
+        <!-- ======= قائمة الموظفين ======= -->
         <div id="list-section">
           <div class="page-header">
             <div>
@@ -48,6 +51,7 @@
           </div>
         </div>
 
+        <!-- ======= تفاصيل الموظف ======= -->
         <div id="detail-section" style="display:none;">
           <span class="back-link" id="back-to-list">→ العودة إلى قائمة الموظفين</span>
 
@@ -62,56 +66,50 @@
           <div class="info-grid">
             <div class="info-chip"><div class="k">الهاتف</div><div class="v" id="detail-phone">—</div></div>
             <div class="info-chip"><div class="k">الراتب الشهري</div><div class="v" id="detail-salary">—</div></div>
-            <div class="info-chip"><div class="k">سعر ساعة العمل العادي</div><div class="v" id="detail-hourly">—</div></div>
-            <div class="info-chip"><div class="k">سعر ساعة العمل الإضافي</div><div class="v" id="detail-overtime">—</div></div>
-            <div class="info-chip"><div class="k">ساعات العمل اليومية</div><div class="v" id="detail-daily-hours">—</div></div>
           </div>
 
           <div class="section-tabs">
-            <button type="button" class="active" id="tab-attendance">سجل الحضور</button>
+            <button type="button" class="active" id="tab-attendance">سجل الحضور الشهري</button>
             <button type="button" id="tab-idcard">بطاقة العمل</button>
           </div>
 
+          <!-- ======= تبويب الحضور ======= -->
           <div class="section-view active" id="view-attendance">
-            <div class="panel">
-              <div class="panel-header">
-                <h3>تسجيل الحضور</h3>
-              </div>
-              <div class="form-grid">
-                <button type="button" class="btn small" id="check-in-btn">تسجيل حضور (دخول)</button>
-                <button type="button" class="btn small danger" id="check-out-btn">تسجيل خروج</button>
-              </div>
+
+            <!-- التنقل بين الأشهر -->
+            <div class="month-nav panel print-hide">
+              <button type="button" class="btn small outline" id="prev-month-btn">→ الشهر السابق</button>
+              <span id="month-label" class="month-label">—</span>
+              <button type="button" class="btn small outline" id="next-month-btn">الشهر التالي ←</button>
             </div>
 
-            <div class="panel print-target">
-              <div class="panel-header">
-                <h3>سجل ساعات العمل</h3>
-                <button type="button" class="btn small outline" id="print-attendance-btn">طباعة / تصدير السجل</button>
-              </div>
-              <div class="filter-bar">
-                <div class="field">
-                  <label for="filter-from">من تاريخ</label>
-                  <input type="date" id="filter-from" />
-                </div>
-                <div class="field">
-                  <label for="filter-to">إلى تاريخ</label>
-                  <input type="date" id="filter-to" />
-                </div>
-                <button type="button" class="btn small outline" id="filter-apply-btn">تصفية</button>
-                <button type="button" class="btn small outline" id="filter-clear-btn">إلغاء التصفية</button>
+            <!-- ملخص الراتب -->
+            <div class="panel salary-summary-panel" id="salary-summary-panel">
+              <div class="panel-header print-hide">
+                <h3>ملخص الشهر والراتب</h3>
+                <button type="button" class="btn small outline" id="print-attendance-btn" onclick="window.print()">🖨️ طباعة السجل</button>
               </div>
               <div class="info-grid" id="attendance-summary"></div>
-              <div class="records-list" id="attendance-list">
+            </div>
+
+            <!-- تقويم الحضور -->
+            <div class="panel attendance-calendar-panel print-target">
+              <div class="panel-header">
+                <h3 id="calendar-panel-title">تقويم الحضور</h3>
+              </div>
+              <div id="calendar-container">
                 <div class="empty-state">جارِ التحميل...</div>
               </div>
             </div>
+
           </div>
 
+          <!-- ======= تبويب بطاقة العمل ======= -->
           <div class="section-view" id="view-idcard">
             <div class="panel print-target">
-              <div class="panel-header">
+              <div class="panel-header print-hide">
                 <h3>بطاقة العمل</h3>
-                <button type="button" class="btn small outline" id="print-idcard-btn">طباعة البطاقة</button>
+                <button type="button" class="btn small outline" id="print-idcard-btn" onclick="window.print()">🖨️ طباعة البطاقة</button>
               </div>
               <div class="id-card" id="id-card">
                 <div class="id-card-brand">أحمد وحمدي — بطاقة عمل</div>
@@ -128,10 +126,12 @@
               </div>
             </div>
           </div>
+
         </div>
       </main>
     </div>
 
+    <!-- ======= نافذة إضافة/تعديل موظف ======= -->
     <div class="modal-overlay" id="employee-modal">
       <div class="modal-box">
         <div class="modal-box-header">
@@ -140,10 +140,12 @@
         </div>
         <form id="employee-form">
           <input type="hidden" id="employee-id" />
+
           <div class="field">
             <label for="employee-name">اسم الموظف</label>
             <input type="text" id="employee-name" required placeholder="مثال: أحمد سمير" />
           </div>
+
           <div class="field">
             <label>صورة الموظف (اختياري)</label>
             <label class="file-drop" id="file-drop-label">
@@ -152,30 +154,22 @@
             </label>
             <input type="file" id="employee-photo" accept="image/*" style="display:none;" />
           </div>
+
           <div class="field">
             <label for="employee-phone">رقم الهاتف</label>
             <input type="text" id="employee-phone" placeholder="مثال: 01012345678" />
           </div>
+
           <div class="field">
             <label for="employee-idcard">رقم بطاقة الهوية</label>
             <input type="text" id="employee-idcard" placeholder="مثال: 29001011234567" />
           </div>
+
           <div class="field">
             <label for="employee-salary">الراتب الشهري (ج.م)</label>
             <input type="number" id="employee-salary" min="0" step="0.01" placeholder="0.00" />
           </div>
-          <div class="field">
-            <label for="employee-hourly">سعر ساعة العمل العادي (ج.م)</label>
-            <input type="number" id="employee-hourly" min="0" step="0.01" placeholder="0.00" />
-          </div>
-          <div class="field">
-            <label for="employee-overtime">سعر ساعة العمل الإضافي (ج.م)</label>
-            <input type="number" id="employee-overtime" min="0" step="0.01" placeholder="0.00" />
-          </div>
-          <div class="field">
-            <label for="employee-daily-hours">ساعات العمل اليومية العادية</label>
-            <input type="number" id="employee-daily-hours" min="1" step="0.5" value="8" />
-          </div>
+
           <button type="submit" class="btn" id="employee-submit-btn">حفظ الموظف</button>
         </form>
       </div>
