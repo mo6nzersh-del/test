@@ -372,21 +372,20 @@ const TYPE_CFG = {
   other:      {label:"عملية أخرى",      badge:"tb-other",      dir:null,  fixed:false},
 };
 
-/* ── بناء قائمة شهر الخصم (الشهر الحالي + القادم، وشهر قديم عند التعديل) ── */
+/* ── بناء قائمة شهر الخصم (12 شهرًا قادمًا) ── */
 function buildDeductMonthSelect(currentVal=""){
   const sel=document.getElementById("f-deduct-month"); if(!sel) return;
   const now=new Date();
-  const curY=now.getFullYear(), curM=now.getMonth();
-  const nextDate=new Date(curY,curM+1,1);
-  const nextY=nextDate.getFullYear(), nextM=nextDate.getMonth();
-  const opts=[
-    {val:`${curY}-${String(curM+1).padStart(2,"0")}`,
-     label:`الشهر الحالي — ${new Date(curY,curM,1).toLocaleDateString("ar-EG",{month:"long",year:"numeric"})}`},
-    {val:`${nextY}-${String(nextM+1).padStart(2,"0")}`,
-     label:`الشهر القادم — ${new Date(nextY,nextM,1).toLocaleDateString("ar-EG",{month:"long",year:"numeric"})}`}
-  ];
+  const opts=[];
+  for(let i=0;i<12;i++){
+    const d=new Date(now.getFullYear(),now.getMonth()+i,1);
+    const y=d.getFullYear(), m=d.getMonth();
+    const val=`${y}-${String(m+1).padStart(2,"0")}`;
+    const monthName=d.toLocaleDateString("ar-EG",{month:"long",year:"numeric"});
+    const label=i===0?`الشهر الحالي — ${monthName}`:i===1?`الشهر القادم — ${monthName}`:monthName;
+    opts.push({val,label});
+  }
   sel.innerHTML='<option value="">— اختر شهر الخصم —</option>';
-  // إذا كانت القيمة المحفوظة شهراً قديماً لا يوجد في الخيارين، أضفه مع تنبيه
   if(currentVal&&!opts.find(o=>o.val===currentVal)){
     const [y,m]=currentVal.split("-").map(Number);
     const oldLabel=new Date(y,m-1,1).toLocaleDateString("ar-EG",{month:"long",year:"numeric"});
