@@ -99,6 +99,7 @@
     .print-only{display:none}
     .screen-only{display:table-cell}
 
+
     /* ── بطاقة العمل المعاد تصميمها ── */
     .id-card{background:linear-gradient(145deg,#132d1e 0%,#2f6f4f 60%,#3d8a63 100%);
       border-radius:20px;padding:0;overflow:hidden;max-width:440px;
@@ -133,7 +134,7 @@
 
     @media print{
       *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-      @page{size:A4 portrait;margin:12mm 14mm}
+      @page{size:A4 portrait;margin:12mm 14mm 0}
       #topbar,.page-header,.section-tabs,.back-link,.month-nav,.cal-hint,
       .btn,.row-actions,.modal-overlay,.print-hide,.del-att-btn,
       #salary-panel,.info-grid{display:none!important}
@@ -168,7 +169,7 @@
       .print-rec-id{font-size:9px;color:#888;font-family:monospace}
 
       /* ── قسيمة الراتب ── */
-      #payslip-print{display:block!important;margin-bottom:8px}
+      #payslip-print{display:block!important;margin-bottom:8px;page-break-after:always}
       .ps-wrap{font-family:Cairo,sans-serif;font-size:11.5px;color:#111;border:1.5px solid #bbb;border-radius:8px;overflow:hidden;margin-bottom:6px}
       .ps-header{display:flex;justify-content:space-between;align-items:center;
         padding:10px 16px;background:linear-gradient(135deg,#1a3f2b,#2f6f4f);color:#fff}
@@ -184,11 +185,6 @@
       .ps-meta-table td{padding:3px 6px;vertical-align:middle}
       .ps-lbl{color:#666;font-weight:600;width:18%;white-space:nowrap}
       .ps-val{font-weight:700;width:32%;border-bottom:1px dotted #ccc}
-      .ps-att-section{padding:6px 14px;border-bottom:1px solid #ddd}
-      .ps-att-section h4{font-size:10.5px;font-weight:800;color:#2f6f4f;margin:0 0 4px}
-      .ps-att-table{width:100%;border-collapse:collapse;font-size:11px;text-align:center}
-      .ps-att-table th{background:#e8f5ee;color:#1a4a2e;font-size:10px;padding:3px 6px;border:1px solid #c8e0d0;font-weight:700}
-      .ps-att-table td{padding:3px 6px;border:1px solid #ddd;font-weight:700}
       .ps-split{display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:1px solid #ddd}
       .ps-col{padding:8px 14px}
       .ps-col:first-child{border-left:1px solid #ddd}
@@ -595,21 +591,23 @@ let attModalDate  = null;
 let attModalRecId = null;
 let advEditId     = null;
 
-/* ── بناء قائمة شهر الخصم (الشهر الحالي + القادم، وشهر قديم عند التعديل) ── */
+/* ── بناء قائمة شهر الخصم (12 شهراً قادماً ابتداءً من الشهر الحالي) ── */
 function buildDeductMonthSelect(currentVal=""){
   const sel=document.getElementById("adv-deduct-month"); if(!sel) return;
   const now=new Date();
   const curY=now.getFullYear(), curM=now.getMonth();
-  const nextDate=new Date(curY,curM+1,1);
-  const nextY=nextDate.getFullYear(), nextM=nextDate.getMonth();
-  const opts=[
-    {val:`${curY}-${String(curM+1).padStart(2,"0")}`,
-     label:`الشهر الحالي — ${new Date(curY,curM,1).toLocaleDateString("ar-EG",{month:"long",year:"numeric"})}`},
-    {val:`${nextY}-${String(nextM+1).padStart(2,"0")}`,
-     label:`الشهر القادم — ${new Date(nextY,nextM,1).toLocaleDateString("ar-EG",{month:"long",year:"numeric"})}`}
-  ];
+  // بناء 12 شهراً قادماً ابتداءً من الشهر الحالي
+  const opts=[];
+  for(let i=0;i<12;i++){
+    const d=new Date(curY,curM+i,1);
+    const y=d.getFullYear(), m=d.getMonth();
+    opts.push({
+      val:`${y}-${String(m+1).padStart(2,"0")}`,
+      label:d.toLocaleDateString("ar-EG",{month:"long",year:"numeric"})
+    });
+  }
   sel.innerHTML='<option value="">— اختر شهر الخصم —</option>';
-  // إذا كانت القيمة المحفوظة شهراً قديماً لا يوجد في الخيارين، أضفه مع تنبيه
+  // إذا كانت القيمة المحفوظة شهراً قديماً خارج النطاق، أضفه مع تنبيه
   if(currentVal&&!opts.find(o=>o.val===currentVal)){
     const [y,m]=currentVal.split("-").map(Number);
     const oldLabel=new Date(y,m-1,1).toLocaleDateString("ar-EG",{month:"long",year:"numeric"});
@@ -624,8 +622,8 @@ function buildDeductMonthSelect(currentVal=""){
     if(currentVal===val) o.selected=true;
     sel.appendChild(o);
   });
-  // افتراضي: الشهر القادم إن لم تُحدَّد قيمة
-  if(!currentVal) sel.value=opts[1].val;
+  // افتراضي: الشهر الحالي إن لم تُحدَّد قيمة
+  if(!currentVal) sel.value=opts[0].val;
 }
 
 /* ── أدوات ── */
@@ -1335,19 +1333,6 @@ function renderSalary(){
           <td class="ps-lbl">رقم الهوية</td><td class="ps-val">${esc(emp?.idCardNumber||"—")}</td>
           <td class="ps-lbl">الهاتف</td><td class="ps-val">${esc(emp?.phone||"—")}</td>
         </tr>
-      </table>
-    </div>
-    <div class="ps-att-section">
-      <h4>كشف الحضور والغياب — ${monthLabel}</h4>
-      <table class="ps-att-table">
-        <thead><tr>
-          <th>أيام الشهر</th><th>حضور</th><th>غياب</th>
-          <th>إجازة براتب</th><th>إجازة بدون راتب</th><th>غير مسجل</th>
-        </tr></thead>
-        <tbody><tr>
-          <td>${daysInMonth}</td><td>${present}</td><td>${absent}</td>
-          <td>${paid}</td><td>${unpaid}</td><td>${daysInMonth-marked}</td>
-        </tr></tbody>
       </table>
     </div>
     <div class="ps-split">
