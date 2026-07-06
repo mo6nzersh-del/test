@@ -99,35 +99,118 @@
     .print-only{display:none}
     .screen-only{display:table-cell}
 
+    /* ── بطاقة العمل المعاد تصميمها ── */
+    .id-card{background:linear-gradient(145deg,#132d1e 0%,#2f6f4f 60%,#3d8a63 100%);
+      border-radius:20px;padding:0;overflow:hidden;max-width:440px;
+      box-shadow:0 12px 40px rgba(0,0,0,.28);color:#fff}
+    .id-card-top{display:flex;align-items:center;gap:13px;padding:15px 20px 13px;
+      border-bottom:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.2)}
+    .id-card-top-logo{width:42px;height:42px;object-fit:contain;border-radius:8px;
+      background:#fff;padding:4px;flex-shrink:0}
+    .id-card-top-brand{flex:1}
+    .id-card-top-name{font-size:16px;font-weight:900;line-height:1.1}
+    .id-card-top-sub{font-size:10.5px;opacity:.6;margin-top:2px}
+    .id-card-badge{font-size:10px;font-weight:700;background:rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.28);padding:4px 10px;border-radius:20px;white-space:nowrap}
+    .id-card-body2{display:flex;gap:18px;padding:20px 20px 16px;align-items:flex-start}
+    .id-card-photo-wrap{flex-shrink:0;width:84px;height:84px;border-radius:50%;
+      border:3px solid rgba(255,255,255,.4);overflow:hidden;
+      background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center}
+    .id-card-photo-img{width:100%;height:100%;object-fit:cover}
+    .id-card-photo-ph{font-size:36px;opacity:.6}
+    .id-card-info2{flex:1}
+    .id-card-emp-name{font-size:20px;font-weight:900;margin-bottom:3px;line-height:1.2}
+    .id-card-emp-job{font-size:12px;opacity:.7;margin-bottom:13px;font-weight:600}
+    .id-card-rows2{display:flex;flex-direction:column;gap:7px}
+    .id-card-row2{display:flex;align-items:center;gap:8px;font-size:12px}
+    .id-card-row2-lbl{opacity:.55;min-width:68px}
+    .id-card-row2-val{font-weight:700}
+    .id-card-footer2{display:flex;align-items:center;justify-content:space-between;
+      padding:10px 20px;background:rgba(0,0,0,.2);font-size:10px;opacity:.62}
+
+    /* ── قسيمة الراتب (مخفية في الشاشة - للطباعة) ── */
+    #payslip-print{display:none}
+
     @media print{
       *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      @page{size:A4 portrait;margin:12mm 14mm}
       #topbar,.page-header,.section-tabs,.back-link,.month-nav,.cal-hint,
-      .btn,.row-actions,.modal-overlay,.print-hide,.del-att-btn{display:none!important}
+      .btn,.row-actions,.modal-overlay,.print-hide,.del-att-btn,
+      #salary-panel,.info-grid{display:none!important}
       body{background:#fff!important}
-      .page{max-width:100%!important;padding:10px 20px!important;margin:0!important}
+      .page{max-width:100%!important;padding:0!important;margin:0!important}
       .print-only{display:table-cell!important}
       .screen-only{display:none!important}
-      .panel{box-shadow:none!important;border:1.5px solid #ccc!important;
-        margin-bottom:14px!important;page-break-inside:avoid}
-      .panel:not(.print-target):not(#salary-panel){display:none!important}
-      #salary-panel{display:block!important}
-      .attendance-calendar th,.attendance-calendar td{border:1px solid #ccc!important;padding:5px 8px!important}
-      .attendance-calendar th{background:#f0f0f0!important}
-      .info-grid{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:8px!important}
-      .info-chip{border:1px solid #ccc!important;padding:8px 10px!important}
-      .chip-net{grid-column:1/-1!important;background:#2f6f4f!important}
-      .salary-big{font-size:20px!important}
       .section-view{display:none!important}
       .section-view.active{display:block!important}
-      .detail-header{display:flex!important;margin-bottom:10px}
-      .status-text{font-size:12.5px;font-weight:700;padding:3px 8px;border-radius:5px}
+      .detail-header{display:flex!important;margin-bottom:6px!important;align-items:center}
+      .detail-info h2{font-size:14px!important;margin:0}
+      .detail-info p{font-size:11px!important;margin:1px 0 0}
+      .detail-avatar{width:40px!important;height:40px!important}
+
+      /* ── كشف الحضور مضغوط في صفحة واحدة ── */
+      .panel{box-shadow:none!important;border:1px solid #ccc!important;margin-bottom:6px!important}
+      .panel:not(.print-target){display:none!important}
+      .panel-header{padding:6px 10px!important}
+      .panel-header h3{font-size:12px!important;margin:0}
+      .attendance-calendar{font-size:10.5px!important}
+      .attendance-calendar th{border:1px solid #bbb!important;padding:3px 6px!important;
+        background:#f4f4f4!important;font-size:10px!important}
+      .attendance-calendar td{border:1px solid #ddd!important;padding:2px 5px!important}
+      .cal-row.weekend td{background:#f9f9f9!important}
+      .cal-day-num{font-size:12px!important;width:18px!important}
+      .cal-day-name{font-size:9.5px!important}
+      .status-text{font-size:10px!important;font-weight:700;padding:2px 5px;border-radius:4px}
       .st-present{color:#1a6b3a;background:#e7f5ec}
       .st-absent{color:#b3432f;background:#fce8e5}
       .st-paid_leave{color:#2a5bbf;background:#e8f0fb}
       .st-unpaid_leave{color:#a06a10;background:#fdf4e3}
-      .id-card{width:300px;background:#2f6f4f!important;color:#fff!important;
-        border-radius:12px;padding:20px}
-      .print-rec-id{font-size:11px;color:#888;font-family:monospace}
+      .print-rec-id{font-size:9px;color:#888;font-family:monospace}
+
+      /* ── قسيمة الراتب ── */
+      #payslip-print{display:block!important;margin-bottom:8px}
+      .ps-wrap{font-family:Cairo,sans-serif;font-size:11.5px;color:#111;border:1.5px solid #bbb;border-radius:8px;overflow:hidden;margin-bottom:6px}
+      .ps-header{display:flex;justify-content:space-between;align-items:center;
+        padding:10px 16px;background:linear-gradient(135deg,#1a3f2b,#2f6f4f);color:#fff}
+      .ps-logo-area{display:flex;align-items:center;gap:10px}
+      .ps-logo{width:38px;height:38px;object-fit:contain;border-radius:6px;background:#fff;padding:3px}
+      .ps-company{font-size:15px;font-weight:900}
+      .ps-company-sub{font-size:9.5px;opacity:.65}
+      .ps-title-area{text-align:left}
+      .ps-pre-title{font-size:10px;opacity:.75;text-align:end}
+      .ps-main-title{font-size:20px;font-weight:900;color:#a8e0c0}
+      .ps-meta{padding:8px 14px;border-bottom:1px solid #ddd;background:#fafafa}
+      .ps-meta-table{width:100%;border-collapse:collapse;font-size:11px}
+      .ps-meta-table td{padding:3px 6px;vertical-align:middle}
+      .ps-lbl{color:#666;font-weight:600;width:18%;white-space:nowrap}
+      .ps-val{font-weight:700;width:32%;border-bottom:1px dotted #ccc}
+      .ps-att-section{padding:6px 14px;border-bottom:1px solid #ddd}
+      .ps-att-section h4{font-size:10.5px;font-weight:800;color:#2f6f4f;margin:0 0 4px}
+      .ps-att-table{width:100%;border-collapse:collapse;font-size:11px;text-align:center}
+      .ps-att-table th{background:#e8f5ee;color:#1a4a2e;font-size:10px;padding:3px 6px;border:1px solid #c8e0d0;font-weight:700}
+      .ps-att-table td{padding:3px 6px;border:1px solid #ddd;font-weight:700}
+      .ps-split{display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:1px solid #ddd}
+      .ps-col{padding:8px 14px}
+      .ps-col:first-child{border-left:1px solid #ddd}
+      .ps-col-title{font-size:10.5px;font-weight:800;color:#2f6f4f;
+        margin-bottom:5px;padding-bottom:4px;border-bottom:1.5px solid #2f6f4f}
+      .ps-detail-table{width:100%;border-collapse:collapse;font-size:11px}
+      .ps-detail-table td{padding:2.5px 4px;vertical-align:middle}
+      .ps-detail-table td:last-child{text-align:left;font-weight:700;white-space:nowrap}
+      .ps-subtotal{border-top:1.5px solid #bbb;font-weight:800!important}
+      .ps-subtotal td{padding-top:4px!important}
+      .ps-net{display:flex;align-items:center;justify-content:space-between;
+        padding:10px 16px;background:linear-gradient(135deg,#1a3f2b,#2f6f4f);color:#fff}
+      .ps-net-label{font-size:12px;font-weight:700;opacity:.85}
+      .ps-net-value{font-size:20px;font-weight:900}
+      .ps-footer{display:flex;justify-content:space-between;padding:8px 16px;
+        font-size:10.5px;color:#555;border-top:1px solid #ddd;background:#fafafa}
+      .ps-footer span{border-top:1px solid #999;padding-top:4px;min-width:120px;text-align:center}
+
+      /* بطاقة العمل في الطباعة */
+      .id-card{max-width:100%!important;
+        background:linear-gradient(145deg,#132d1e 0%,#2f6f4f 60%,#3d8a63 100%)!important;
+        page-break-inside:avoid}
     }
   </style>
 </head>
@@ -202,6 +285,9 @@
           </div>
           <div class="info-grid" id="salary-summary"></div>
         </div>
+        <!-- قسيمة الراتب للطباعة -->
+        <div id="payslip-print"></div>
+
         <div class="panel print-target">
           <div class="panel-header print-hide">
             <h3 id="cal-title">تقويم الحضور</h3>
@@ -250,17 +336,41 @@
             <button type="button" class="btn small outline" onclick="window.print()">🖨️ طباعة البطاقة</button>
           </div>
           <div class="id-card">
-            <div class="id-card-brand">أحمد وحمدي — بطاقة عمل</div>
-            <div class="id-card-body">
-              <img id="card-photo" src="" alt="" style="display:none" />
-              <div>
-                <div class="id-card-name" id="card-name">—</div>
-                <div class="id-card-meta">
-                  <div id="card-job" style="font-size:12.5px;opacity:.9;margin-bottom:4px"></div>
-                  <div id="card-idnum">رقم البطاقة: —</div>
-                  <div id="card-phone">الهاتف: —</div>
+            <!-- شريط علوي -->
+            <div class="id-card-top">
+              <img src="https://i.imgur.com/NsN1HgC.png" class="id-card-top-logo" alt="شعار"
+                   onerror="this.style.display='none'" />
+              <div class="id-card-top-brand">
+                <div class="id-card-top-name">أحمد وحمدي</div>
+                <div class="id-card-top-sub">نظام إدارة الموظفين</div>
+              </div>
+              <div class="id-card-badge">بطاقة عمل رسمية</div>
+            </div>
+            <!-- جسم البطاقة -->
+            <div class="id-card-body2">
+              <div class="id-card-photo-wrap">
+                <img id="card-photo" src="" alt="" class="id-card-photo-img" style="display:none" />
+                <div class="id-card-photo-ph" id="card-photo-ph">👤</div>
+              </div>
+              <div class="id-card-info2">
+                <div class="id-card-emp-name" id="card-name">—</div>
+                <div class="id-card-emp-job" id="card-job"></div>
+                <div class="id-card-rows2">
+                  <div class="id-card-row2">
+                    <span class="id-card-row2-lbl">رقم الهوية</span>
+                    <span class="id-card-row2-val" id="card-idnum">—</span>
+                  </div>
+                  <div class="id-card-row2">
+                    <span class="id-card-row2-lbl">الهاتف</span>
+                    <span class="id-card-row2-val" id="card-phone">—</span>
+                  </div>
                 </div>
               </div>
+            </div>
+            <!-- تذييل -->
+            <div class="id-card-footer2">
+              <span>تاريخ الإصدار: <span id="card-issue-date"></span></span>
+              <span>✦ أحمد وحمدي</span>
             </div>
           </div>
         </div>
@@ -369,7 +479,9 @@
       <!-- شهر الخصم من الراتب (للسلفة فقط) -->
       <div class="field" id="adv-deduct-month-field" style="display:none">
         <label for="adv-deduct-month">شهر الخصم من الراتب *</label>
-        <input type="month" id="adv-deduct-month" style="margin-top:4px" />
+        <select id="adv-deduct-month" style="margin-top:4px">
+          <option value="">— اختر شهر الخصم —</option>
+        </select>
         <p style="font-size:11.5px;color:var(--muted);margin:4px 0 0">سيُخصم مبلغ السلفة من راتب هذا الشهر تلقائياً</p>
       </div>
 
@@ -452,7 +564,12 @@ function renderNav(user) {
   ];
   document.getElementById("topbar").innerHTML = `
     <div class="topbar-inner">
-      <div class="brand"><span class="mark">أ</span><span>أحمد وحمدي</span></div>
+      <div class="brand">
+        <img src="https://i.imgur.com/NsN1HgC.png" alt="logo"
+          style="height:30px;object-fit:contain;border-radius:5px;background:#fff;padding:2px 4px"
+          onerror="this.style.display='none'" />
+        <span>أحمد وحمدي</span>
+      </div>
       <nav class="nav-tabs">${pages.map(p=>`<a href="/${p.href}" class="${p.href==="employees.html"?"active":""}">${p.label}</a>`).join("")}</nav>
       <div class="user-chip">
         <span>${user.email??""}</span>
@@ -477,6 +594,39 @@ const pendingDays = new Set();
 let attModalDate  = null;
 let attModalRecId = null;
 let advEditId     = null;
+
+/* ── بناء قائمة شهر الخصم (الشهر الحالي + القادم، وشهر قديم عند التعديل) ── */
+function buildDeductMonthSelect(currentVal=""){
+  const sel=document.getElementById("adv-deduct-month"); if(!sel) return;
+  const now=new Date();
+  const curY=now.getFullYear(), curM=now.getMonth();
+  const nextDate=new Date(curY,curM+1,1);
+  const nextY=nextDate.getFullYear(), nextM=nextDate.getMonth();
+  const opts=[
+    {val:`${curY}-${String(curM+1).padStart(2,"0")}`,
+     label:`الشهر الحالي — ${new Date(curY,curM,1).toLocaleDateString("ar-EG",{month:"long",year:"numeric"})}`},
+    {val:`${nextY}-${String(nextM+1).padStart(2,"0")}`,
+     label:`الشهر القادم — ${new Date(nextY,nextM,1).toLocaleDateString("ar-EG",{month:"long",year:"numeric"})}`}
+  ];
+  sel.innerHTML='<option value="">— اختر شهر الخصم —</option>';
+  // إذا كانت القيمة المحفوظة شهراً قديماً لا يوجد في الخيارين، أضفه مع تنبيه
+  if(currentVal&&!opts.find(o=>o.val===currentVal)){
+    const [y,m]=currentVal.split("-").map(Number);
+    const oldLabel=new Date(y,m-1,1).toLocaleDateString("ar-EG",{month:"long",year:"numeric"});
+    const o=document.createElement("option");
+    o.value=currentVal; o.textContent=`${oldLabel} (شهر سابق — محفوظ)`;
+    o.selected=true;
+    sel.appendChild(o);
+  }
+  opts.forEach(({val,label})=>{
+    const o=document.createElement("option");
+    o.value=val; o.textContent=label;
+    if(currentVal===val) o.selected=true;
+    sel.appendChild(o);
+  });
+  // افتراضي: الشهر القادم إن لم تُحدَّد قيمة
+  if(!currentVal) sel.value=opts[1].val;
+}
 
 /* ── أدوات ── */
 const esc = t => { const d=document.createElement("div"); d.textContent=t??""; return d.innerHTML; };
@@ -682,11 +832,7 @@ function setupAdvModal(){
       const isAdv=r.value==="advance"&&r.checked;
       const field=document.getElementById("adv-deduct-month-field");
       field.style.display=isAdv?"block":"none";
-      if(isAdv&&!document.getElementById("adv-deduct-month").value){
-        const now=new Date(); now.setMonth(now.getMonth()+1);
-        document.getElementById("adv-deduct-month").value=
-          `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
-      }
+      if(isAdv) buildDeductMonthSelect();
     });
   });
 }
@@ -703,7 +849,6 @@ function openAdvModal(tx){
     document.getElementById("adv-amount").value=tx.amount??"";
     document.getElementById("adv-date").value=tx.date??"";
     document.getElementById("adv-desc").value=tx.description??"";
-    document.getElementById("adv-deduct-month").value=tx.deductMonth??"";
     // اختيار النوع
     const advType = tx.type==="advance"?"advance"
       : tx.type==="withdrawal"||tx.type==="other"&&tx.dir==="out" ? "other_out"
@@ -711,17 +856,19 @@ function openAdvModal(tx){
       : "other";
     const radio=document.querySelector(`input[name="adv_type"][value="${advType}"]`);
     if(radio) radio.checked=true;
-    document.getElementById("adv-deduct-month-field").style.display=advType==="advance"?"block":"none";
+    if(advType==="advance"){
+      buildDeductMonthSelect(tx.deductMonth??"");
+      document.getElementById("adv-deduct-month-field").style.display="block";
+    } else {
+      document.getElementById("adv-deduct-month-field").style.display="none";
+    }
     document.getElementById("adv-del-btn").style.display="inline-flex";
   } else {
     document.getElementById("adv-modal-title").textContent="إضافة سلفة / حركة مالية";
     // اختيار افتراضي: سلفة
     const radio=document.querySelector('input[name="adv_type"][value="advance"]');
     if(radio) radio.checked=true;
-    // الشهر القادم افتراضياً
-    const now=new Date(); now.setMonth(now.getMonth()+1);
-    document.getElementById("adv-deduct-month").value=
-      `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
+    buildDeductMonthSelect(); // يملأ القائمة بالشهر الحالي والقادم
     document.getElementById("adv-deduct-month-field").style.display="block";
   }
   document.getElementById("adv-modal").classList.add("open");
@@ -880,10 +1027,20 @@ function fillIdCard(){
   const emp=employees.find(e=>e.id===currentEmpId); if(!emp) return;
   document.getElementById("card-name").textContent =emp.name??"";
   document.getElementById("card-job").textContent  =emp.jobTitle||"";
-  document.getElementById("card-idnum").textContent=`رقم البطاقة: ${emp.idCardNumber||"—"}`;
-  document.getElementById("card-phone").textContent=`الهاتف: ${emp.phone||"—"}`;
+  document.getElementById("card-idnum").textContent=emp.idCardNumber||"—";
+  document.getElementById("card-phone").textContent=emp.phone||"—";
   const ph=document.getElementById("card-photo");
-  if(emp.photoUrl){ ph.src=emp.photoUrl; ph.style.display="block"; } else { ph.style.display="none"; }
+  const phPh=document.getElementById("card-photo-ph");
+  if(emp.photoUrl){
+    ph.src=emp.photoUrl; ph.style.display="block";
+    if(phPh) phPh.style.display="none";
+  } else {
+    ph.style.display="none";
+    if(phPh) phPh.style.display="flex";
+  }
+  const issueDateEl=document.getElementById("card-issue-date");
+  if(issueDateEl) issueDateEl.textContent=new Date().toLocaleDateString("ar-EG",
+    {year:"numeric",month:"long",day:"numeric"});
 }
 
 /* ── التنقل بين الأشهر ── */
@@ -1118,22 +1275,16 @@ function renderSalary(){
   const paidDays=present+paid;
   const grossNet=paidDays*dailyRate;
   const deduct  =(absent+unpaid)*dailyRate;
-
-  // ── السلف المخصومة من هذا الشهر ──
   const curMonthStr=`${calYear}-${String(calMonth+1).padStart(2,"0")}`;
   const monthAdvances=empFinTxs.filter(t=>t.type==="advance"&&t.deductMonth===curMonthStr);
   const totalAdvDeduct=monthAdvances.reduce((s,t)=>s+(t.amount||0),0);
   const advCount=monthAdvances.length;
-
   const net=Math.max(0, grossNet - deduct - totalAdvDeduct);
+  const monthLabel=arabicMonth(calMonth,calYear);
 
+  // ── ملخص شاشة ──
   const advRow=totalAdvDeduct>0
-    ?`<div class="info-chip chip-deduct">
-        <div class="k">👤 خصم السلف (${advCount} سلفة)</div>
-        <div class="v">${fmt(totalAdvDeduct)}</div>
-      </div>`
-    :"";
-
+    ?`<div class="info-chip chip-deduct"><div class="k">👤 خصم السلف (${advCount} سلفة)</div><div class="v">${fmt(totalAdvDeduct)}</div></div>`:"";
   el.innerHTML=`
     <div class="info-chip chip-present"><div class="k">✅ أيام الحضور</div><div class="v">${present} يوم</div></div>
     <div class="info-chip chip-absent"><div class="k">❌ أيام الغياب</div><div class="v">${absent} يوم</div></div>
@@ -1145,12 +1296,93 @@ function renderSalary(){
     <div class="info-chip chip-deduct"><div class="k">خصم الغياب والإجازات</div><div class="v">${fmt(deduct)}</div></div>
     ${advRow}
     <div class="info-chip chip-net">
-      <div class="k">💰 الراتب الصافي — ${esc(emp?.name??"")} — ${arabicMonth(calMonth,calYear)}</div>
+      <div class="k">💰 الراتب الصافي — ${esc(emp?.name??"")} — ${monthLabel}</div>
       <div class="v salary-big">${fmt(net)}</div>
-      ${totalAdvDeduct>0?`<div style="font-size:12px;opacity:.75;margin-top:4px">
-        (${fmt(grossNet)} راتب مستحق − ${fmt(deduct)} خصم حضور − ${fmt(totalAdvDeduct)} سلف = ${fmt(net)})
-      </div>`:""}
+      ${totalAdvDeduct>0?`<div style="font-size:12px;opacity:.75;margin-top:4px">(${fmt(grossNet)} − ${fmt(deduct)} − ${fmt(totalAdvDeduct)} = ${fmt(net)})</div>`:""}
     </div>`;
+
+  // ── قسيمة الراتب للطباعة ──
+  const pp=document.getElementById("payslip-print"); if(!pp) return;
+  const absentDeduct=absent*dailyRate;
+  const unpaidDeduct=unpaid*dailyRate;
+  const totalDeduct=deduct+totalAdvDeduct;
+  pp.innerHTML=`
+  <div class="ps-wrap">
+    <div class="ps-header">
+      <div class="ps-logo-area">
+        <img src="https://i.imgur.com/NsN1HgC.png" class="ps-logo" alt="logo" onerror="this.style.display='none'" />
+        <div>
+          <div class="ps-company">أحمد وحمدي</div>
+          <div class="ps-company-sub">نظام إدارة الموظفين</div>
+        </div>
+      </div>
+      <div class="ps-title-area">
+        <div class="ps-pre-title">نموذج</div>
+        <div class="ps-main-title">قسيمة الراتب</div>
+      </div>
+    </div>
+    <div class="ps-meta">
+      <table class="ps-meta-table">
+        <tr>
+          <td class="ps-lbl">اسم الموظف</td><td class="ps-val">${esc(emp?.name??"—")}</td>
+          <td class="ps-lbl">الشهر</td><td class="ps-val">${monthLabel}</td>
+        </tr>
+        <tr>
+          <td class="ps-lbl">المسمى الوظيفي</td><td class="ps-val">${esc(emp?.jobTitle||"—")}</td>
+          <td class="ps-lbl">الراتب الأساسي</td><td class="ps-val">${fmt(salary)}</td>
+        </tr>
+        <tr>
+          <td class="ps-lbl">رقم الهوية</td><td class="ps-val">${esc(emp?.idCardNumber||"—")}</td>
+          <td class="ps-lbl">الهاتف</td><td class="ps-val">${esc(emp?.phone||"—")}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="ps-att-section">
+      <h4>كشف الحضور والغياب — ${monthLabel}</h4>
+      <table class="ps-att-table">
+        <thead><tr>
+          <th>أيام الشهر</th><th>حضور</th><th>غياب</th>
+          <th>إجازة براتب</th><th>إجازة بدون راتب</th><th>غير مسجل</th>
+        </tr></thead>
+        <tbody><tr>
+          <td>${daysInMonth}</td><td>${present}</td><td>${absent}</td>
+          <td>${paid}</td><td>${unpaid}</td><td>${daysInMonth-marked}</td>
+        </tr></tbody>
+      </table>
+    </div>
+    <div class="ps-split">
+      <div class="ps-col">
+        <div class="ps-col-title">المستحقات</div>
+        <table class="ps-detail-table">
+          <tr><td>الراتب الأساسي</td><td>${fmt(salary)}</td></tr>
+          <tr><td>أجر اليوم الواحد</td><td>${fmt(dailyRate)}</td></tr>
+          <tr><td>الأيام المدفوعة (${paidDays} يوم)</td><td>${paidDays}</td></tr>
+          <tr class="ps-subtotal"><td>إجمالي المستحقات</td><td>${fmt(grossNet)}</td></tr>
+        </table>
+      </div>
+      <div class="ps-col">
+        <div class="ps-col-title">الخصومات</div>
+        <table class="ps-detail-table">
+          <tr><td>خصم الغياب${absent>0?` (${absent} يوم × ${fmt(dailyRate)})`:" — لا يوجد"}</td>
+              <td>${absent>0?fmt(absentDeduct):"—"}</td></tr>
+          <tr><td>خصم إجازة بدون راتب${unpaid>0?` (${unpaid} يوم)`:" — لا يوجد"}</td>
+              <td>${unpaid>0?fmt(unpaidDeduct):"—"}</td></tr>
+          <tr><td>السلف المخصومة${advCount>0?` (${advCount} سلفة)`:" — لا يوجد"}</td>
+              <td>${advCount>0?fmt(totalAdvDeduct):"—"}</td></tr>
+          <tr class="ps-subtotal"><td>مجموع الخصومات</td><td>${fmt(totalDeduct)}</td></tr>
+        </table>
+      </div>
+    </div>
+    <div class="ps-net">
+      <div class="ps-net-label">💰 صافي الراتب — ${esc(emp?.name??"")} — ${monthLabel}</div>
+      <div class="ps-net-value">${fmt(net)}</div>
+    </div>
+    <div class="ps-footer">
+      <span>توقيع الموظف</span>
+      <span>توقيع المدير</span>
+      <span>الختم الرسمي</span>
+    </div>
+  </div>`;
 }
 </script>
 </body>
