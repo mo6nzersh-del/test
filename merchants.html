@@ -179,14 +179,18 @@
     <form id="fin-tx-form">
       <div class="field">
         <label>اتجاه الدفعة *</label>
-        <div style="display:flex;gap:12px;margin-top:6px">
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;font-weight:700;color:#1a6b3a">
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;
+            background:#e8f8ee;border:2px solid #a8dbb7;border-radius:8px;padding:10px 14px;
+            font-size:14px;font-weight:700;color:#1a6b3a;transition:border-color .12s">
             <input type="radio" name="fin_dir" value="in" id="fin-dir-in" checked />
-            📥 داخل (تحصيل)
+            💳 دفعة من التاجر — تسديد مستحقات
           </label>
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:14px;font-weight:700;color:#b3432f">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;
+            background:#e8f0fb;border:2px solid #a8c2f0;border-radius:8px;padding:10px 14px;
+            font-size:14px;font-weight:700;color:#1a4bbf;transition:border-color .12s">
             <input type="radio" name="fin_dir" value="out" id="fin-dir-out" />
-            📤 خارج (دفع)
+            ➕ إضافة مبلغ على هذا التاجر
           </label>
         </div>
       </div>
