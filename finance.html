@@ -251,6 +251,13 @@
         </select>
       </div>
 
+      <!-- شهر الخصم من الراتب (advance فقط) -->
+      <div class="field" id="deduct-month-field" style="display:none">
+        <label for="f-deduct-month">شهر الخصم من الراتب *</label>
+        <input type="month" id="f-deduct-month" style="margin-top:4px" />
+        <p style="font-size:11.5px;color:var(--muted);margin:4px 0 0">سيُخصم مبلغ السلفة من راتب هذا الشهر تلقائياً</p>
+      </div>
+
       <!-- التاجر (merchant فقط) -->
       <div class="field" id="merchant-field" style="display:none">
         <label for="f-merchant">التاجر *</label>
@@ -622,6 +629,7 @@ function openModal(tx=null,preType=null){
     document.getElementById("f-desc").value   =tx.description??"";
     document.getElementById("f-party").value  =tx.partyName??"";
     document.getElementById("f-employee").value=tx.employeeId??"";
+    document.getElementById("f-deduct-month").value=tx.deductMonth??"";
     if(tx.merchantId) document.getElementById("f-merchant").value=tx.merchantId;
     else if(tx.partyName) document.getElementById("f-merchant").value="__manual__";
     if(tx.dir) document.querySelector(`input[name='dir'][value='${tx.dir}']`)?.click();
@@ -647,6 +655,17 @@ function selectType(type){
 
   // الموظف
   document.getElementById("employee-field").style.display=type==="advance"?"block":"none";
+
+  // شهر الخصم
+  const deductField=document.getElementById("deduct-month-field");
+  deductField.style.display=type==="advance"?"block":"none";
+  if(type==="advance"&&!document.getElementById("f-deduct-month").value){
+    // افتراضي: الشهر القادم
+    const now=new Date();
+    now.setMonth(now.getMonth()+1);
+    document.getElementById("f-deduct-month").value=
+      `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;
+  }
 
   // التاجر
   const merField=document.getElementById("merchant-field");
@@ -703,6 +722,10 @@ async function saveTx(e){
   if(selectedType==="advance"&&!empId){ toast("اختر الموظف أولاً",true); return; }
   const emp=employees.find(e=>e.id===empId);
 
+  // ── شهر الخصم (سلفة) ──
+  const deductMonth=selectedType==="advance"?document.getElementById("f-deduct-month").value:"";
+  if(selectedType==="advance"&&!deductMonth){ toast("حدد شهر الخصم من الراتب",true); return; }
+
   // ── التاجر ──
   let merchantId="", merchantName="", partyName="";
   if(selectedType==="merchant"){
@@ -730,6 +753,7 @@ async function saveTx(e){
       description:document.getElementById("f-desc").value.trim(),
       partyName, merchantId, merchantName,
       employeeId:empId, employeeName:emp?.name??"",
+      deductMonth: selectedType==="advance"?deductMonth:"",
       _active:true,
     };
     if(editTxId){
