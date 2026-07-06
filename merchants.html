@@ -284,6 +284,7 @@ function renderNav(user){
 let merchants      = [];
 let merchantTxs    = [];   // merchantTransactions (النظام الأصلي)
 let finTxs         = [];   // finance_transactions (الجديد)
+let activityOpMap  = {};   // opId → OP-XXXXX من سجل المنتجات
 let currentMerId   = null;
 let editMerId      = null;
 let txDir          = "in";
@@ -326,6 +327,7 @@ function init(){
   loadMerchants();
   loadAllMerchantTxs();
   loadFinTxs();
+  loadActivityOpMap();
 }
 
 /* ── نافذة التاجر ── */
@@ -396,6 +398,23 @@ function loadFinTxs(){
     finTxs=snap.docs.map(d=>({id:d.id,...d.data()})).filter(t=>t._active!==false);
     renderList();
     if(currentMerId){ fillHeader(); refreshLedger(); }
+  },err=>{ console.error(err); });
+}
+
+function loadActivityOpMap(){
+  const q=query(collection(db,"activityLog"),orderBy("createdAt","desc"));
+  onSnapshot(q,snap=>{
+    activityOpMap={};
+    const total=snap.size;
+    let rowNum=total;
+    snap.forEach(d=>{
+      const data=d.data();
+      if(data.opId){
+        activityOpMap[data.opId]=`OP-${String(rowNum).padStart(5,"0")}`;
+      }
+      rowNum--;
+    });
+    if(currentMerId) refreshLedger();
   },err=>{ console.error(err); });
 }
 
@@ -560,7 +579,9 @@ function _buildAllRows(){
 
   const direct=merchantTxs.filter(t=>t.merchantId===currentMerId).map(t=>({
     _src: t.source==="loading" ? "loading" : "direct",
-    seqId: t.txId || (t.opId ? t.opId.slice(0,8).toUpperCase() : "—"),
+    seqId: (t.opId && activityOpMap[t.opId])
+      ? activityOpMap[t.opId]
+      : (t.txId || (t.opId ? t.opId.slice(0,8).toUpperCase() : "—")),
     dateStr:_toDateStr(t),
     dateSecs:_toSecs(t),
     dir:t.type,
@@ -665,7 +686,6 @@ function renderUnifiedList(){
     const bal=balances[i];
     div.innerHTML=`
       <span class="rec-id" style="min-width:62px;text-align:center">${esc(t.seqId)}</span>
-      <span class="record-badge ${isIn?"in":"out"}">${isIn?"📥":"📤"}</span>
       ${typeBadge}
       <div class="record-main">
         <div class="title">${esc(t.note)||(isIn?"دفعة واردة":"دفعة صادرة")}</div>
