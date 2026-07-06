@@ -124,98 +124,59 @@
         </div>
       </div>
 
-      <div class="section-tabs">
-        <button type="button" class="active" id="tab-unified">📋 السجل الموحد</button>
-        <button type="button" id="tab-txs">حركات مباشرة</button>
-        <button type="button" id="tab-fin">💰 دفعات المالية</button>
+      <!-- ── إحصائيات الحساب ── -->
+      <div class="mer-stats" id="mer-unified-stats"></div>
+
+      <!-- ── تسجيل حركة جديدة ── -->
+      <div class="panel" id="add-tx-panel">
+        <h3 style="padding:16px 20px 0;margin:0;font-size:15px">تسجيل حركة جديدة</h3>
+        <form id="tx-form" style="padding:12px 20px 18px">
+          <div class="toggle-group" style="margin-bottom:12px">
+            <button type="button" class="active in" data-dir="in"  id="dir-in-btn">📥 داخل (تحصيل)</button>
+            <button type="button"           class="out" data-dir="out" id="dir-out-btn">📤 خارج (دفع)</button>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:10px;align-items:end">
+            <div class="field" style="margin:0">
+              <label for="tx-amount">المبلغ (ج.م) *</label>
+              <input type="number" id="tx-amount" required min="0.01" step="0.01" placeholder="0.00" />
+            </div>
+            <div class="field" style="margin:0">
+              <label for="tx-date">التاريخ *</label>
+              <input type="date" id="tx-date" required />
+            </div>
+            <div class="field" style="margin:0">
+              <label for="tx-note">البيان / الملاحظة</label>
+              <input type="text" id="tx-note" placeholder="مثال: تحميل بضاعة، دفعة..." />
+            </div>
+            <button type="submit" class="btn" id="tx-submit-btn">إضافة</button>
+          </div>
+        </form>
       </div>
 
-      <!-- ── تبويب السجل الموحد ── -->
-      <div class="section-view active" id="view-unified">
-        <div class="mer-stats" id="mer-unified-stats"></div>
-        <div class="panel">
-          <div class="panel-header">
-            <h3>السجل الموحد — كل الحركات والدفعات</h3>
-            <div style="display:flex;gap:8px">
-              <button type="button" class="btn small" id="add-fin-tx-btn">+ دفعة مالية جديدة</button>
-              <button type="button" class="btn small outline" onclick="window.print()">🖨️ طباعة</button>
-            </div>
-          </div>
-          <div class="records-list" id="unified-list">
-            <div class="empty-state">جارِ التحميل...</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ── تبويب الحركات المباشرة (النظام القديم) ── -->
-      <div class="section-view" id="view-txs">
-        <div class="panel">
-          <h3 style="padding:16px 20px 0;margin:0;font-size:16px">تسجيل حركة جديدة</h3>
-          <form id="tx-form" style="padding:14px 20px 20px">
-            <div class="toggle-group" style="margin-bottom:14px">
-              <button type="button" class="active in" data-dir="in"  id="dir-in-btn">📥 داخل</button>
-              <button type="button"           class="out" data-dir="out" id="dir-out-btn">📤 خارج</button>
-            </div>
-            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end">
-              <div class="field" style="margin:0">
-                <label for="tx-amount">المبلغ (ج.م)</label>
-                <input type="number" id="tx-amount" required min="0" step="0.01" placeholder="0.00" />
-              </div>
-              <div class="field" style="margin:0">
-                <label for="tx-note">ملاحظة (اختياري)</label>
-                <input type="text" id="tx-note" placeholder="مثال: دفعة أولى" />
-              </div>
-              <button type="submit" class="btn" id="tx-submit-btn">إضافة</button>
-            </div>
-          </form>
-        </div>
-
-        <div class="panel print-target">
-          <div class="panel-header">
-            <h3>سجل الحساب</h3>
+      <!-- ── كشف الحساب الموحد ── -->
+      <div class="panel print-target">
+        <div class="panel-header">
+          <h3>كشف الحساب الموحد</h3>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button type="button" class="btn small" id="add-fin-tx-btn">+ دفعة مالية</button>
+            <button type="button" class="btn small outline" id="export-csv-btn">📥 تصدير CSV</button>
             <button type="button" class="btn small outline" onclick="window.print()">🖨️ طباعة</button>
           </div>
-          <div class="filter-bar" style="padding:0 20px 14px">
-            <div class="field">
-              <label for="filter-from">من تاريخ</label>
-              <input type="date" id="filter-from" />
-            </div>
-            <div class="field">
-              <label for="filter-to">إلى تاريخ</label>
-              <input type="date" id="filter-to" />
-            </div>
-            <button type="button" class="btn small outline" id="filter-apply-btn">تصفية</button>
-            <button type="button" class="btn small outline" id="filter-clear-btn">مسح</button>
-          </div>
-          <div class="records-list" id="txs-list">
-            <div class="empty-state">جارِ التحميل...</div>
-          </div>
         </div>
-      </div>
-
-      <!-- ── تبويب دفعات المالية (finance_transactions) ── -->
-      <div class="section-view" id="view-fin">
-        <div class="mer-stats" id="mer-fin-stats"></div>
-        <div class="panel">
-          <div class="panel-header">
-            <h3>دفعات المالية</h3>
-            <a href="/finance.html" class="btn small outline">فتح صفحة المالية →</a>
+        <div class="filter-bar" style="padding:0 20px 14px">
+          <div class="field">
+            <label for="filter-from">من تاريخ</label>
+            <input type="date" id="filter-from" />
           </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr>
-                <th>المعرف</th>
-                <th>التاريخ</th>
-                <th>الاتجاه</th>
-                <th>المبلغ</th>
-                <th>الوصف</th>
-                <th></th>
-              </tr></thead>
-              <tbody id="fin-tbody">
-                <tr><td colspan="6"><div class="empty-state">جارِ التحميل...</div></td></tr>
-              </tbody>
-            </table>
+          <div class="field">
+            <label for="filter-to">إلى تاريخ</label>
+            <input type="date" id="filter-to" />
           </div>
+          <button type="button" class="btn small outline" id="filter-apply-btn">تصفية</button>
+          <button type="button" class="btn small outline" id="filter-clear-btn">مسح الفلتر</button>
+        </div>
+        <div class="records-list" id="unified-list">
+          <div class="empty-state">جارِ التحميل...</div>
         </div>
       </div>
     </div>
@@ -450,17 +411,16 @@ function loadAllMerchantTxs(){
   onSnapshot(collection(db,"merchantTransactions"),snap=>{
     merchantTxs=snap.docs.map(d=>({id:d.id,...d.data()}));
     renderList();
-    if(currentMerId){ fillHeader(); renderTxsList(); }
+    if(currentMerId){ fillHeader(); refreshLedger(); }
   },err=>{ console.error(err); });
 }
 
 function loadFinTxs(){
-  // كل عمليات المالية من نوع تاجر
   const q=query(collection(db,"finance_transactions"),where("type","==","merchant"));
   onSnapshot(q,snap=>{
     finTxs=snap.docs.map(d=>({id:d.id,...d.data()})).filter(t=>t._active!==false);
-    renderList(); // تحديث الأرصدة في القائمة فور تغيير بيانات المالية
-    if(currentMerId){ fillHeader(); renderFinStats(); renderFinTxsList(); }
+    renderList();
+    if(currentMerId){ fillHeader(); refreshLedger(); }
   },err=>{ console.error(err); });
 }
 
@@ -502,9 +462,6 @@ async function deleteMer(id){
 /* ── صفحة التفاصيل ── */
 function setupDetail(){
   document.getElementById("back-btn").addEventListener("click",backToList);
-  document.getElementById("tab-unified").addEventListener("click",()=>switchTab("unified"));
-  document.getElementById("tab-txs").addEventListener("click",()=>switchTab("txs"));
-  document.getElementById("tab-fin").addEventListener("click",()=>switchTab("fin"));
 
   // أزرار الاتجاه
   document.getElementById("dir-in-btn").addEventListener("click",()=>setDir("in"));
@@ -512,14 +469,19 @@ function setupDetail(){
 
   // نموذج الحركة المباشرة
   document.getElementById("tx-form").addEventListener("submit",addTx);
+  // تهيئة تاريخ اليوم لحقل tx-date
+  document.getElementById("tx-date").value=new Date().toISOString().slice(0,10);
 
-  // فلاتر
-  document.getElementById("filter-apply-btn").addEventListener("click",renderTxsList);
+  // فلاتر كشف الحساب
+  document.getElementById("filter-apply-btn").addEventListener("click",refreshLedger);
   document.getElementById("filter-clear-btn").addEventListener("click",()=>{
     document.getElementById("filter-from").value="";
     document.getElementById("filter-to").value="";
-    renderTxsList();
+    refreshLedger();
   });
+
+  // تصدير CSV
+  document.getElementById("export-csv-btn").addEventListener("click",exportLedgerCSV);
 
   // نموذج الدفعة المالية
   setupFinTxModal();
@@ -533,21 +495,17 @@ function setDir(d){
   document.getElementById("dir-out-btn").classList.toggle("out",d==="out");
 }
 
-function switchTab(t){
-  ["unified","txs","fin"].forEach(id=>{
-    document.getElementById("tab-"+id).classList.toggle("active",id===t);
-    document.getElementById("view-"+id).classList.toggle("active",id===t);
-  });
-  if(t==="unified"){ renderUnifiedStats(); renderUnifiedList(); }
-  if(t==="fin")    { renderFinStats(); renderFinTxsList(); }
+function refreshLedger(){
+  renderUnifiedStats();
+  renderUnifiedList();
 }
 
 function openDetail(id){
   currentMerId=id;
   document.getElementById("list-section").style.display="none";
   document.getElementById("detail-section").style.display="block";
-  switchTab("unified");
   fillHeader();
+  refreshLedger();
 }
 
 function backToList(){
@@ -573,64 +531,44 @@ async function addTx(e){
   e.preventDefault();
   const amount=Number(document.getElementById("tx-amount").value);
   if(!amount||amount<=0){ toast("أدخل مبلغاً صحيحاً",true); return; }
+  const txDate=document.getElementById("tx-date").value;
+  if(!txDate){ toast("حدد التاريخ",true); return; }
   const note=document.getElementById("tx-note").value.trim();
   const mer=merchants.find(m=>m.id===currentMerId);
   const btn=document.getElementById("tx-submit-btn");
   btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
   try{
+    // توليد رقم تسلسلي T-0001 من عداد Firestore
+    const cRef=doc(db,"counters","merchant_trans");
+    let seqNum=1;
+    await runTransaction(db,async tx=>{
+      const snap=await tx.get(cRef);
+      seqNum=(snap.exists()?snap.data().seq:0)+1;
+      tx.set(cRef,{seq:seqNum},{merge:true});
+    });
+    const txId="T-"+String(seqNum).padStart(4,"0");
     await addDoc(collection(db,"merchantTransactions"),{
       merchantId:currentMerId, merchantName:mer?.name??"",
-      amount, type:txDir, note, createdAt:serverTimestamp(),
+      amount, type:txDir, note, date:txDate, txId,
+      createdAt:serverTimestamp(),
     });
-    e.target.reset(); toast("تمت إضافة الحركة");
+    // إعادة تهيئة النموذج مع الإبقاء على التاريخ
+    document.getElementById("tx-amount").value="";
+    document.getElementById("tx-note").value="";
+    toast("تمت الإضافة — "+txId);
   }catch(err){ console.error(err); toast("خطأ",true); }
   finally{ btn.disabled=false; btn.textContent="إضافة"; }
 }
 
-/* ── عرض الحركات المباشرة ── */
-function renderTxsList(){
-  const list=document.getElementById("txs-list");
-  const fromVal=document.getElementById("filter-from").value;
-  const toVal  =document.getElementById("filter-to").value;
-  const fromD  =fromVal?new Date(fromVal+"T00:00:00"):null;
-  const toD    =toVal  ?new Date(toVal  +"T23:59:59"):null;
-
-  let rows=merchantTxs.filter(t=>t.merchantId===currentMerId);
-  rows=rows.filter(t=>{
-    const d=t.createdAt?.toDate?.()??null;
-    if(!d) return true;
-    if(fromD&&d<fromD) return false;
-    if(toD  &&d>toD  ) return false;
-    return true;
-  });
-  rows=rows.sort((a,b)=>{
-    const ta=a.createdAt?.seconds??0, tb=b.createdAt?.seconds??0;
-    return tb-ta;
-  });
-
-  if(!rows.length){
-    list.innerHTML='<div class="empty-state">لا توجد حركات في هذه الفترة</div>';
-    return;
-  }
-  list.innerHTML="";
-  rows.forEach(t=>{
-    const div=document.createElement("div");
-    div.className="record-row";
-    div.innerHTML=`
-      <span class="record-badge ${t.type}">${t.type==="in"?"داخل":"خارج"}</span>
-      <div class="record-main">
-        <div class="title">${esc(t.note)||(t.type==="in"?"دفعة واردة":"دفعة صادرة")}</div>
-        <div class="meta">#${t.id.slice(0,6)} · ${fmtTs(t.createdAt)}</div>
-      </div>
-      <div class="record-amount ${t.type}">${fmt(t.amount)}</div>
-      <button class="delete-btn" data-id="${t.id}">🗑️</button>`;
-    list.appendChild(div);
-  });
-  list.querySelectorAll(".delete-btn").forEach(btn=>btn.addEventListener("click",async()=>{
-    if(!confirm("هل تريد حذف هذه الحركة؟")) return;
-    try{ await deleteDoc(doc(db,"merchantTransactions",btn.dataset.id)); toast("تم الحذف"); }
-    catch(err){ console.error(err); toast("خطأ",true); }
-  }));
+/* ── helpers: parse date string or Firestore timestamp to seconds ── */
+function _toSecs(t){
+  if(t.date) return new Date(t.date+"T00:00:00").getTime()/1000;
+  return t.createdAt?.seconds??0;
+}
+function _toDateStr(t){
+  if(t.date) return t.date; // YYYY-MM-DD
+  const d=t.createdAt?.toDate?.();
+  return d?d.toISOString().slice(0,10):"";
 }
 
 /* ── نافذة إضافة دفعة مالية مباشرة من صفحة التاجر ── */
@@ -684,83 +622,128 @@ async function saveFinTx(e){
   finally{ btn.disabled=false; btn.textContent="حفظ الدفعة"; }
 }
 
-/* ── السجل الموحد (حركات مباشرة + دفعات مالية) ── */
-function renderUnifiedStats(){
-  const directTxs=merchantTxs.filter(t=>t.merchantId===currentMerId);
-  const myFinTxs =finTxs.filter(t=>t.merchantId===currentMerId);
-  const directIn =directTxs.filter(t=>t.type==="in").reduce((s,t)=>s+(t.amount||0),0);
-  const directOut=directTxs.filter(t=>t.type==="out").reduce((s,t)=>s+(t.amount||0),0);
-  const finIn    =myFinTxs.filter(t=>t.dir==="in").reduce((s,t)=>s+(t.amount||0),0);
-  const finOut   =myFinTxs.filter(t=>t.dir==="out").reduce((s,t)=>s+(t.amount||0),0);
-  const totalIn  =directIn+finIn;
-  const totalOut =directOut+finOut;
-  const net      =totalIn-totalOut;
-  const cnt      =directTxs.length+myFinTxs.length;
-  document.getElementById("mer-unified-stats").innerHTML=`
-    <div class="mer-stat" style="border-top:3px solid #4caf7d">
-      <div class="msk">📥 إجمالي الوارد</div>
-      <div class="msv" style="color:#1a6b3a">${fmt(totalIn)}</div>
-      <div class="mss">${directTxs.filter(t=>t.type==="in").length+myFinTxs.filter(t=>t.dir==="in").length} حركة</div>
-    </div>
-    <div class="mer-stat" style="border-top:3px solid #e07070">
-      <div class="msk">📤 إجمالي الصادر</div>
-      <div class="msv" style="color:#b3432f">${fmt(totalOut)}</div>
-      <div class="mss">${directTxs.filter(t=>t.type==="out").length+myFinTxs.filter(t=>t.dir==="out").length} حركة</div>
-    </div>
-    <div class="mer-stat" style="border-top:3px solid var(--primary)">
-      <div class="msk">💰 الرصيد الإجمالي</div>
-      <div class="msv" style="color:${net>=0?"var(--primary-dark)":"var(--danger)"}">${fmt(Math.abs(net))}</div>
-      <div class="mss">${net>=0?"لصالحنا":"علينا"} — ${cnt} عملية إجمالاً</div>
-    </div>`;
-}
+/* ── بناء قائمة الحركات الموحدة مع فلتر التاريخ ── */
+function _buildAllRows(){
+  const fromVal=document.getElementById("filter-from").value;
+  const toVal  =document.getElementById("filter-to").value;
+  const fromD  =fromVal?fromVal:"";
+  const toD    =toVal  ?toVal  :"";
 
-function renderUnifiedList(){
-  const list=document.getElementById("unified-list"); if(!list) return;
-  // دمج الحركات المباشرة والمالية في مصفوفة واحدة مرتبة
-  const directTxs=merchantTxs.filter(t=>t.merchantId===currentMerId).map(t=>({
+  const direct=merchantTxs.filter(t=>t.merchantId===currentMerId).map(t=>({
     _src:"direct",
-    date:t.createdAt?.toDate?.()??null,
-    dateSecs:t.createdAt?.seconds??0,
-    dir:t.type, // "in" أو "out"
+    seqId:t.txId||"—",
+    dateStr:_toDateStr(t),
+    dateSecs:_toSecs(t),
+    dir:t.type,
     amount:t.amount||0,
     note:t.note||"",
     id:t.id,
   }));
-  const myFinTxs=finTxs.filter(t=>t.merchantId===currentMerId).map(t=>({
+  const fin=finTxs.filter(t=>t.merchantId===currentMerId).map(t=>({
     _src:"finance",
-    date:t.date?new Date(t.date+"T00:00:00"):null,
+    seqId:t.finId||"—",
+    dateStr:t.date||"",
     dateSecs:t.date?new Date(t.date+"T00:00:00").getTime()/1000:0,
     dir:t.dir,
     amount:t.amount||0,
     note:t.description||"",
     id:t.id,
-    finId:t.finId||"",
   }));
-  const all=[...directTxs,...myFinTxs].sort((a,b)=>b.dateSecs-a.dateSecs);
+  let all=[...direct,...fin].sort((a,b)=>b.dateSecs-a.dateSecs);
+  if(fromD) all=all.filter(t=>t.dateStr>=fromD);
+  if(toD)   all=all.filter(t=>t.dateStr<=toD);
+  return all;
+}
+
+/* ── إحصائيات الفترة المفلترة ── */
+function renderUnifiedStats(){
+  const all=_buildAllRows();
+  // الإحصائيات الكلية (بدون فلتر) للرصيد الحقيقي
+  const allFull=[
+    ...merchantTxs.filter(t=>t.merchantId===currentMerId).map(t=>({dir:t.type,amount:t.amount||0})),
+    ...finTxs.filter(t=>t.merchantId===currentMerId).map(t=>({dir:t.dir,amount:t.amount||0})),
+  ];
+  const totalIn =allFull.filter(t=>t.dir==="in") .reduce((s,t)=>s+t.amount,0);
+  const totalOut=allFull.filter(t=>t.dir==="out").reduce((s,t)=>s+t.amount,0);
+  const net=totalIn-totalOut;
+
+  const filtIn =all.filter(t=>t.dir==="in") .reduce((s,t)=>s+t.amount,0);
+  const filtOut=all.filter(t=>t.dir==="out").reduce((s,t)=>s+t.amount,0);
+  const isFiltered=document.getElementById("filter-from").value||document.getElementById("filter-to").value;
+  document.getElementById("mer-unified-stats").innerHTML=`
+    <div class="mer-stat" style="border-top:3px solid #4caf7d">
+      <div class="msk">📥 ${isFiltered?"وارد الفترة":"إجمالي الوارد"}</div>
+      <div class="msv" style="color:#1a6b3a">${fmt(isFiltered?filtIn:totalIn)}</div>
+      <div class="mss">${all.filter(t=>t.dir==="in").length} حركة${isFiltered?" في الفترة":""}</div>
+    </div>
+    <div class="mer-stat" style="border-top:3px solid #e07070">
+      <div class="msk">📤 ${isFiltered?"صادر الفترة":"إجمالي الصادر"}</div>
+      <div class="msv" style="color:#b3432f">${fmt(isFiltered?filtOut:totalOut)}</div>
+      <div class="mss">${all.filter(t=>t.dir==="out").length} حركة${isFiltered?" في الفترة":""}</div>
+    </div>
+    <div class="mer-stat" style="border-top:3px solid var(--primary)">
+      <div class="msk">💰 الرصيد الكلي للحساب</div>
+      <div class="msv" style="color:${net>=0?"var(--primary-dark)":"var(--danger)"}">${fmt(Math.abs(net))}</div>
+      <div class="mss">${net>=0?"لصالحنا":"علينا"} — ${allFull.length} عملية إجمالاً</div>
+    </div>`;
+}
+
+/* ── كشف الحساب ── */
+function renderUnifiedList(){
+  const list=document.getElementById("unified-list"); if(!list) return;
+  const all=_buildAllRows();
   if(!all.length){
-    list.innerHTML='<div class="empty-state">لا توجد حركات أو دفعات مسجلة لهذا التاجر</div>';
+    list.innerHTML='<div class="empty-state">لا توجد حركات في هذه الفترة</div>';
     return;
   }
   list.innerHTML="";
-  all.forEach(t=>{
+
+  // ── حساب الرصيد الافتتاحي (ما قبل الفترة المفلترة) ──
+  const fromVal=document.getElementById("filter-from").value;
+  let openingBalance=0;
+  if(fromVal){
+    // كل الحركات قبل تاريخ البداية (من كلا المصدرين، بدون فلتر)
+    const allDirect=merchantTxs.filter(t=>t.merchantId===currentMerId);
+    const allFin   =finTxs.filter(t=>t.merchantId===currentMerId);
+    [...allDirect,...allFin].forEach(t=>{
+      const ds=t.date??(t.createdAt?.toDate?.()?.toISOString().slice(0,10)??"");
+      if(ds && ds<fromVal) openingBalance+=(t.type==="in"||t.dir==="in"?1:-1)*(t.amount||0);
+    });
+  }
+
+  // نحسب الرصيد التراكمي من الأقدم للأحدث ثم نعكس الترتيب للعرض
+  let runningBalance=openingBalance;
+  const sorted=[...all].reverse();
+  const balances=[];
+  sorted.forEach(t=>{
+    runningBalance+=(t.dir==="in"?1:-1)*t.amount;
+    balances.push(runningBalance);
+  });
+  balances.reverse();
+
+  all.forEach((t,i)=>{
     const isIn=t.dir==="in";
     const div=document.createElement("div");
     div.className="record-row";
-    const srcBadge=t._src==="finance"
+    const typeBadge=t._src==="finance"
       ?`<span style="font-size:10px;background:#fdf4e3;color:#7a4f10;border-radius:5px;padding:2px 7px;font-weight:700;white-space:nowrap">مالية</span>`
       :`<span style="font-size:10px;background:#f0f4fb;color:#2a5bbf;border-radius:5px;padding:2px 7px;font-weight:700;white-space:nowrap">مباشرة</span>`;
-    const dateStr=t.date
-      ? t.date.toLocaleDateString("ar-EG",{year:"numeric",month:"long",day:"numeric"})
+    const dateDisp=t.dateStr
+      ? new Date(t.dateStr+"T00:00:00").toLocaleDateString("ar-EG",{year:"numeric",month:"short",day:"numeric"})
       : "—";
-    const idStr=t._src==="finance"&&t.finId?`${t.finId} · `:"";
+    const bal=balances[i];
     div.innerHTML=`
-      <span class="record-badge ${isIn?"in":"out"}">${isIn?"داخل":"خارج"}</span>
-      ${srcBadge}
+      <span class="rec-id" style="min-width:62px;text-align:center">${esc(t.seqId)}</span>
+      <span class="record-badge ${isIn?"in":"out"}">${isIn?"📥 داخل":"📤 خارج"}</span>
+      ${typeBadge}
       <div class="record-main">
         <div class="title">${esc(t.note)||(isIn?"دفعة واردة":"دفعة صادرة")}</div>
-        <div class="meta">${idStr}${dateStr}</div>
+        <div class="meta">${dateDisp}</div>
       </div>
       <div class="record-amount ${isIn?"in":"out"}">${fmt(t.amount)}</div>
+      <div style="font-size:11px;color:${bal>=0?"var(--primary-dark)":"var(--danger)"};font-weight:700;white-space:nowrap;min-width:80px;text-align:left">
+        ${fmt(Math.abs(bal))}<br/><span style="font-weight:400;color:var(--muted)">${bal>=0?"رصيد":"عليه"}</span>
+      </div>
       <button class="delete-btn" data-id="${t.id}" data-src="${t._src}">🗑️</button>`;
     list.appendChild(div);
   });
@@ -777,53 +760,32 @@ function renderUnifiedList(){
   }));
 }
 
-/* ── دفعات المالية (finance_transactions) ── */
-function renderFinStats(){
-  const myTxs=finTxs.filter(t=>t.merchantId===currentMerId);
-  const totalIn  =myTxs.filter(t=>t.dir==="in") .reduce((s,t)=>s+(t.amount||0),0);
-  const totalOut =myTxs.filter(t=>t.dir==="out").reduce((s,t)=>s+(t.amount||0),0);
-  const net      =totalIn-totalOut;
-  document.getElementById("mer-fin-stats").innerHTML=`
-    <div class="mer-stat" style="border-top:3px solid #4caf7d">
-      <div class="msk">📥 إجمالي التحصيل</div>
-      <div class="msv" style="color:#1a6b3a">${fmt(totalIn)}</div>
-      <div class="mss">${myTxs.filter(t=>t.dir==="in").length} عملية</div>
-    </div>
-    <div class="mer-stat" style="border-top:3px solid #e07070">
-      <div class="msk">📤 إجمالي المدفوعات</div>
-      <div class="msv" style="color:#b3432f">${fmt(totalOut)}</div>
-      <div class="mss">${myTxs.filter(t=>t.dir==="out").length} عملية</div>
-    </div>
-    <div class="mer-stat" style="border-top:3px solid var(--primary)">
-      <div class="msk">💰 الصافي</div>
-      <div class="msv" style="color:${net>=0?"var(--primary-dark)":"var(--danger)"}">${fmt(Math.abs(net))}</div>
-      <div class="mss">${net>=0?"لصالحنا":"علينا"}</div>
-    </div>`;
-}
-
-function renderFinTxsList(){
-  const myTxs=finTxs.filter(t=>t.merchantId===currentMerId)
-    .sort((a,b)=>b.date>a.date?1:b.date<a.date?-1:0);
-  const tbody=document.getElementById("fin-tbody"); if(!tbody) return;
-  if(!myTxs.length){
-    tbody.innerHTML='<tr><td colspan="6"><div class="empty-state">لا توجد دفعات مالية مسجلة لهذا التاجر</div></td></tr>';
-    return;
-  }
-  const DIR_LBL={in:"← داخل (تحصيل)",out:"← خارج (دفع)"};
-  tbody.innerHTML="";
-  myTxs.forEach(t=>{
-    const tr=document.createElement("tr");
-    tr.innerHTML=`
-      <td><span class="rec-id">${esc(t.finId||"—")}</span></td>
-      <td style="font-size:13px;white-space:nowrap">${esc(fmtDate(t.date))}</td>
-      <td class="${t.dir==="in"?"dir-in":"dir-out"}"
-          style="font-weight:700;color:${t.dir==="in"?"#1a6b3a":"#b3432f"}">
-        ${DIR_LBL[t.dir]??""}</td>
-      <td style="font-weight:700;white-space:nowrap">${fmt(t.amount)}</td>
-      <td style="font-size:13px;color:var(--muted)">${esc(t.description||"—")}</td>
-      <td><a href="/finance.html" class="btn small outline" style="font-size:11px">تعديل في المالية</a></td>`;
-    tbody.appendChild(tr);
-  });
+/* ── تصدير CSV ── */
+function exportLedgerCSV(){
+  const mer=merchants.find(m=>m.id===currentMerId);
+  const all=_buildAllRows();
+  if(!all.length){ toast("لا توجد بيانات للتصدير",true); return; }
+  const fromVal=document.getElementById("filter-from").value;
+  const toVal  =document.getElementById("filter-to").value;
+  const BOM="\uFEFF"; // UTF-8 BOM لدعم Excel العربي
+  const header=["الرقم التسلسلي","التاريخ","الاتجاه","المبلغ","البيان","النوع"].join(",");
+  const rows=all.map(t=>[
+    t.seqId,
+    t.dateStr,
+    t.dir==="in"?"داخل (تحصيل)":"خارج (دفع)",
+    t.amount,
+    `"${(t.note||"").replace(/"/g,'""')}"`,
+    t._src==="finance"?"مالية":"مباشرة",
+  ].join(","));
+  const csv=BOM+header+"\n"+rows.join("\n");
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  const merName=mer?.name??"تاجر";
+  const suffix=(fromVal||toVal)?`_${fromVal||""}${toVal?"_إلى_"+toVal:""}` :"";
+  a.href=url; a.download=`كشف_حساب_${merName}${suffix}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+  toast("تم التصدير — "+all.length+" سجل");
 }
 </script>
 </body>
