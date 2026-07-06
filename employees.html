@@ -372,8 +372,16 @@
           <input type="number" id="adv-amount" min="0.01" step="0.01" placeholder="0.00" required />
         </div>
         <div class="field">
-          <label for="adv-date">التاريخ *</label>
+          <label for="adv-date">تاريخ السلفة *</label>
           <input type="date" id="adv-date" required />
+        </div>
+      </div>
+      <div class="field" id="adv-deduct-month-wrap">
+        <label for="adv-deduct-month">📅 شهر الخصم من الراتب *</label>
+        <input type="month" id="adv-deduct-month" required
+          style="font-family:inherit;font-size:14px;padding:9px 12px;border:1.5px solid var(--border);border-radius:var(--radius);width:100%;box-sizing:border-box" />
+        <div style="font-size:11.5px;color:var(--muted);margin-top:4px">
+          حدد الشهر الذي ستُخصم منه هذه السلفة من راتب الموظف
         </div>
       </div>
 
@@ -668,12 +676,25 @@ function setupAdvModal(){
   modal.addEventListener("click",e=>{ if(e.target===modal) closeAdvModal(); });
   document.getElementById("adv-del-btn").addEventListener("click",deleteAdvTx);
   document.getElementById("adv-form").addEventListener("submit",saveAdvTx);
+  // إظهار/إخفاء حقل شهر الخصم بناءً على نوع العملية
+  document.getElementById("adv-type-grid").addEventListener("change",_syncAdvDeductMonthVisibility);
+}
+
+function _syncAdvDeductMonthVisibility(){
+  const type=document.querySelector('input[name="adv_type"]:checked')?.value;
+  const wrap=document.getElementById("adv-deduct-month-wrap");
+  const inp =document.getElementById("adv-deduct-month");
+  const show=type==="advance";
+  wrap.style.display=show?"block":"none";
+  inp.required=show;
 }
 
 function openAdvModal(tx){
   advEditId=null;
   document.getElementById("adv-form").reset();
-  document.getElementById("adv-date").value=new Date().toISOString().slice(0,10);
+  const today=new Date().toISOString().slice(0,10);
+  document.getElementById("adv-date").value=today;
+  document.getElementById("adv-deduct-month").value=today.slice(0,7);
   document.getElementById("adv-del-btn").style.display="none";
 
   if(tx){
@@ -682,6 +703,7 @@ function openAdvModal(tx){
     document.getElementById("adv-amount").value=tx.amount??"";
     document.getElementById("adv-date").value=tx.date??"";
     document.getElementById("adv-desc").value=tx.description??"";
+    document.getElementById("adv-deduct-month").value=tx.deductMonth??(tx.date?.slice(0,7)??"");
     // اختيار النوع
     const advType = tx.type==="advance"?"advance"
       : tx.type==="withdrawal"||tx.type==="other"&&tx.dir==="out" ? "other_out"
@@ -692,10 +714,10 @@ function openAdvModal(tx){
     document.getElementById("adv-del-btn").style.display="inline-flex";
   } else {
     document.getElementById("adv-modal-title").textContent="إضافة سلفة / حركة مالية";
-    // اختيار افتراضي: سلفة
     const radio=document.querySelector('input[name="adv_type"][value="advance"]');
     if(radio) radio.checked=true;
   }
+  _syncAdvDeductMonthVisibility();
   document.getElementById("adv-modal").classList.add("open");
 }
 function closeAdvModal(){ document.getElementById("adv-modal").classList.remove("open"); advEditId=null; }
@@ -713,6 +735,7 @@ async function saveAdvTx(e){
   btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
 
   try{
+    const isAdvance=advType==="advance";
     const data={
       type:        cfg.type,
       dir:         cfg.dir,
@@ -724,6 +747,7 @@ async function saveAdvTx(e){
       jobTitle:    emp?.jobTitle??"",
       partyName:   "",
       _active:     true,
+      ...(isAdvance?{deductMonth:document.getElementById("adv-deduct-month").value}:{}),
     };
     if(advEditId){
       await updateDoc(doc(db,"finance_transactions",advEditId),{...data,updatedAt:serverTimestamp()});
@@ -1085,14 +1109,25 @@ function renderSalary(){
   const net     =paidDays*dailyRate;
   const deduct  =(absent+unpaid)*dailyRate;
 
-  // ── السلف المخصومة: تشمل كل السلف المسجلة على الموظف في هذا الشهر ──
+  // ── السلف المخصومة: تُفلتر بحقل deductMonth (إن وجد) وإلا بتاريخ السلفة ──
   const monthStr=`${calYear}-${String(calMonth+1).padStart(2,"0")}`;
-  const monthAdvTxs=empFinTxs.filter(t=>t.type==="advance"&&(t.date??"").startsWith(monthStr));
+  const monthAdvTxs=empFinTxs.filter(t=>{
+    if(t.type!=="advance") return false;
+    const dm=t.deductMonth??(t.date?.slice(0,7)??"");
+    return dm===monthStr;
+  });
   const totalAdvances=monthAdvTxs.reduce((s,t)=>s+(t.amount||0),0);
   const advCount=monthAdvTxs.length;
-  // الرصيد الإجمالي للسلف المتراكمة (كل التواريخ) لعرض رصيد المديونية
+  // إجمالي السلف غير المخصومة من الأشهر السابقة (للعرض فقط)
   const allAdvances=empFinTxs.filter(t=>t.type==="advance").reduce((s,t)=>s+(t.amount||0),0);
   const netAfterAdv=net-totalAdvances;
+
+  // تفاصيل كل سلفة مخصومة هذا الشهر
+  const advDetails=monthAdvTxs.map(t=>`
+    <div style="display:flex;justify-content:space-between;font-size:12px;padding:3px 0;border-bottom:1px dashed #e8ecef">
+      <span style="color:var(--muted)">${t.date??""} — ${esc(t.description||"سلفة")}</span>
+      <span style="font-weight:700;color:#b3432f">${fmt(t.amount||0)}</span>
+    </div>`).join("");
 
   el.innerHTML=`
     <div class="info-chip chip-present"><div class="k">✅ أيام الحضور</div><div class="v">${present} يوم</div></div>
@@ -1107,13 +1142,14 @@ function renderSalary(){
       <div class="k">💰 الراتب قبل السلف</div>
       <div class="v" style="font-weight:800;color:var(--primary-dark)">${fmt(net)}</div>
     </div>
-    <div class="info-chip chip-deduct" style="border-top:3px solid #e07070">
-      <div class="k">👤 سلف هذا الشهر (${advCount} سلفة)</div>
+    <div class="info-chip chip-deduct" style="border-top:3px solid #e07070;grid-column:1/-1">
+      <div class="k">👤 سلف مخصومة من ${arabicMonth(calMonth,calYear)} (${advCount} سلفة)</div>
       <div class="v" style="color:#b3432f;font-weight:800">${fmt(totalAdvances)}</div>
+      ${advCount>0?`<div style="margin-top:8px;width:100%">${advDetails}</div>`:""}
     </div>
     ${allAdvances>totalAdvances?`
     <div class="info-chip" style="border-top:3px solid #d4a854;background:#fefaf3">
-      <div class="k">📋 إجمالي السلف المتراكمة</div>
+      <div class="k">📋 إجمالي السلف المتراكمة (كل الأشهر)</div>
       <div class="v" style="color:#7a4f10;font-weight:800">${fmt(allAdvances)}</div>
     </div>`:""}
     <div class="info-chip chip-net" style="grid-column:1/-1">
