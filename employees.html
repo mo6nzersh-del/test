@@ -15,10 +15,11 @@
     .month-label{font-size:18px;font-weight:800;color:var(--primary-dark);flex:1;text-align:center}
 
     /* ── أزرار الحالة ── */
-    .status-group{display:flex;gap:6px;flex-wrap:wrap}
+    .status-group{display:flex;gap:5px;flex-wrap:wrap;align-items:center}
     .status-btn{border:1.5px solid var(--border);background:var(--surface);border-radius:8px;
-      padding:6px 13px;font-family:inherit;font-size:12.5px;font-weight:600;color:var(--muted);
-      cursor:pointer;transition:background .12s,color .12s,border-color .12s,transform .08s}
+      padding:5px 11px;font-family:inherit;font-size:12px;font-weight:600;color:var(--muted);
+      cursor:pointer;transition:background .12s,color .12s,border-color .12s,transform .08s;
+      white-space:nowrap}
     .status-btn:hover{transform:translateY(-1px)}
     .status-btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
 
@@ -27,7 +28,7 @@
     .s-paid:hover,.s-paid.active{background:#e8f0fb;color:#2a5bbf;border-color:#7aa0e0}
     .s-unpaid:hover,.s-unpaid.active{background:#fdf4e3;color:#a06a10;border-color:#d4a854}
 
-    /* ── تلوين الصفوف ── */
+    /* تلوين الصفوف */
     .cal-row:has(.s-present.active){background:#f5fcf7}
     .cal-row:has(.s-absent.active){background:#fdf5f4}
     .cal-row:has(.s-paid.active){background:#f4f7fd}
@@ -35,14 +36,30 @@
 
     /* ── جدول التقويم ── */
     .attendance-calendar{width:100%;border-collapse:collapse}
-    .attendance-calendar th{text-align:right;font-size:13px;font-weight:700;color:var(--muted);
-      padding:10px 12px;border-bottom:2px solid var(--border);background:var(--bg)}
-    .cal-row td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:middle}
+    .attendance-calendar th{text-align:right;font-size:12.5px;font-weight:700;color:var(--muted);
+      padding:9px 10px;border-bottom:2px solid var(--border);background:var(--bg)}
+    .cal-row td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:middle}
     .cal-row:last-child td{border-bottom:none}
-    .cal-row.weekend td{background:rgba(0,0,0,.02)}
-    .cal-day-cell{white-space:nowrap;min-width:80px}
-    .cal-day-num{font-size:17px;font-weight:800;color:var(--ink);display:inline-block;width:28px}
-    .cal-day-name{font-size:12px;color:var(--muted);margin-right:4px}
+    .cal-row.weekend td{background:rgba(0,0,0,.025)}
+    .cal-day-cell{white-space:nowrap;min-width:90px}
+    .cal-day-num{font-size:16px;font-weight:800;color:var(--ink);display:inline-block;width:26px}
+    .cal-day-name{font-size:11.5px;color:var(--muted);margin-right:3px}
+
+    /* معرف السجل */
+    .rec-id{font-size:11px;color:var(--muted);font-weight:700;background:var(--bg);
+      border:1px solid var(--border);border-radius:6px;padding:2px 7px;white-space:nowrap;
+      font-family:monospace,Cairo,sans-serif}
+
+    /* زر الحذف الصغير */
+    .del-att-btn{border:none;background:transparent;color:var(--muted);font-size:13px;
+      padding:4px 7px;border-radius:7px;cursor:pointer;flex-shrink:0}
+    .del-att-btn:hover{background:var(--danger-soft);color:var(--danger)}
+
+    /* شريط التلميح */
+    .cal-hint{display:flex;align-items:center;gap:10px;padding:10px 14px;margin-bottom:12px;
+      background:var(--primary-soft);border-radius:10px;font-size:12.5px;color:var(--primary-dark);
+      font-weight:600}
+    .cal-hint svg{flex-shrink:0}
 
     /* ── ملخص الراتب ── */
     .chip-present{background:#e7f5ec}
@@ -57,14 +74,15 @@
     .chip-net .v{color:#fff}
     .salary-big{font-size:26px;font-weight:800}
 
-    /* ── طباعة فقط / شاشة فقط ── */
+    /* ── عناصر الطباعة ── */
     .print-only{display:none}
+    .screen-only{display:table-cell}
 
-    /* ═══════════════ أنماط الطباعة ═══════════════ */
+    /* ═══════════════ الطباعة ═══════════════ */
     @media print{
       *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
-      #topbar,.page-header,.section-tabs,.back-link,.month-nav,
-      .btn,.row-actions,.modal-overlay,.print-hide{display:none!important}
+      #topbar,.page-header,.section-tabs,.back-link,.month-nav,.cal-hint,
+      .btn,.row-actions,.modal-overlay,.print-hide,.del-att-btn{display:none!important}
       body{background:#fff!important}
       .page{max-width:100%!important;padding:10px 20px!important;margin:0!important}
       .print-only{display:table-cell!important}
@@ -73,24 +91,23 @@
         margin-bottom:14px!important;page-break-inside:avoid}
       .panel:not(.print-target):not(#salary-panel){display:none!important}
       #salary-panel{display:block!important}
-      .attendance-calendar th,.attendance-calendar td{
-        border:1px solid #ccc!important;padding:5px 8px!important}
+      .attendance-calendar th,.attendance-calendar td{border:1px solid #ccc!important;padding:5px 8px!important}
       .attendance-calendar th{background:#f0f0f0!important}
       .info-grid{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:8px!important}
       .info-chip{border:1px solid #ccc!important;padding:8px 10px!important}
       .chip-net{grid-column:1/-1!important;background:#2f6f4f!important}
+      .salary-big{font-size:20px!important}
       .section-view{display:none!important}
       .section-view.active{display:block!important}
       .detail-header{display:flex!important;margin-bottom:10px}
-      /* نص الحالة في الطباعة */
-      .status-text{font-size:13px;font-weight:700;padding:3px 8px;border-radius:5px}
+      .status-text{font-size:12.5px;font-weight:700;padding:3px 8px;border-radius:5px}
       .st-present{color:#1a6b3a;background:#e7f5ec}
       .st-absent{color:#b3432f;background:#fce8e5}
       .st-paid_leave{color:#2a5bbf;background:#e8f0fb}
       .st-unpaid_leave{color:#a06a10;background:#fdf4e3}
-      /* بطاقة العمل */
       .id-card{width:300px;background:#2f6f4f!important;color:#fff!important;
         border-radius:12px;padding:20px}
+      .print-rec-id{font-size:11px;color:#888;font-family:monospace}
     }
   </style>
 </head>
@@ -114,9 +131,12 @@
         </div>
         <div class="table-wrap">
           <table class="data-table">
-            <thead><tr><th></th><th>الاسم</th><th>الهاتف</th><th>الراتب الشهري</th><th></th></tr></thead>
+            <thead><tr>
+              <th></th><th>الاسم</th><th>المسمى الوظيفي</th>
+              <th>الهاتف</th><th>الراتب الشهري</th><th></th>
+            </tr></thead>
             <tbody id="employees-tbody">
-              <tr><td colspan="5"><div class="empty-state">جارِ التحميل...</div></td></tr>
+              <tr><td colspan="6"><div class="empty-state">جارِ التحميل...</div></td></tr>
             </tbody>
           </table>
         </div>
@@ -131,13 +151,15 @@
         <img class="detail-avatar" id="detail-avatar" src="" alt="" style="display:none" />
         <div class="detail-info">
           <h2 id="detail-name">—</h2>
-          <p id="detail-idcard">—</p>
+          <p id="detail-job" style="color:var(--primary-dark);font-weight:700;font-size:14px;margin:2px 0 2px"></p>
+          <p id="detail-idcard" style="color:var(--muted);font-size:13px;margin:0"></p>
         </div>
       </div>
 
       <div class="info-grid">
         <div class="info-chip"><div class="k">الهاتف</div><div class="v" id="detail-phone">—</div></div>
         <div class="info-chip"><div class="k">الراتب الشهري</div><div class="v" id="detail-salary">—</div></div>
+        <div class="info-chip"><div class="k">المسمى الوظيفي</div><div class="v" id="detail-job2">—</div></div>
       </div>
 
       <div class="section-tabs">
@@ -169,6 +191,11 @@
           <div class="panel-header print-hide">
             <h3 id="cal-title">تقويم الحضور</h3>
           </div>
+          <!-- تلميح الاستخدام -->
+          <div class="cal-hint print-hide">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            اضغط على زر الحالة لتسجيل أو تعديل حضور اليوم. الضغط مرة ثانية على نفس الحالة يلغي التحديد.
+          </div>
           <div id="cal-container"><div class="empty-state">جارِ التحميل...</div></div>
         </div>
       </div>
@@ -187,6 +214,7 @@
               <div>
                 <div class="id-card-name" id="card-name">—</div>
                 <div class="id-card-meta">
+                  <div id="card-job" style="font-size:12.5px;opacity:.9;margin-bottom:4px"></div>
                   <div id="card-idnum">رقم البطاقة: —</div>
                   <div id="card-phone">الهاتف: —</div>
                 </div>
@@ -199,7 +227,7 @@
   </main>
 </div>
 
-<!-- ═══════ نافذة إضافة / تعديل ═══════ -->
+<!-- ═══════ نافذة إضافة / تعديل موظف ═══════ -->
 <div class="modal-overlay" id="emp-modal">
   <div class="modal-box">
     <div class="modal-box-header">
@@ -211,6 +239,10 @@
       <div class="field">
         <label for="f-name">اسم الموظف *</label>
         <input type="text" id="f-name" required placeholder="مثال: أحمد سمير" />
+      </div>
+      <div class="field">
+        <label for="f-job">المسمى الوظيفي</label>
+        <input type="text" id="f-job" placeholder="مثال: محاسب، مندوب مبيعات، عامل..." />
       </div>
       <div class="field">
         <label>صورة الموظف (اختياري)</label>
@@ -237,21 +269,40 @@
   </div>
 </div>
 
-<!-- ═══════ Firebase SDK + المنطق الكامل ═══════ -->
+<!-- ═══════ نافذة تعديل يوم حضور ═══════ -->
+<div class="modal-overlay" id="att-modal">
+  <div class="modal-box" style="max-width:380px">
+    <div class="modal-box-header">
+      <h3 id="att-modal-title">تعديل حضور اليوم</h3>
+      <button type="button" class="modal-close" id="att-modal-close">&times;</button>
+    </div>
+    <div id="att-modal-body">
+      <p style="margin:0 0 14px;color:var(--muted);font-size:13.5px" id="att-modal-date-label"></p>
+      <div style="display:flex;flex-direction:column;gap:10px" id="att-status-btns"></div>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+        <button type="button" class="btn danger small" id="att-delete-btn" style="display:none;width:auto">
+          🗑️ حذف هذا السجل
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════ Firebase + المنطق ═══════ -->
 <script type="module">
-import { initializeApp }          from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeApp }       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut }
-                                   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+                                from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, collection, doc,
-  addDoc, updateDoc, deleteDoc,
+  addDoc, updateDoc, deleteDoc, setDoc,
   query, where, onSnapshot,
-  serverTimestamp
+  serverTimestamp, runTransaction, getDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getStorage, ref, uploadBytes, getDownloadURL }
-                                   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+import { getStorage, ref as sRef, uploadBytes, getDownloadURL }
+                                from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
 
-/* ── إعداد Firebase ── */
+/* ── Firebase ── */
 const app  = initializeApp({
   apiKey:            "AIzaSyDQsaNVskKiV2cwPVlJDixpTD1S-Dhp7gs",
   authDomain:        "reta-and-hamd.firebaseapp.com",
@@ -273,52 +324,52 @@ onAuthStateChanged(auth, user => {
 
 /* ── شريط التنقل ── */
 function renderNav(user) {
-  const links = [
-    { href: "dashboard.html", label: "الرئيسية" },
-    { href: "products.html",  label: "المنتجات"  },
-    { href: "merchants.html", label: "التجار"    },
-    { href: "employees.html", label: "الموظفين"  },
+  const pages = [
+    { href:"dashboard.html", label:"الرئيسية" },
+    { href:"products.html",  label:"المنتجات"  },
+    { href:"merchants.html", label:"التجار"    },
+    { href:"employees.html", label:"الموظفين"  },
   ];
-  const nav = links.map(l =>
-    `<a href="/${l.href}" class="${l.href==="employees.html"?"active":""}">${l.label}</a>`
-  ).join("");
   document.getElementById("topbar").innerHTML = `
     <div class="topbar-inner">
       <div class="brand"><span class="mark">أ</span><span>أحمد وحمدي</span></div>
-      <nav class="nav-tabs">${nav}</nav>
+      <nav class="nav-tabs">${pages.map(p=>`<a href="/${p.href}" class="${p.href==="employees.html"?"active":""}">${p.label}</a>`).join("")}</nav>
       <div class="user-chip">
         <span>${user.email??""}</span>
         <button class="icon-btn" id="logout-btn">خروج</button>
       </div>
     </div>`;
-  document.getElementById("logout-btn").addEventListener("click", () =>
-    signOut(auth).then(() => { window.location.href = "/"; }));
+  document.getElementById("logout-btn").addEventListener("click", ()=>signOut(auth).then(()=>location.href="/"));
 }
 
-/* ─────────────────────────────────────────────────────
+/* ─────────────────────────────────
    الحالة العامة
-───────────────────────────────────────────────────── */
+───────────────────────────────── */
 let employees       = [];
-let dailyAttendance = [];     // سجلات الشهر الحالي للموظف المفتوح
+let dailyAtt        = [];     // سجلات الشهر الحالي
 let currentEmpId    = null;
-let photoFile       = null;   // ملف الصورة المختار
+let photoFile       = null;
 let editEmpId       = null;
-let attUnsub        = null;   // إلغاء اشتراك Firestore للحضور
+let attUnsub        = null;
 let calYear         = new Date().getFullYear();
-let calMonth        = new Date().getMonth(); // 0-indexed
-const pendingDays   = new Set(); // أيام قيد الحفظ (لمنع التكرار)
+let calMonth        = new Date().getMonth();
+const pendingDays   = new Set();
 
-/* ─────────────────────────────────────────────────────
+// حالة نافذة تعديل الحضور
+let attModalDate    = null;   // "YYYY-MM-DD"
+let attModalRecId   = null;   // معرف المستند (أو null)
+
+/* ─────────────────────────────────
    أدوات
-───────────────────────────────────────────────────── */
+───────────────────────────────── */
 const esc = t => { const d=document.createElement("div"); d.textContent=t??""; return d.innerHTML; };
 const fmt = n => new Intl.NumberFormat("ar-EG",{maximumFractionDigits:2}).format(n||0)+" ج.م";
 const localDate = d => {
-  const y=d.getFullYear(), m=String(d.getMonth()+1).padStart(2,"0"), dd=String(d.getDate()).padStart(2,"0");
+  const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),dd=String(d.getDate()).padStart(2,"0");
   return `${y}-${m}-${dd}`;
 };
-const arabicMonth = (m, y) =>
-  new Date(y, m, 1).toLocaleDateString("ar-EG", { month: "long", year: "numeric" });
+const arabicDay = d => d.toLocaleDateString("ar-EG",{weekday:"long",year:"numeric",month:"long",day:"numeric"});
+const arabicMonth = (m,y) => new Date(y,m,1).toLocaleDateString("ar-EG",{month:"long",year:"numeric"});
 
 function toast(msg, err=false) {
   let t = document.getElementById("toast");
@@ -326,452 +377,547 @@ function toast(msg, err=false) {
   t.textContent = msg;
   t.className = `toast show${err?" error-toast":""}`;
   clearTimeout(t._timer);
-  t._timer = setTimeout(() => { t.className="toast"; }, 2600);
+  t._timer = setTimeout(()=>{ t.className="toast"; },2600);
 }
 
-/* ─────────────────────────────────────────────────────
-   تهيئة الصفحة
-───────────────────────────────────────────────────── */
+/* ─────────────────────────────────
+   المعرّف التسلسلي للحضور
+   يولّد E-0001 ، E-0002 … باستخدام
+   مستند عدّاد في Firestore
+───────────────────────────────── */
+async function nextAttId() {
+  const cRef = doc(db, "counters", "employees_att");
+  let seqNum = 1;
+  await runTransaction(db, async tx => {
+    const snap = await tx.get(cRef);
+    seqNum = (snap.exists() ? snap.data().seq : 0) + 1;
+    tx.set(cRef, { seq: seqNum }, { merge: true });
+  });
+  return "E-" + String(seqNum).padStart(4, "0");
+}
+
+/* ─────────────────────────────────
+   تهيئة
+───────────────────────────────── */
 function init() {
-  setupModal();
+  setupEmpModal();
+  setupAttModal();
   setupDetail();
   loadEmployees();
 }
 
-/* ─────────────────────────────────────────────────────
-   نافذة إضافة / تعديل
-────────────────────────────────────────────────���──── */
-function setupModal() {
+/* ─────────────────────────────────
+   نافذة الموظف (إضافة / تعديل)
+───────────────────────────────── */
+function setupEmpModal() {
   const modal = document.getElementById("emp-modal");
-  document.getElementById("add-employee-btn").addEventListener("click", () => openModal(null));
-  document.getElementById("modal-close").addEventListener("click", closeModal);
-  modal.addEventListener("click", e => { if (e.target===modal) closeModal(); });
+  document.getElementById("add-employee-btn").addEventListener("click", ()=>openEmpModal(null));
+  document.getElementById("modal-close").addEventListener("click", closeEmpModal);
+  modal.addEventListener("click", e=>{ if(e.target===modal) closeEmpModal(); });
 
-  document.getElementById("drop-label").addEventListener("click", e => {
+  document.getElementById("drop-label").addEventListener("click", e=>{
     e.preventDefault(); document.getElementById("f-photo").click();
   });
-  document.getElementById("f-photo").addEventListener("change", () => {
-    const f = document.getElementById("f-photo").files[0];
-    if (!f) return;
-    photoFile = f;
-    const prev = document.getElementById("img-preview");
-    prev.src = URL.createObjectURL(f);
-    prev.style.display = "block";
-    document.getElementById("drop-text").textContent = f.name;
+  document.getElementById("f-photo").addEventListener("change", ()=>{
+    const f=document.getElementById("f-photo").files[0];
+    if(!f) return;
+    photoFile=f;
+    const p=document.getElementById("img-preview");
+    p.src=URL.createObjectURL(f); p.style.display="block";
+    document.getElementById("drop-text").textContent=f.name;
   });
   document.getElementById("emp-form").addEventListener("submit", saveEmployee);
 }
 
-function openModal(emp) {
-  const modal = document.getElementById("emp-modal");
+function openEmpModal(emp) {
+  const modal=document.getElementById("emp-modal");
   document.getElementById("emp-form").reset();
-  photoFile = null;
-  document.getElementById("img-preview").style.display = "none";
-  document.getElementById("drop-text").textContent = "اضغط لاختيار صورة";
-
-  if (emp) {
-    editEmpId = emp.id;
-    document.getElementById("modal-title").textContent = "تعديل الموظف";
-    document.getElementById("f-name").value   = emp.name   ?? "";
-    document.getElementById("f-phone").value  = emp.phone  ?? "";
-    document.getElementById("f-idcard").value = emp.idCardNumber ?? "";
-    document.getElementById("f-salary").value = emp.monthlySalary ?? "";
-    if (emp.photoUrl) {
-      const prev = document.getElementById("img-preview");
-      prev.src = emp.photoUrl; prev.style.display="block";
-      document.getElementById("drop-text").textContent = "الصورة الحالية";
+  photoFile=null;
+  document.getElementById("img-preview").style.display="none";
+  document.getElementById("drop-text").textContent="اضغط لاختيار صورة";
+  if(emp) {
+    editEmpId=emp.id;
+    document.getElementById("modal-title").textContent="تعديل الموظف";
+    document.getElementById("f-name").value  = emp.name  ?? "";
+    document.getElementById("f-job").value   = emp.jobTitle ?? "";
+    document.getElementById("f-phone").value = emp.phone ?? "";
+    document.getElementById("f-idcard").value= emp.idCardNumber ?? "";
+    document.getElementById("f-salary").value= emp.monthlySalary ?? "";
+    if(emp.photoUrl){
+      const p=document.getElementById("img-preview");
+      p.src=emp.photoUrl; p.style.display="block";
+      document.getElementById("drop-text").textContent="الصورة الحالية";
     }
   } else {
-    editEmpId = null;
-    document.getElementById("modal-title").textContent = "إضافة موظف";
+    editEmpId=null;
+    document.getElementById("modal-title").textContent="إضافة موظف";
   }
   modal.classList.add("open");
 }
 
-function closeModal() {
+function closeEmpModal(){
   document.getElementById("emp-modal").classList.remove("open");
-  editEmpId = null; photoFile = null;
+  editEmpId=null; photoFile=null;
 }
 
 async function saveEmployee(e) {
   e.preventDefault();
-  const name = document.getElementById("f-name").value.trim();
-  if (!name) return;
-
-  const saveBtn = document.getElementById("save-btn");
-  saveBtn.disabled = true;
-  saveBtn.innerHTML = '<span class="spinner"></span>';
-
+  const name=document.getElementById("f-name").value.trim();
+  if(!name) return;
+  const btn=document.getElementById("save-btn");
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
   try {
     let photoUrl = editEmpId
-      ? (employees.find(em=>em.id===editEmpId)?.photoUrl ?? null)
+      ? (employees.find(em=>em.id===editEmpId)?.photoUrl??null)
       : null;
-
-    if (photoFile) {
-      const ext  = photoFile.name.split(".").pop();
-      const sRef = ref(storage, `employees/${Date.now()}.${ext}`);
-      await uploadBytes(sRef, photoFile);
-      photoUrl = await getDownloadURL(sRef);
+    if(photoFile){
+      const ext=photoFile.name.split(".").pop();
+      const r=sRef(storage,`employees/${Date.now()}.${ext}`);
+      await uploadBytes(r,photoFile);
+      photoUrl=await getDownloadURL(r);
     }
-
-    const data = {
+    const data={
       name,
+      jobTitle:      document.getElementById("f-job").value.trim(),
       phone:         document.getElementById("f-phone").value.trim(),
       idCardNumber:  document.getElementById("f-idcard").value.trim(),
-      monthlySalary: Number(document.getElementById("f-salary").value) || 0,
+      monthlySalary: Number(document.getElementById("f-salary").value)||0,
       photoUrl,
     };
-
-    if (editEmpId) {
-      await updateDoc(doc(db,"employees",editEmpId), data);
+    if(editEmpId){
+      await updateDoc(doc(db,"employees",editEmpId),data);
       toast("تم تحديث بيانات الموظف");
     } else {
-      await addDoc(collection(db,"employees"), { ...data, createdAt: serverTimestamp() });
+      await addDoc(collection(db,"employees"),{...data,createdAt:serverTimestamp()});
       toast("تمت إضافة الموظف بنجاح");
     }
-    closeModal();
-  } catch(err) {
-    console.error(err);
-    toast("حدث خطأ أثناء الحفظ", true);
-  } finally {
-    saveBtn.disabled = false;
-    saveBtn.textContent = "حفظ الموظف";
-  }
+    closeEmpModal();
+  } catch(err){ console.error(err); toast("خطأ أثناء الحفظ",true); }
+  finally{ btn.disabled=false; btn.textContent="حفظ الموظف"; }
 }
 
-/* ─────────────────────────────────────────────────────
+/* ─────────────────────────────────
+   نافذة تعديل / إضافة الحضور
+───────────────────────────────── */
+const STATUSES = [
+  { key:"present",      label:"✅  حضور",                cls:"s-present",  desc:"يُحسب في الراتب" },
+  { key:"absent",       label:"❌  غائب",                cls:"s-absent",   desc:"يُخصم من الراتب" },
+  { key:"paid_leave",   label:"🏖️  إجازة براتب",         cls:"s-paid",     desc:"يُحسب في الراتب" },
+  { key:"unpaid_leave", label:"🚫  إجازة بدون راتب",    cls:"s-unpaid",   desc:"يُخصم من الراتب" },
+];
+
+function setupAttModal(){
+  const modal=document.getElementById("att-modal");
+  document.getElementById("att-modal-close").addEventListener("click",closeAttModal);
+  modal.addEventListener("click",e=>{ if(e.target===modal) closeAttModal(); });
+  document.getElementById("att-delete-btn").addEventListener("click", deleteAttRecord);
+}
+
+function openAttModal(dateStr, existingStatus, recordId) {
+  attModalDate  = dateStr;
+  attModalRecId = recordId || null;
+
+  const date    = new Date(dateStr + "T00:00:00");
+  document.getElementById("att-modal-title").textContent =
+    recordId ? "تعديل حضور اليوم" : "إضافة حضور اليوم";
+  document.getElementById("att-modal-date-label").textContent = arabicDay(date);
+
+  // أزرار الاختيار
+  const container = document.getElementById("att-status-btns");
+  container.innerHTML = "";
+  STATUSES.forEach(s => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = `btn small outline ${s.cls}${existingStatus===s.key?" active":""}`;
+    btn.style.cssText = "width:100%;justify-content:flex-start;gap:12px;padding:11px 16px;font-size:14px";
+    btn.innerHTML = `<span style="flex:1;text-align:right">${s.label}</span>
+                     <span style="font-size:12px;color:inherit;opacity:.7">${s.desc}</span>`;
+    btn.addEventListener("click", ()=>{ applyAttStatus(s.key); });
+    container.appendChild(btn);
+  });
+
+  // زر الحذف (فقط إذا كان هناك سجل موجود)
+  const delBtn = document.getElementById("att-delete-btn");
+  delBtn.style.display = recordId ? "inline-flex" : "none";
+
+  document.getElementById("att-modal").classList.add("open");
+}
+
+function closeAttModal(){
+  document.getElementById("att-modal").classList.remove("open");
+  attModalDate=null; attModalRecId=null;
+}
+
+async function applyAttStatus(newStatus){
+  if(!attModalDate) return;
+  await setDay(attModalDate, newStatus, attModalRecId);
+  closeAttModal();
+}
+
+async function deleteAttRecord(){
+  if(!attModalRecId) return;
+  if(!confirm("هل تريد حذف سجل هذا اليوم؟")) return;
+  try{
+    await deleteDoc(doc(db,"daily_attendance",attModalRecId));
+    dailyAtt=dailyAtt.filter(r=>r.id!==attModalRecId);
+    renderCalendar(); renderSalary();
+    toast("تم حذف السجل");
+    closeAttModal();
+  }catch(err){ console.error(err); toast("خطأ أثناء الحذف",true); }
+}
+
+/* ─────────────────────────────────
    تحميل الموظفين
-───────────────────────────────────────────────────── */
-function loadEmployees() {
-  onSnapshot(collection(db,"employees"), snap => {
-    employees = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+───────────────────────────────── */
+function loadEmployees(){
+  onSnapshot(collection(db,"employees"), snap=>{
+    employees=snap.docs.map(d=>({id:d.id,...d.data()}));
     renderList();
-    if (currentEmpId) fillHeader();
-  }, err => {
+    if(currentEmpId) fillHeader();
+  }, err=>{
     console.error(err);
-    document.getElementById("employees-tbody").innerHTML =
-      '<tr><td colspan="5"><div class="empty-state">خطأ في تحميل البيانات</div></td></tr>';
+    document.getElementById("employees-tbody").innerHTML=
+      '<tr><td colspan="6"><div class="empty-state">خطأ في تحميل البيانات</div></td></tr>';
   });
 }
 
-function renderList() {
-  const tbody = document.getElementById("employees-tbody");
-  if (!employees.length) {
-    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">لا يوجد موظفون مسجلون بعد</div></td></tr>';
+function renderList(){
+  const tbody=document.getElementById("employees-tbody");
+  if(!employees.length){
+    tbody.innerHTML='<tr><td colspan="6"><div class="empty-state">لا يوجد موظفون مسجلون بعد</div></td></tr>';
     return;
   }
-  tbody.innerHTML = "";
-  employees.forEach(emp => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
+  tbody.innerHTML="";
+  employees.forEach(emp=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
       <td>${emp.photoUrl
-        ? `<img class="row-thumb" src="${emp.photoUrl}" alt="${esc(emp.name)}">`
-        : '<div class="row-thumb"></div>'}</td>
+        ?`<img class="row-thumb" src="${emp.photoUrl}" alt="${esc(emp.name)}">`
+        :'<div class="row-thumb"></div>'}</td>
       <td><span class="link-cell" data-id="${emp.id}">${esc(emp.name)}</span></td>
+      <td style="color:var(--muted);font-size:13px">${esc(emp.jobTitle)||"—"}</td>
       <td>${esc(emp.phone)||"—"}</td>
-      <td>${emp.monthlySalary ? fmt(emp.monthlySalary) : "—"}</td>
+      <td>${emp.monthlySalary?fmt(emp.monthlySalary):"—"}</td>
       <td><div class="row-actions">
         <button class="edit" data-id="${emp.id}">تعديل</button>
         <button class="del"  data-id="${emp.id}">حذف</button>
       </div></td>`;
     tbody.appendChild(tr);
   });
-  tbody.querySelectorAll(".link-cell").forEach(el =>
-    el.addEventListener("click", () => openDetail(el.dataset.id)));
-  tbody.querySelectorAll(".edit").forEach(el =>
-    el.addEventListener("click", () => {
-      const em = employees.find(e=>e.id===el.dataset.id);
-      if (em) openModal(em);
+  tbody.querySelectorAll(".link-cell").forEach(el=>
+    el.addEventListener("click",()=>openDetail(el.dataset.id)));
+  tbody.querySelectorAll(".edit").forEach(el=>
+    el.addEventListener("click",()=>{
+      const em=employees.find(e=>e.id===el.dataset.id); if(em) openEmpModal(em);
     }));
-  tbody.querySelectorAll(".del").forEach(el =>
-    el.addEventListener("click", () => deleteEmp(el.dataset.id)));
+  tbody.querySelectorAll(".del").forEach(el=>
+    el.addEventListener("click",()=>deleteEmp(el.dataset.id)));
 }
 
-async function deleteEmp(id) {
-  if (!confirm("هل تريد حذف هذا الموظف؟")) return;
-  try {
-    await deleteDoc(doc(db,"employees",id));
-    toast("تم حذف الموظف");
-  } catch(err) { console.error(err); toast("خطأ أثناء الحذف",true); }
+async function deleteEmp(id){
+  if(!confirm("هل تريد حذف هذا الموظف؟")) return;
+  try{ await deleteDoc(doc(db,"employees",id)); toast("تم حذف الموظف"); }
+  catch(err){ console.error(err); toast("خطأ أثناء الحذف",true); }
 }
 
-/* ─────────────────────────────────────────────────────
+/* ─────────────────────────────────
    صفحة التفاصيل
-───────────────────────────────────────────────────── */
-function setupDetail() {
-  document.getElementById("back-btn").addEventListener("click",  backToList);
-  document.getElementById("tab-att").addEventListener("click",   () => switchTab("att"));
-  document.getElementById("tab-id").addEventListener("click",    () => switchTab("id"));
-  document.getElementById("prev-btn").addEventListener("click",  () => changeMonth(-1));
-  document.getElementById("next-btn").addEventListener("click",  () => changeMonth(+1));
+───────────────────────────────── */
+function setupDetail(){
+  document.getElementById("back-btn").addEventListener("click",backToList);
+  document.getElementById("tab-att").addEventListener("click",()=>switchTab("att"));
+  document.getElementById("tab-id").addEventListener("click",()=>switchTab("id"));
+  document.getElementById("prev-btn").addEventListener("click",()=>changeMonth(-1));
+  document.getElementById("next-btn").addEventListener("click",()=>changeMonth(+1));
 }
 
-function switchTab(t) {
-  document.getElementById("tab-att").classList.toggle("active", t==="att");
-  document.getElementById("tab-id").classList.toggle("active",  t==="id");
-  document.getElementById("view-att").classList.toggle("active", t==="att");
-  document.getElementById("view-id").classList.toggle("active",  t==="id");
+function switchTab(t){
+  document.getElementById("tab-att").classList.toggle("active",t==="att");
+  document.getElementById("tab-id").classList.toggle("active",t==="id");
+  document.getElementById("view-att").classList.toggle("active",t==="att");
+  document.getElementById("view-id").classList.toggle("active",t==="id");
 }
 
-function openDetail(id) {
-  currentEmpId = id;
-  calYear  = new Date().getFullYear();
-  calMonth = new Date().getMonth();
-  document.getElementById("list-section").style.display   = "none";
-  document.getElementById("detail-section").style.display = "block";
+function openDetail(id){
+  currentEmpId=id;
+  calYear=new Date().getFullYear();
+  calMonth=new Date().getMonth();
+  document.getElementById("list-section").style.display="none";
+  document.getElementById("detail-section").style.display="block";
   switchTab("att");
-  fillHeader();
-  fillIdCard();
-  loadMonthAtt();
+  fillHeader(); fillIdCard(); loadMonthAtt();
 }
 
-function backToList() {
-  currentEmpId = null;
-  if (attUnsub) { attUnsub(); attUnsub=null; }
-  document.getElementById("list-section").style.display   = "block";
-  document.getElementById("detail-section").style.display = "none";
+function backToList(){
+  currentEmpId=null;
+  if(attUnsub){ attUnsub(); attUnsub=null; }
+  document.getElementById("list-section").style.display="block";
+  document.getElementById("detail-section").style.display="none";
 }
 
-function fillHeader() {
-  const emp = employees.find(e => e.id===currentEmpId);
-  if (!emp) return;
-  document.getElementById("detail-name").textContent   = emp.name ?? "";
+function fillHeader(){
+  const emp=employees.find(e=>e.id===currentEmpId);
+  if(!emp) return;
+  document.getElementById("detail-name").textContent   = emp.name??"";
+  document.getElementById("detail-job").textContent    = emp.jobTitle||"";
   document.getElementById("detail-idcard").textContent = emp.idCardNumber
     ? `رقم البطاقة: ${emp.idCardNumber}` : "لا يوجد رقم بطاقة";
-  document.getElementById("detail-phone").textContent  = emp.phone  || "—";
-  document.getElementById("detail-salary").textContent = emp.monthlySalary ? fmt(emp.monthlySalary) : "—";
-  const av = document.getElementById("detail-avatar");
-  if (emp.photoUrl) { av.src=emp.photoUrl; av.style.display="block"; }
+  document.getElementById("detail-phone").textContent  = emp.phone||"—";
+  document.getElementById("detail-salary").textContent = emp.monthlySalary?fmt(emp.monthlySalary):"—";
+  document.getElementById("detail-job2").textContent   = emp.jobTitle||"—";
+  const av=document.getElementById("detail-avatar");
+  if(emp.photoUrl){ av.src=emp.photoUrl; av.style.display="block"; }
   else { av.style.display="none"; }
 }
 
-function fillIdCard() {
-  const emp = employees.find(e => e.id===currentEmpId);
-  if (!emp) return;
-  document.getElementById("card-name").textContent  = emp.name ?? "";
+function fillIdCard(){
+  const emp=employees.find(e=>e.id===currentEmpId);
+  if(!emp) return;
+  document.getElementById("card-name").textContent  = emp.name??"";
+  document.getElementById("card-job").textContent   = emp.jobTitle||"";
   document.getElementById("card-idnum").textContent = `رقم البطاقة: ${emp.idCardNumber||"—"}`;
   document.getElementById("card-phone").textContent = `الهاتف: ${emp.phone||"—"}`;
-  const ph = document.getElementById("card-photo");
-  if (emp.photoUrl) { ph.src=emp.photoUrl; ph.style.display="block"; }
+  const ph=document.getElementById("card-photo");
+  if(emp.photoUrl){ ph.src=emp.photoUrl; ph.style.display="block"; }
   else { ph.style.display="none"; }
 }
 
-/* ─────────────────────────────────────────────────────
+/* ─────────────────────────────────
    التنقل بين الأشهر
-───────────────────────────────────────────────────── */
-function changeMonth(delta) {
-  calMonth += delta;
-  if (calMonth > 11) { calMonth=0;  calYear++; }
-  if (calMonth < 0)  { calMonth=11; calYear--; }
+───────────────────────────────── */
+function changeMonth(delta){
+  calMonth+=delta;
+  if(calMonth>11){ calMonth=0; calYear++; }
+  if(calMonth<0) { calMonth=11; calYear--; }
   loadMonthAtt();
 }
 
-/* ─────────────────────────────────────────────────────
-   تحميل الحضور الشهري من Firestore
-───────────────────────────────────────────────────── */
-function loadMonthAtt() {
-  if (!currentEmpId) return;
+/* ─────────────────────────────────
+   تحميل الحضور الشهري
+───────────────────────────────── */
+function loadMonthAtt(){
+  if(!currentEmpId) return;
+  document.getElementById("month-label").textContent = arabicMonth(calMonth,calYear);
+  document.getElementById("cal-title").textContent   = `تقويم الحضور — ${arabicMonth(calMonth,calYear)}`;
+  if(attUnsub){ attUnsub(); attUnsub=null; }
 
-  const label = document.getElementById("month-label");
-  if (label) label.textContent = arabicMonth(calMonth, calYear);
-  const calTitle = document.getElementById("cal-title");
-  if (calTitle) calTitle.textContent = `تقويم الحضور — ${arabicMonth(calMonth, calYear)}`;
+  const first=`${calYear}-${String(calMonth+1).padStart(2,"0")}-01`;
+  const last =localDate(new Date(calYear,calMonth+1,0));
+  document.getElementById("cal-container").innerHTML='<div class="empty-state">جارِ التحميل...</div>';
 
-  if (attUnsub) { attUnsub(); attUnsub=null; }
-
-  const first = `${calYear}-${String(calMonth+1).padStart(2,"0")}-01`;
-  const last  = localDate(new Date(calYear, calMonth+1, 0));
-
-  document.getElementById("cal-container").innerHTML =
-    '<div class="empty-state">جارِ التحميل...</div>';
-
-  const q = query(
-    collection(db, "daily_attendance"),
-    where("employeeId", "==", currentEmpId),
-    where("date", ">=", first),
-    where("date", "<=", last)
+  const q=query(
+    collection(db,"daily_attendance"),
+    where("employeeId","==",currentEmpId),
+    where("date",">=",first),
+    where("date","<=",last)
   );
 
-  attUnsub = onSnapshot(q, snap => {
-    // دمج: نبقي فقط أحدث سجل لكل تاريخ (حماية من التكرار)
-    const byDate = new Map();
-    snap.docs.forEach(d => {
-      const rec = { id: d.id, ...d.data() };
-      const prev = byDate.get(rec.date);
-      if (!prev) { byDate.set(rec.date, rec); return; }
-      // الاحتفاظ بالأحدث (updatedAt أو createdAt)
-      const t1 = prev.updatedAt?.seconds  ?? prev.createdAt?.seconds  ?? 0;
-      const t2 = rec.updatedAt?.seconds   ?? rec.createdAt?.seconds   ?? 0;
-      if (t2 > t1) byDate.set(rec.date, rec);
+  attUnsub=onSnapshot(q, snap=>{
+    // إزالة التكرار: أحدث سجل لكل تاريخ
+    const byDate=new Map();
+    snap.docs.forEach(d=>{
+      const rec={id:d.id,...d.data()};
+      const prev=byDate.get(rec.date);
+      if(!prev) { byDate.set(rec.date,rec); return; }
+      const t1=prev.updatedAt?.seconds??prev.createdAt?.seconds??0;
+      const t2=rec.updatedAt?.seconds??rec.createdAt?.seconds??0;
+      if(t2>t1) byDate.set(rec.date,rec);
     });
-    dailyAttendance = Array.from(byDate.values());
-    renderCalendar();
-    renderSalary();
-  }, err => {
+    dailyAtt=Array.from(byDate.values());
+    renderCalendar(); renderSalary();
+  }, err=>{
     console.error(err);
-    document.getElementById("cal-container").innerHTML =
+    document.getElementById("cal-container").innerHTML=
       '<div class="empty-state">خطأ في تحميل السجل</div>';
   });
 }
 
-/* ─────────────────────────────────────────────────────
+/* ─────────────────────────────────
    رسم التقويم
-───────────────────────────────────────────────────── */
-const STATUSES = [
-  { key:"present",      label:"حضور",           cls:"s-present"  },
-  { key:"absent",       label:"غائب",            cls:"s-absent"   },
-  { key:"paid_leave",   label:"إجازة براتب",      cls:"s-paid"     },
-  { key:"unpaid_leave", label:"إجازة بدون راتب", cls:"s-unpaid"   },
-];
-const DAY_NAMES = ["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+───────────────────────────────── */
+const DAY_NAMES=["الأحد","الاثنين","الثلاثاء","الأربعاء","الخميس","الجمعة","السبت"];
+const STATUS_LABELS={
+  present:"حضور", absent:"غائب",
+  paid_leave:"إجازة براتب", unpaid_leave:"إجازة بدون راتب"
+};
 
-function renderCalendar() {
-  const container   = document.getElementById("cal-container");
-  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
-  let rows = "";
+function renderCalendar(){
+  const container=document.getElementById("cal-container");
+  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
+  let rows="";
 
-  for (let day=1; day<=daysInMonth; day++) {
-    const date     = new Date(calYear, calMonth, day);
+  for(let day=1;day<=daysInMonth;day++){
+    const date     = new Date(calYear,calMonth,day);
     const dateStr  = localDate(date);
     const dayName  = DAY_NAMES[date.getDay()];
-    const weekend  = date.getDay()===5 || date.getDay()===6;
-    const rec      = dailyAttendance.find(r => r.date===dateStr);
-    const status   = rec?.status ?? "";
-    const recId    = rec?.id ?? "";
-    const statusLabel = STATUSES.find(s=>s.key===status)?.label ?? "—";
+    const weekend  = date.getDay()===5||date.getDay()===6;
+    const rec      = dailyAtt.find(r=>r.date===dateStr);
+    const status   = rec?.status??"";
+    const recId    = rec?.id??"";
+    const attId    = rec?.attId??"";
+    const statusLabel=STATUS_LABELS[status]??"";
 
-    const btns = STATUSES.map(s => `
+    /* أزرار الحالة (شاشة) */
+    const btns=STATUSES.map(s=>`
       <button type="button"
         class="status-btn ${s.cls}${status===s.key?" active":""}"
         data-date="${dateStr}" data-status="${s.key}" data-rid="${recId}">
-        ${s.label}
+        ${s.label.replace(/^[^\s]+\s+/,"")}
       </button>`).join("");
 
-    rows += `
+    /* معرف السجل + زر تعديل + زر حذف */
+    const actions = rec
+      ? `<span class="rec-id">${attId}</span>
+         <button type="button" class="status-btn" title="تعديل"
+           data-open-modal="${dateStr}" data-modal-status="${status}" data-modal-rid="${recId}">✏️</button>
+         <button type="button" class="del-att-btn"
+           data-del-rid="${recId}" title="حذف">🗑️</button>`
+      : `<button type="button" class="status-btn" style="border-style:dashed"
+           data-open-modal="${dateStr}" data-modal-status="" data-modal-rid="">➕</button>`;
+
+    /* نص الحالة للطباعة */
+    const printCell=`<span class="status-text${status?" st-"+status:""}">${statusLabel||"—"}</span>
+      ${attId?`<span class="print-rec-id"> (${attId})</span>`:""}`;
+
+    rows+=`
       <tr class="cal-row${weekend?" weekend":""}">
         <td class="cal-day-cell">
           <span class="cal-day-num">${day}</span>
           <span class="cal-day-name">${dayName}</span>
         </td>
-        <td class="screen-only">${btns}</td>
-        <td class="print-only"><span class="status-text${status?" st-"+status:""}">${statusLabel}</span></td>
+        <td class="screen-only">
+          <div class="status-group">${btns}</div>
+        </td>
+        <td class="screen-only" style="width:1%;white-space:nowrap">
+          <div class="status-group">${actions}</div>
+        </td>
+        <td class="print-only" colspan="2">${printCell}</td>
       </tr>`;
   }
 
-  container.innerHTML = `
+  container.innerHTML=`
     <table class="attendance-calendar">
       <thead><tr>
         <th>اليوم</th>
         <th class="screen-only">الحالة</th>
-        <th class="print-only">الحالة</th>
+        <th class="screen-only">المعرف</th>
+        <th class="print-only" colspan="2">الحالة</th>
       </tr></thead>
       <tbody>${rows}</tbody>
     </table>`;
 
-  container.querySelectorAll(".status-btn").forEach(btn =>
-    btn.addEventListener("click", () =>
-      setDay(btn.dataset.date, btn.dataset.status, btn.dataset.rid)));
+  /* أحداث أزرار الحالة السريعة */
+  container.querySelectorAll(".status-btn[data-status]").forEach(btn=>
+    btn.addEventListener("click",()=>setDay(btn.dataset.date,btn.dataset.status,btn.dataset.rid)));
+
+  /* أحداث زر فتح نافذة التعديل */
+  container.querySelectorAll("[data-open-modal]").forEach(btn=>
+    btn.addEventListener("click",()=>
+      openAttModal(btn.dataset.openModal, btn.dataset.modalStatus, btn.dataset.modalRid)));
+
+  /* أحداث زر الحذف المباشر */
+  container.querySelectorAll(".del-att-btn[data-del-rid]").forEach(btn=>
+    btn.addEventListener("click",async ()=>{
+      if(!confirm("هل تريد حذف سجل هذا اليوم؟")) return;
+      const rid=btn.dataset.delRid;
+      try{
+        await deleteDoc(doc(db,"daily_attendance",rid));
+        dailyAtt=dailyAtt.filter(r=>r.id!==rid);
+        renderCalendar(); renderSalary();
+        toast("تم حذف السجل");
+      }catch(err){ console.error(err); toast("خطأ أثناء الحذف",true); }
+    }));
 }
 
-/* ─────────────────────────────────────────────────────
-   تعيين حالة اليوم (مع حماية من التكرار)
-───────────────────────────────────────────────────── */
-async function setDay(dateStr, newStatus, _rid) {
-  if (!currentEmpId || pendingDays.has(dateStr)) return;
+/* ─────────────────────────────────
+   تعيين حالة اليوم
+───────────────────────────────── */
+async function setDay(dateStr, newStatus, _rid){
+  if(!currentEmpId||pendingDays.has(dateStr)) return;
   pendingDays.add(dateStr);
 
-  // تعطيل أزرار هذا اليوم
   document.querySelectorAll(`.status-btn[data-date="${dateStr}"]`)
-    .forEach(b => { b.disabled=true; b.style.opacity="0.45"; });
+    .forEach(b=>{ b.disabled=true; b.style.opacity="0.45"; });
 
-  const emp      = employees.find(e => e.id===currentEmpId);
-  const existing = dailyAttendance.find(r => r.date===dateStr);
+  const emp      = employees.find(e=>e.id===currentEmpId);
+  const existing = dailyAtt.find(r=>r.date===dateStr);
 
-  try {
-    if (existing) {
-      if (existing.status === newStatus) {
-        // ضغط نفس الحالة → إلغاء التحديد
+  try{
+    if(existing){
+      if(existing.status===newStatus){
+        /* نفس الحالة → إلغاء */
         await deleteDoc(doc(db,"daily_attendance",existing.id));
-        dailyAttendance = dailyAttendance.filter(r => r.date!==dateStr);
+        dailyAtt=dailyAtt.filter(r=>r.date!==dateStr);
       } else {
-        await updateDoc(doc(db,"daily_attendance",existing.id), {
-          status: newStatus, updatedAt: serverTimestamp()
+        await updateDoc(doc(db,"daily_attendance",existing.id),{
+          status:newStatus, updatedAt:serverTimestamp()
         });
-        existing.status = newStatus;
+        existing.status=newStatus;
       }
     } else {
-      const newDoc = await addDoc(collection(db,"daily_attendance"), {
+      /* سجل جديد مع معرف تسلسلي */
+      const attId=await nextAttId();
+      const newDoc=await addDoc(collection(db,"daily_attendance"),{
+        attId,
         employeeId:   currentEmpId,
-        employeeName: emp?.name ?? "",
+        employeeName: emp?.name??"",
+        jobTitle:     emp?.jobTitle??"",
         date:         dateStr,
         status:       newStatus,
         createdAt:    serverTimestamp(),
         updatedAt:    serverTimestamp(),
       });
-      dailyAttendance.push({ id: newDoc.id, date: dateStr, status: newStatus });
+      dailyAtt.push({id:newDoc.id, attId, date:dateStr, status:newStatus});
     }
-    renderCalendar();
-    renderSalary();
-  } catch(err) {
-    console.error(err);
-    toast("خطأ أثناء الحفظ", true);
-  } finally {
+    renderCalendar(); renderSalary();
+  }catch(err){ console.error(err); toast("خطأ أثناء الحفظ",true); }
+  finally{
     pendingDays.delete(dateStr);
     document.querySelectorAll(`.status-btn[data-date="${dateStr}"]`)
-      .forEach(b => { b.disabled=false; b.style.opacity=""; });
+      .forEach(b=>{ b.disabled=false; b.style.opacity=""; });
   }
 }
 
-/* ─────────────────────────────────────────────────────
+/* ─────────────────────────────────
    ملخص الراتب
-───────────────────── ─────────────────────────────── */
-function renderSalary() {
-  const el  = document.getElementById("salary-summary");
-  if (!el) return;
-  const emp = employees.find(e => e.id===currentEmpId);
-  const salary      = emp?.monthlySalary ?? 0;
-  const daysInMonth = new Date(calYear, calMonth+1, 0).getDate();
-  const dailyRate   = salary > 0 ? salary / daysInMonth : 0;
+───────────────────────────────── */
+function renderSalary(){
+  const el=document.getElementById("salary-summary"); if(!el) return;
+  const emp=employees.find(e=>e.id===currentEmpId);
+  const salary      = emp?.monthlySalary??0;
+  const daysInMonth = new Date(calYear,calMonth+1,0).getDate();
+  const dailyRate   = salary>0 ? salary/daysInMonth : 0;
 
-  const presentDays     = dailyAttendance.filter(r=>r.status==="present").length;
-  const absentDays      = dailyAttendance.filter(r=>r.status==="absent").length;
-  const paidLeaveDays   = dailyAttendance.filter(r=>r.status==="paid_leave").length;
-  const unpaidLeaveDays = dailyAttendance.filter(r=>r.status==="unpaid_leave").length;
-  const markedDays      = presentDays+absentDays+paidLeaveDays+unpaidLeaveDays;
-  const unmarkedDays    = daysInMonth - markedDays;
+  const present  = dailyAtt.filter(r=>r.status==="present").length;
+  const absent   = dailyAtt.filter(r=>r.status==="absent").length;
+  const paid     = dailyAtt.filter(r=>r.status==="paid_leave").length;
+  const unpaid   = dailyAtt.filter(r=>r.status==="unpaid_leave").length;
+  const marked   = present+absent+paid+unpaid;
+  const unmarked = daysInMonth-marked;
+  const paidDays = present+paid;
+  const net      = paidDays*dailyRate;
+  const deduct   = (absent+unpaid)*dailyRate;
 
-  const paidDays   = presentDays + paidLeaveDays;
-  const netSalary  = paidDays * dailyRate;
-  const deductions = (absentDays + unpaidLeaveDays) * dailyRate;
-
-  el.innerHTML = `
+  el.innerHTML=`
     <div class="info-chip chip-present">
-      <div class="k">✅ أيام الحضور</div><div class="v">${presentDays} يوم</div>
-    </div>
+      <div class="k">✅ أيام الحضور</div><div class="v">${present} يوم</div></div>
     <div class="info-chip chip-absent">
-      <div class="k">❌ أيام الغياب</div><div class="v">${absentDays} يوم</div>
-    </div>
+      <div class="k">❌ أيام الغياب</div><div class="v">${absent} يوم</div></div>
     <div class="info-chip chip-paid">
-      <div class="k">🏖️ إجازة براتب</div><div class="v">${paidLeaveDays} يوم</div>
-    </div>
+      <div class="k">🏖️ إجازة براتب</div><div class="v">${paid} يوم</div></div>
     <div class="info-chip chip-unpaid">
-      <div class="k">🚫 إجازة بدون راتب</div><div class="v">${unpaidLeaveDays} يوم</div>
-    </div>
+      <div class="k">🚫 إجازة بدون راتب</div><div class="v">${unpaid} يوم</div></div>
     <div class="info-chip">
-      <div class="k">⬜ أيام غير مسجلة</div><div class="v">${unmarkedDays} يوم</div>
-    </div>
+      <div class="k">⬜ غير مسجل</div><div class="v">${unmarked} يوم</div></div>
     <div class="info-chip chip-total">
-      <div class="k">إجمالي أيام الشهر</div><div class="v">${daysInMonth} يوم</div>
-    </div>
+      <div class="k">إجمالي أيام الشهر</div><div class="v">${daysInMonth} يوم</div></div>
     <div class="info-chip">
-      <div class="k">أجر اليوم الواحد</div><div class="v">${fmt(dailyRate)}</div>
-    </div>
+      <div class="k">أجر اليوم الواحد</div><div class="v">${fmt(dailyRate)}</div></div>
     <div class="info-chip chip-deduct">
-      <div class="k">إجمالي الخصومات</div><div class="v">${fmt(deductions)}</div>
-    </div>
+      <div class="k">إجمالي الخصومات</div><div class="v">${fmt(deduct)}</div></div>
     <div class="info-chip chip-net">
       <div class="k">💰 الراتب المستحق — ${esc(emp?.name??"")} — ${arabicMonth(calMonth,calYear)}</div>
-      <div class="v salary-big">${fmt(netSalary)}</div>
+      <div class="v salary-big">${fmt(net)}</div>
     </div>`;
 }
 </script>
