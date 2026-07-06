@@ -1084,6 +1084,16 @@ function renderSalary(){
   const paidDays=present+paid;
   const net     =paidDays*dailyRate;
   const deduct  =(absent+unpaid)*dailyRate;
+
+  // ── السلف المخصومة: تشمل كل السلف المسجلة على الموظف في هذا الشهر ──
+  const monthStr=`${calYear}-${String(calMonth+1).padStart(2,"0")}`;
+  const monthAdvTxs=empFinTxs.filter(t=>t.type==="advance"&&(t.date??"").startsWith(monthStr));
+  const totalAdvances=monthAdvTxs.reduce((s,t)=>s+(t.amount||0),0);
+  const advCount=monthAdvTxs.length;
+  // الرصيد الإجمالي للسلف المتراكمة (كل التواريخ) لعرض رصيد المديونية
+  const allAdvances=empFinTxs.filter(t=>t.type==="advance").reduce((s,t)=>s+(t.amount||0),0);
+  const netAfterAdv=net-totalAdvances;
+
   el.innerHTML=`
     <div class="info-chip chip-present"><div class="k">✅ أيام الحضور</div><div class="v">${present} يوم</div></div>
     <div class="info-chip chip-absent"><div class="k">❌ أيام الغياب</div><div class="v">${absent} يوم</div></div>
@@ -1092,10 +1102,24 @@ function renderSalary(){
     <div class="info-chip"><div class="k">⬜ غير مسجل</div><div class="v">${daysInMonth-marked} يوم</div></div>
     <div class="info-chip chip-total"><div class="k">إجمالي أيام الشهر</div><div class="v">${daysInMonth} يوم</div></div>
     <div class="info-chip"><div class="k">أجر اليوم الواحد</div><div class="v">${fmt(dailyRate)}</div></div>
-    <div class="info-chip chip-deduct"><div class="k">إجمالي الخصومات</div><div class="v">${fmt(deduct)}</div></div>
-    <div class="info-chip chip-net">
-      <div class="k">💰 الراتب المستحق — ${esc(emp?.name??"")} — ${arabicMonth(calMonth,calYear)}</div>
-      <div class="v salary-big">${fmt(net)}</div>
+    <div class="info-chip chip-deduct"><div class="k">خصم الغياب / إجازة بدون راتب</div><div class="v">${fmt(deduct)}</div></div>
+    <div class="info-chip" style="border-top:3px solid #7aa0e0">
+      <div class="k">💰 الراتب قبل السلف</div>
+      <div class="v" style="font-weight:800;color:var(--primary-dark)">${fmt(net)}</div>
+    </div>
+    <div class="info-chip chip-deduct" style="border-top:3px solid #e07070">
+      <div class="k">👤 سلف هذا الشهر (${advCount} سلفة)</div>
+      <div class="v" style="color:#b3432f;font-weight:800">${fmt(totalAdvances)}</div>
+    </div>
+    ${allAdvances>totalAdvances?`
+    <div class="info-chip" style="border-top:3px solid #d4a854;background:#fefaf3">
+      <div class="k">📋 إجمالي السلف المتراكمة</div>
+      <div class="v" style="color:#7a4f10;font-weight:800">${fmt(allAdvances)}</div>
+    </div>`:""}
+    <div class="info-chip chip-net" style="grid-column:1/-1">
+      <div class="k">💵 الراتب المستحق بعد خصم السلف — ${esc(emp?.name??"")} — ${arabicMonth(calMonth,calYear)}</div>
+      <div class="v salary-big" style="color:${netAfterAdv<0?"#ffb3a7":"#fff"}">${fmt(Math.max(0,netAfterAdv))}</div>
+      ${netAfterAdv<0?`<div style="font-size:12px;color:#ffb3a7;margin-top:4px">⚠️ السلف تجاوزت الراتب — مبلغ زائد: ${fmt(Math.abs(netAfterAdv))}</div>`:""}
     </div>`;
 }
 </script>
