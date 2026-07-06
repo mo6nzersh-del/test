@@ -83,13 +83,39 @@
       .log-transfer{background:#e8f0fb;color:#2a5bbf}
       .log-load{background:#fdf4e3;color:#a06a10}
       .log-time{font-size:11px;color:var(--muted);font-family:monospace}
+      /* ── prod/load line rows styling ── */
+      .prod-line-row select,
+      .prod-line-row input[type="number"]{
+        width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;
+        font-family:inherit;font-size:.88rem;background:var(--surface);color:var(--ink);
+        outline:none;transition:border-color .15s;box-sizing:border-box;
+      }
+      .prod-line-row select:focus,
+      .prod-line-row input[type="number"]:focus{border-color:var(--primary)}
+      .remove-line{background:var(--danger-soft)!important;color:var(--danger)!important;
+        border:none!important;border-radius:7px!important;padding:8px 12px!important;
+        font-weight:700!important;font-size:.8rem!important;cursor:pointer!important;
+        white-space:nowrap!important}
+      .remove-line:disabled{opacity:.4;cursor:not-allowed!important}
       /* ── print styles ── */
       @media print{
-        #topbar,.page-header,.section-tabs,.wh-product-actions,.op-type-group,.panel-header>.btn,
-        #receipt-close-btn,.modal-box-header button,#receipt-print-btn-outer{display:none!important}
-        .modal-overlay{position:static!important;background:none!important;padding:0!important;display:block!important}
-        .modal-box{box-shadow:none!important;max-height:none!important;padding:0!important}
+        /* hide everything except the invoice content */
+        body > *{display:none!important}
+        #invoice-modal{
+          display:block!important;position:static!important;
+          background:none!important;padding:0!important;
+          overflow:visible!important;
+        }
+        #invoice-modal .modal-box{
+          box-shadow:none!important;max-height:none!important;
+          border:none!important;padding:0!important;
+          overflow:visible!important;
+        }
+        #invoice-modal .modal-box-header,
+        #receipt-print-btn-outer{display:none!important}
+        #invoice-content{display:block!important}
         body{background:#fff!important}
+        @page{margin:15mm}
       }
     </style>
   </head>
@@ -262,6 +288,7 @@
               <table class="log-table">
                 <thead>
                   <tr>
+                    <th style="width:60px">#</th>
                     <th>النوع</th>
                     <th>التفاصيل</th>
                     <th>من قِبَل</th>
@@ -270,7 +297,7 @@
                   </tr>
                 </thead>
                 <tbody id="log-table-body">
-                  <tr><td colspan="5"><div class="empty-state">جارِ التحميل...</div></td></tr>
+                  <tr><td colspan="6"><div class="empty-state">جارِ التحميل...</div></td></tr>
                 </tbody>
               </table>
             </div>
@@ -296,7 +323,8 @@
           </div>
           <div class="field">
             <label for="product-serial">رقم التعريف التسلسلي</label>
-            <input type="text" id="product-serial" placeholder="يُولَّد تلقائياً" />
+            <input type="text" id="product-serial" placeholder="يُولَّد تلقائياً" readonly
+              style="background:var(--bg);color:var(--muted);cursor:not-allowed;font-family:monospace;font-weight:700" />
           </div>
           <div class="field">
             <label>صورة المنتج (اختياري)</label>
