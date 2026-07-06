@@ -709,15 +709,20 @@ function initLoadingForm() {
         performedBy: currentUser?.email ?? "—",
         createdAt: serverTimestamp(),
       });
-      // merchant debt record
-      const debtRef = docRef(collection(db, "merchantDebts"));
-      batch.set(debtRef, {
-        merchantId, merchantName: merchant?.name ?? "",
+      // write to merchantTransactions so it appears in the merchant account page
+      const today = new Date().toISOString().slice(0, 10);
+      const txId = `TL-${Date.now().toString(36).toUpperCase().slice(-6)}`;
+      const txRef = docRef(collection(db, "merchantTransactions"));
+      batch.set(txRef, {
+        merchantId,
+        merchantName: merchant?.name ?? "",
         amount: totalAmount,
-        type: "loading",
+        type: "in",   // merchant owes us money (we expect to collect)
+        note: `تحميل من مخزن ${wh?.name ?? ""}${note ? " — " + note : ""}`,
+        date: today,
+        txId,
         opId,
-        description: `تحميل من مخزن ${wh?.name ?? ""} — ${lineDetails.length} صنف`,
-        settled: false,
+        source: "loading",
         createdAt: serverTimestamp(),
       });
       // activity log
