@@ -705,20 +705,22 @@ function loadMonthAtt(){
   const last =localDate(new Date(calYear,calMonth+1,0));
   document.getElementById("cal-container").innerHTML='<div class="empty-state">جارِ التحميل...</div>';
 
+  // استعلام بحقل واحد فقط (لا يحتاج فهرساً مركباً في Firestore)
+  // التصفية بالشهر تتم في الكود بعد استلام البيانات
   const q=query(
     collection(db,"daily_attendance"),
-    where("employeeId","==",currentEmpId),
-    where("date",">=",first),
-    where("date","<=",last)
+    where("employeeId","==",currentEmpId)
   );
 
   attUnsub=onSnapshot(q, snap=>{
-    // إزالة التكرار: أحدث سجل لكل تاريخ
+    // تصفية الشهر + إزالة التكرار (أحدث سجل لكل تاريخ)
     const byDate=new Map();
     snap.docs.forEach(d=>{
       const rec={id:d.id,...d.data()};
+      // نبقي فقط السجلات التابعة للشهر المعروض
+      if(!rec.date || rec.date < first || rec.date > last) return;
       const prev=byDate.get(rec.date);
-      if(!prev) { byDate.set(rec.date,rec); return; }
+      if(!prev){ byDate.set(rec.date,rec); return; }
       const t1=prev.updatedAt?.seconds??prev.createdAt?.seconds??0;
       const t2=rec.updatedAt?.seconds??rec.createdAt?.seconds??0;
       if(t2>t1) byDate.set(rec.date,rec);
@@ -728,7 +730,7 @@ function loadMonthAtt(){
   }, err=>{
     console.error(err);
     document.getElementById("cal-container").innerHTML=
-      '<div class="empty-state">خطأ في تحميل السجل</div>';
+      '<div class="empty-state">خطأ في تحميل السجل — تحقق من اتصال الإنترنت</div>';
   });
 }
 
