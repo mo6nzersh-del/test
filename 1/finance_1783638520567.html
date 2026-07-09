@@ -339,6 +339,7 @@ function renderNav(user){
     {href:"employees.html",label:"الموظفين"},
     {href:"finance.html",  label:"المالية"},
   ];
+  const navLinks=pages.map(p=>`<a href="/${p.href}" class="${p.href==="finance.html"?"active":""}">${p.label}</a>`).join("");
   document.getElementById("topbar").innerHTML=`
     <div class="topbar-inner">
       <div class="brand">
@@ -347,13 +348,32 @@ function renderNav(user){
           onerror="this.style.display='none'" />
         <span>أحمد وحمدي</span>
       </div>
-      <nav class="nav-tabs">${pages.map(p=>`<a href="/${p.href}" class="${p.href==="finance.html"?"active":""}">${p.label}</a>`).join("")}</nav>
+      <nav class="nav-tabs">${navLinks}</nav>
       <div class="user-chip">
         <span>${user.email??""}</span>
         <button class="icon-btn" id="logout-btn">خروج</button>
       </div>
-    </div>`;
+      <button type="button" class="nav-toggle" id="nav-toggle" aria-label="القائمة">☰</button>
+    </div>
+    <nav class="mobile-nav" id="mobile-nav">
+      ${navLinks}
+      <div class="mobile-user">
+        <span>${user.email??""}</span>
+        <button class="icon-btn" id="logout-btn-mobile">خروج</button>
+      </div>
+    </nav>`;
   document.getElementById("logout-btn").addEventListener("click",()=>signOut(auth).then(()=>location.href="/"));
+  document.getElementById("logout-btn-mobile").addEventListener("click",()=>signOut(auth).then(()=>location.href="/"));
+  const navToggle=document.getElementById("nav-toggle");
+  const mobileNav=document.getElementById("mobile-nav");
+  navToggle.addEventListener("click",()=>{
+    const isOpen=mobileNav.classList.toggle("open");
+    navToggle.textContent=isOpen?"✕":"☰";
+  });
+  mobileNav.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>{
+    mobileNav.classList.remove("open");
+    navToggle.textContent="☰";
+  }));
 }
 
 /* ── حالة ── */
