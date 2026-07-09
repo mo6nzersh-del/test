@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>المنتجات - أحمد وحمدي</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <script type="module" crossorigin src="/assets/products-DbXeSzH2.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/auth-guard-DMMO1gWE.js">
+    <link rel="modulepreload" crossorigin href="/assets/nav-C4LmEyvm.js">
+    <link rel="modulepreload" crossorigin href="/assets/image-utils-ix_Ztzsr.js">
+    <link rel="stylesheet" crossorigin href="/assets/auth-guard-C6CJ8_8i-v2.css">
+    <style>
+      /* ── Warehouse sections ── */
+      .warehouse-section{border:1px solid var(--border);border-radius:10px;margin-bottom:20px;overflow:hidden;background:var(--surface)}
+      .warehouse-section-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--bg);border-bottom:1px solid var(--border);gap:12px}
+      .warehouse-section-title{font-weight:700;font-size:1rem;color:var(--ink);display:flex;align-items:center;gap:8px}
+      .warehouse-section-title .wh-count{font-size:.78rem;font-weight:500;color:var(--muted);background:var(--border);border-radius:20px;padding:1px 9px}
+      .warehouse-section-body{padding:16px 18px}
+      .wh-products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+      .wh-product-card{border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--surface)}
+      .wh-product-img{width:100%;height:120px;object-fit:cover;display:block;background:var(--bg)}
+      .wh-product-img-placeholder{width:100%;height:120px;background:var(--bg);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:2rem}
+      .wh-product-info{padding:10px 12px 12px}
+      .wh-product-name{font-weight:700;font-size:.92rem;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .wh-product-serial{font-size:.72rem;color:var(--muted);margin-bottom:5px;font-family:monospace}
+      .wh-product-desc{font-size:.76rem;color:var(--muted);margin-bottom:7px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+      .wh-product-meta{display:flex;justify-content:space-between;align-items:flex-end;gap:6px;flex-wrap:wrap}
+      .wh-product-qty{font-size:.82rem;font-weight:700;color:var(--ink)}
+      .wh-product-qty span{font-weight:400;color:var(--muted);font-size:.75rem}
+      .wh-product-price{font-size:.84rem;font-weight:700;color:var(--primary)}
+      .wh-product-actions{display:flex;gap:5px;margin-top:9px;padding-top:8px;border-top:1px solid var(--border)}
+      .wh-product-actions button{flex:1;padding:5px 0;border:none;border-radius:5px;cursor:pointer;font-size:.76rem;font-family:inherit}
+      .wh-product-actions .edit-btn{background:var(--bg);color:var(--ink)}
+      .wh-product-actions .del-btn{background:#fee2e2;color:#dc2626}
+      .wh-empty-products{text-align:center;padding:20px 0;color:var(--muted);font-size:.86rem}
+      /* ── op-type toggle ── */
+      .op-type-group{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+      .op-type-btn{flex:1;min-width:120px;padding:12px 10px;border:2px solid var(--border);border-radius:10px;background:var(--surface);font-family:inherit;font-weight:700;font-size:.88rem;color:var(--muted);cursor:pointer;text-align:center;transition:all .15s}
+      .op-type-btn:hover{border-color:var(--primary);color:var(--primary-dark);background:var(--primary-soft)}
+      .op-type-btn.active{border-color:var(--primary);background:var(--primary-soft);color:var(--primary-dark)}
+      /* ── op forms ── */
+      .op-form-section{display:none}
+      .op-form-section.active{display:block}
+      .items-lines-block{background:var(--bg);border-radius:10px;padding:12px;margin-bottom:12px}
+      .items-lines-block h4{margin:0 0 10px;font-size:.85rem;color:var(--muted)}
+      .prod-line-row{display:grid;grid-template-columns:2fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px}
+      .prod-line-row .line-hint{grid-column:1/-1;font-size:.75rem;color:var(--primary-dark);font-weight:600;padding:2px 4px}
+      .prod-line-row .remove-line{background:var(--danger-soft);color:var(--danger);border:none;border-radius:7px;padding:7px 11px;font-weight:700;font-size:.8rem;cursor:pointer}
+      /* ── invoice (print) ── */
+      .invoice-box{font-family:Cairo,sans-serif;direction:rtl;max-width:640px;margin:0 auto}
+      .invoice-header{text-align:center;border-bottom:3px solid var(--primary);padding-bottom:16px;margin-bottom:16px}
+      .invoice-mark{width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 8px}
+      .invoice-company{font-size:18px;font-weight:800;margin-bottom:2px}
+      .invoice-sub{font-size:12px;color:var(--muted)}
+      .invoice-meta-row{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:14px;flex-wrap:wrap;gap:8px;background:var(--bg);padding:10px 14px;border-radius:8px}
+      .invoice-meta-row span{color:var(--muted)}
+      .invoice-meta-row strong{color:var(--ink)}
+      .invoice-type-badge{display:inline-block;padding:5px 14px;border-radius:999px;font-size:12.5px;font-weight:700;margin-bottom:14px}
+      .inv-prod{background:var(--primary-soft);color:var(--primary-dark)}
+      .inv-transfer{background:#e8f0fb;color:#2a5bbf}
+      .inv-load{background:#fdf4e3;color:#a06a10}
+      .invoice-table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:13px}
+      .invoice-table th{text-align:right;padding:7px 10px;background:var(--bg);font-size:12px;font-weight:700;color:var(--muted);border-bottom:1.5px solid var(--border)}
+      .invoice-table td{padding:8px 10px;border-bottom:1px solid var(--border)}
+      .invoice-table tr:last-child td{border-bottom:none}
+      .invoice-total-row{display:flex;justify-content:space-between;font-size:16px;font-weight:800;color:var(--primary-dark);border-top:2px solid var(--primary);padding-top:12px;margin-top:4px}
+      .invoice-footer{margin-top:18px;padding-top:14px;border-top:1px dashed var(--border);display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted)}
+      .invoice-sig{text-align:center}
+      .invoice-sig-line{width:120px;border-top:1px solid var(--ink);margin:28px auto 4px}
+      /* ── record badges ── */
+      .record-badge.production{background:var(--primary-soft);color:var(--primary-dark)}
+      .record-badge.transfer{background:#e8f0fb;color:#2a5bbf}
+      .record-badge.loading{background:#fdf4e3;color:#a06a10}
+      /* ── log table ── */
+      .log-table{width:100%;border-collapse:collapse}
+      .log-table th{text-align:right;font-size:12px;color:var(--muted);font-weight:700;padding:7px 10px;border-bottom:1.5px solid var(--border)}
+      .log-table td{padding:9px 10px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:top}
+      .log-table tr:last-child td{border-bottom:none}
+      .log-badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
+      .log-prod{background:var(--primary-soft);color:var(--primary-dark)}
+      .log-transfer{background:#e8f0fb;color:#2a5bbf}
+      .log-load{background:#fdf4e3;color:#a06a10}
+      .log-time{font-size:11px;color:var(--muted);font-family:monospace}
+      /* ── prod/load line rows styling ── */
+      .prod-line-row select,
+      .prod-line-row input[type="number"]{
+        width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;
+        font-family:inherit;font-size:.88rem;background:var(--surface);color:var(--ink);
+        outline:none;transition:border-color .15s;box-sizing:border-box;
+      }
+      .prod-line-row select:focus,
+      .prod-line-row input[type="number"]:focus{border-color:var(--primary)}
+      .remove-line{background:var(--danger-soft)!important;color:var(--danger)!important;
+        border:none!important;border-radius:7px!important;padding:8px 12px!important;
+        font-weight:700!important;font-size:.8rem!important;cursor:pointer!important;
+        white-space:nowrap!important}
+      .remove-line:disabled{opacity:.4;cursor:not-allowed!important}
+      /* ── print styles ── */
+      @media print{
+        /* hide everything except the invoice content */
+        body > *{display:none!important}
+        #invoice-modal{
+          display:block!important;position:static!important;
+          background:none!important;padding:0!important;
+          overflow:visible!important;
+        }
+        #invoice-modal .modal-box{
+          box-shadow:none!important;max-height:none!important;
+          border:none!important;padding:0!important;
+          overflow:visible!important;
+        }
+        #invoice-modal .modal-box-header,
+        #receipt-print-btn-outer{display:none!important}
+        #invoice-content{display:block!important}
+        body{background:#fff!important}
+        @page{margin:15mm}
+      }
+    </style>
+  </head>
+  <body>
+    <div id="app">
+      <header id="topbar" class="topbar"></header>
+      <main class="page">
+        <div class="page-header">
+          <div>
+            <h2>المنتجات والمخازن</h2>
+            <p>الحركات بين المخازن، التحميل للتجار، وإدارة البضائع</p>
+          </div>
+        </div>
+
+        <div class="section-tabs">
+          <button type="button" class="active" id="tab-movements">الحركات</button>
+          <button type="button" id="tab-loading">عمليات التحميل</button>
+          <button type="button" id="tab-warehouses">المخازن والبضائع</button>
+          <button type="button" id="tab-log">سجل العمليات</button>
+        </div>
+
+        <!-- ══════════ TAB 1: MOVEMENTS (production + transfer) ══════════ -->
+        <div class="section-view active" id="view-movements">
+          <div class="panel">
+            <h3>نوع العملية</h3>
+            <div class="op-type-group">
+              <button type="button" class="op-type-btn active" id="op-btn-production" data-op="production">
+                🏭 إنتاج<br><small style="font-weight:400">استهلاك مواد وإنتاج بضائع</small>
+              </button>
+              <button type="button" class="op-type-btn" id="op-btn-transfer" data-op="transfer">
+                🔄 تحويل بين مخازن<br><small style="font-weight:400">نقل صنف من مخزن لآخر</small>
+              </button>
+            </div>
+
+            <!-- PRODUCTION form -->
+            <div class="op-form-section active" id="form-production">
+              <form id="production-form">
+                <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+                  <div class="field" style="margin-bottom:0">
+                    <label for="prod-from-wh">مخزن المواد الخام (المصدر)</label>
+                    <select id="prod-from-wh" required><option value="">اختر مخزناً</option></select>
+                  </div>
+                  <div class="field" style="margin-bottom:0">
+                    <label for="prod-to-wh">مخزن الإنتاج (الهدف)</label>
+                    <select id="prod-to-wh" required><option value="">اختر مخزناً</option></select>
+                  </div>
+                </div>
+                <!-- Input items (deducted from source) -->
+                <div class="items-lines-block">
+                  <h4>⬇ المواد المستهلكة (تُخصم من مخزن المصدر)</h4>
+                  <div id="prod-input-lines"></div>
+                  <button type="button" class="btn small ghost" id="prod-add-input-btn">+ إضافة مادة</button>
+                </div>
+                <!-- Output items (added to destination) -->
+                <div class="items-lines-block">
+                  <h4>⬆ المنتجات الناتجة (تُضاف لمخزن الإنتاج)</h4>
+                  <div id="prod-output-lines"></div>
+                  <button type="button" class="btn small ghost" id="prod-add-output-btn">+ إضافة منتج ناتج</button>
+                </div>
+                <div class="field">
+                  <label for="prod-note">ملاحظات (اختياري)</label>
+                  <input type="text" id="prod-note" placeholder="مثال: دفعة إنتاج رقم 5" />
+                </div>
+                <button type="submit" class="btn" id="production-submit-btn">تنفيذ عملية الإنتاج</button>
+              </form>
+            </div>
+
+            <!-- TRANSFER form -->
+            <div class="op-form-section" id="form-transfer">
+              <form id="transfer-form">
+                <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+                  <div class="field" style="margin-bottom:0">
+                    <label for="trans-from-wh">من مخزن</label>
+                    <select id="trans-from-wh" required><option value="">اختر مخزناً</option></select>
+                  </div>
+                  <div class="field" style="margin-bottom:0">
+                    <label for="trans-to-wh">إلى مخزن</label>
+                    <select id="trans-to-wh" required><option value="">اختر مخزناً</option></select>
+                  </div>
+                </div>
+                <div class="field">
+                  <label for="trans-product">الصنف المحوّل</label>
+                  <select id="trans-product" required><option value="">اختر صنفاً من المخزن المصدر</option></select>
+                </div>
+                <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:14px">
+                  <div class="field" style="margin-bottom:0">
+                    <label for="trans-qty">الكمية</label>
+                    <input type="number" id="trans-qty" min="0.01" step="0.01" value="1" required />
+                  </div>
+                  <div class="field" style="margin-bottom:0">
+                    <label for="trans-dest-product">الصنف في المخزن الهدف (اختياري)</label>
+                    <select id="trans-dest-product"><option value="">إنشاء صنف جديد تلقائياً</option></select>
+                  </div>
+                </div>
+                <div class="field" style="margin-top:14px">
+                  <label for="trans-note">ملاحظات (اختياري)</label>
+                  <input type="text" id="trans-note" placeholder="سبب التحويل..." />
+                </div>
+                <button type="submit" class="btn" id="transfer-submit-btn">تنفيذ التحويل</button>
+              </form>
+            </div>
+          </div>
+
+          <div class="panel">
+            <h3>سجل الحركات بين المخازن</h3>
+            <div class="records-list" id="movements-records-list">
+              <div class="empty-state">جارِ التحميل...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════ TAB 2: LOADING (warehouse → merchant) ══════════ -->
+        <div class="section-view" id="view-loading">
+          <div class="panel">
+            <h3>إرسال بضائع إلى تاجر</h3>
+            <p style="color:var(--muted);font-size:.87rem;margin:-8px 0 16px">تُخصم الكميات من المخزن وتُسجَّل كأموال مطلوبة من التاجر</p>
+            <form id="loading-form">
+              <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+                <div class="field" style="margin-bottom:0">
+                  <label for="load-warehouse">المخزن المصدر</label>
+                  <select id="load-warehouse" required><option value="">اختر مخزناً</option></select>
+                </div>
+                <div class="field" style="margin-bottom:0">
+                  <label for="load-merchant">التاجر</label>
+                  <select id="load-merchant" required><option value="">اختر تاجراً</option></select>
+                </div>
+              </div>
+              <div class="items-lines-block">
+                <h4>البضائع المرسلة</h4>
+                <div id="load-lines"></div>
+                <button type="button" class="btn small ghost" id="load-add-line-btn">+ إضافة صنف</button>
+              </div>
+              <div class="field">
+                <label for="load-note">ملاحظات (اختياري)</label>
+                <input type="text" id="load-note" placeholder="مثال: دفعة يوليو..." />
+              </div>
+              <button type="submit" class="btn" id="loading-submit-btn">تنفيذ عملية التحميل</button>
+            </form>
+          </div>
+
+          <div class="panel">
+            <h3>سجل عمليات التحميل</h3>
+            <div class="records-list" id="loading-records-list">
+              <div class="empty-state">جارِ التحميل...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════ TAB 3: WAREHOUSES & PRODUCTS ══════════ -->
+        <div class="section-view" id="view-warehouses">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>المخازن</h3>
+              <button type="button" class="btn small" id="add-warehouse-btn">+ إضافة مخزن</button>
+            </div>
+            <div id="warehouses-container">
+              <div class="empty-state">جارِ التحميل...</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ══════════ TAB 4: ACTIVITY LOG ══════════ -->
+        <div class="section-view" id="view-log">
+          <div class="panel">
+            <div class="panel-header">
+              <h3>سجل جميع العمليات</h3>
+              <span id="log-count" style="color:var(--muted);font-size:.85rem"></span>
+            </div>
+            <div class="table-wrap">
+              <table class="log-table">
+                <thead>
+                  <tr>
+                    <th style="width:60px">#</th>
+                    <th>النوع</th>
+                    <th>التفاصيل</th>
+                    <th>من قِبَل</th>
+                    <th>التاريخ والوقت</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="log-table-body">
+                  <tr><td colspan="6"><div class="empty-state">جارِ التحميل...</div></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </main>
+    </div>
+
+    <!-- ══════════ PRODUCT MODAL ══════════ -->
+    <div class="modal-overlay" id="product-modal">
+      <div class="modal-box">
+        <div class="modal-box-header">
+          <h3 id="product-modal-title">إضافة منتج</h3>
+          <button type="button" class="modal-close" id="product-modal-close">&times;</button>
+        </div>
+        <form id="product-form">
+          <input type="hidden" id="product-id" />
+          <input type="hidden" id="product-warehouse-id" />
+          <div class="field">
+            <label for="product-name">اسم المنتج <span style="color:#dc2626">*</span></label>
+            <input type="text" id="product-name" required placeholder="مثال: أرز بسمتي" />
+          </div>
+          <div class="field">
+            <label for="product-serial">رقم التعريف التسلسلي</label>
+            <input type="text" id="product-serial" placeholder="يُولَّد تلقائياً" readonly
+              style="background:var(--bg);color:var(--muted);cursor:not-allowed;font-family:monospace;font-weight:700" />
+          </div>
+          <div class="field">
+            <label>صورة المنتج (اختياري)</label>
+            <label class="file-drop" id="file-drop-label">
+              <span id="file-drop-text">اضغط لاختيار صورة</span>
+              <img id="image-preview" style="display:none;max-height:110px;object-fit:contain;margin-top:8px" />
+            </label>
+            <input type="file" id="product-image" accept="image/*" style="display:none" />
+          </div>
+          <div class="field">
+            <label for="product-desc">الوصف</label>
+            <input type="text" id="product-desc" placeholder="وصف مختصر للمنتج" />
+          </div>
+          <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:12px">
+            <div class="field" style="margin-bottom:0">
+              <label for="product-quantity">الكمية المتوفرة</label>
+              <input type="number" id="product-quantity" min="0" step="0.01" placeholder="0" />
+            </div>
+            <div class="field" style="margin-bottom:0">
+              <label for="product-qty-type">نوع الكمية</label>
+              <select id="product-qty-type">
+                <option value="قطعة">قطعة</option>
+                <option value="حبة">حبة</option>
+                <option value="كيلوغرام">كيلوغرام</option>
+                <option value="جرام">جرام</option>
+                <option value="طن">طن</option>
+                <option value="لتر">لتر</option>
+                <option value="متر">متر</option>
+                <option value="صندوق">صندوق</option>
+                <option value="كرتون">كرتون</option>
+                <option value="باكيت">باكيت</option>
+                <option value="رول">رول</option>
+                <option value="عنصر">عنصر</option>
+                <option value="وحدة">وحدة</option>
+                <option value="زجاجة">زجاجة</option>
+                <option value="علبة">علبة</option>
+              </select>
+            </div>
+          </div>
+          <div class="field" style="margin-top:12px">
+            <label for="product-price">السعر (ج.م)</label>
+            <input type="number" id="product-price" min="0" step="0.01" placeholder="0.00" />
+          </div>
+          <button type="submit" class="btn" id="product-submit-btn">حفظ المنتج</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ══════════ WAREHOUSE MODAL ══════════ -->
+    <div class="modal-overlay" id="warehouse-modal">
+      <div class="modal-box">
+        <div class="modal-box-header">
+          <h3>إضافة مخزن</h3>
+          <button type="button" class="modal-close" id="warehouse-modal-close">&times;</button>
+        </div>
+        <form id="warehouse-form">
+          <div class="field">
+            <label for="warehouse-name">اسم المخزن</label>
+            <input type="text" id="warehouse-name" required placeholder="مثال: مخزن المواد الخام" />
+          </div>
+          <button type="submit" class="btn" id="warehouse-submit-btn">حفظ المخزن</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ══════════ INVOICE MODAL ══════════ -->
+    <div class="modal-overlay" id="invoice-modal">
+      <div class="modal-box wide">
+        <div class="modal-box-header">
+          <h3>فاتورة العملية</h3>
+          <button type="button" class="modal-close" id="invoice-modal-close">&times;</button>
+        </div>
+        <div id="invoice-content" class="invoice-box"></div>
+        <div style="display:flex;gap:10px;margin-top:18px" id="receipt-print-btn-outer">
+          <button type="button" class="btn" id="invoice-print-btn">🖨 طباعة</button>
+          <button type="button" class="btn secondary" id="invoice-close-btn2">إغلاق</button>
+        </div>
+      </div>
+    </div>
+
+  </body>
+</html>
