@@ -147,6 +147,7 @@
       <button type="button" id="tab-inventory">المخازن والمنتجات</button>
       <button type="button" id="tab-dlactivity">سجل حركات هذه الصفحة</button>
       <button type="button" id="tab-auditlog" style="background:linear-gradient(135deg,#1a3a6b,#2a5bbf);color:#fff;border-color:#1a3a6b;font-weight:800">🔍 سجل المراقبة الشامل</button>
+      <button type="button" id="tab-accounts">👤 إدارة الحسابات</button>
     </div>
 
     <!-- ══════════ TAB 1: FINANCE ══════════ -->
@@ -300,6 +301,46 @@
           <table class="data-table">
             <thead><tr><th>الإجراء</th><th>التفاصيل</th><th>نفّذه</th><th>التاريخ</th></tr></thead>
             <tbody id="dl-activity-tbody"><tr><td colspan="4"><div class="empty-state">جارِ التحميل...</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ TAB 7: ACCOUNT MANAGEMENT ══════════ -->
+    <div class="section-view" id="view-accounts">
+      <div class="panel">
+        <div class="panel-header"><h3>👤 إنشاء حساب جديد</h3></div>
+        <p style="font-size:12px;color:var(--muted);margin:-4px 0 12px">
+          أنشئ حساب دخول جديد (بريد إلكتروني وكلمة مرور) لموظف آخر لاستخدام صفحات النظام. لن يؤثر هذا على تسجيل دخولك الحالي.
+        </p>
+        <form id="account-form" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+          <div class="field" style="margin:0;flex:1;min-width:220px">
+            <label for="account-email" style="font-size:13px">البريد الإلكتروني</label>
+            <input type="email" id="account-email" required autocomplete="off" placeholder="example@domain.com" style="margin-top:4px" />
+          </div>
+          <div class="field" style="margin:0;flex:1;min-width:180px">
+            <label for="account-password" style="font-size:13px">كلمة المرور</label>
+            <input type="password" id="account-password" required minlength="6" autocomplete="new-password" placeholder="6 أحرف على الأقل" style="margin-top:4px" />
+          </div>
+          <div class="field" style="margin:0;flex:1;min-width:180px">
+            <label for="account-name" style="font-size:13px">الاسم (اختياري)</label>
+            <input type="text" id="account-name" autocomplete="off" placeholder="اسم الموظف" style="margin-top:4px" />
+          </div>
+          <button type="submit" class="btn small" id="account-submit-btn" style="margin-top:20px">إنشاء الحساب</button>
+        </form>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <h3>الحسابات المُنشأة من هذه الصفحة</h3>
+          <span id="account-count" style="font-size:13px;color:var(--muted)"></span>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin:-4px 0 12px">
+          هذه القائمة توضيحية فقط لمن أنشأ الحسابات ومتى — النظام لا يمكنه عرض حسابات أُنشئت مباشرة من لوحة Firebase.
+        </p>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>البريد الإلكتروني</th><th>الاسم</th><th>أنشأه</th><th>التاريخ</th></tr></thead>
+            <tbody id="account-tbody"><tr><td colspan="4"><div class="empty-state">جارِ التحميل...</div></td></tr></tbody>
           </table>
         </div>
       </div>
@@ -522,7 +563,7 @@
 <!-- ═══════ Firebase ═══════ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, collection, doc,
   addDoc, updateDoc, deleteDoc, getDoc, setDoc,
@@ -540,6 +581,17 @@ const app = initializeApp({
 });
 const auth = getAuth(app);
 const db   = getFirestore(app);
+
+/* تطبيق فرعي مستقل لإنشاء حسابات جديدة دون تسجيل خروج المستخدم الحالي */
+const secondaryApp = initializeApp({
+  apiKey:            "AIzaSyDQsaNVskKiV2cwPVlJDixpTD1S-Dhp7gs",
+  authDomain:        "reta-and-hamd.firebaseapp.com",
+  projectId:         "reta-and-hamd",
+  storageBucket:     "reta-and-hamd.firebasestorage.app",
+  messagingSenderId: "220767743863",
+  appId:             "1:220767743863:web:2ecd37bd5830a39ec1bb72"
+}, "secondary");
+const secondaryAuth = getAuth(secondaryApp);
 
 onAuthStateChanged(auth, user => {
   if (!user) { window.location.href = "/"; return; }
@@ -576,6 +628,7 @@ function switchTab(key) {
     inventory:   { btn: document.getElementById("tab-inventory"),   view: document.getElementById("view-inventory") },
     dlactivity:  { btn: document.getElementById("tab-dlactivity"),  view: document.getElementById("view-dlactivity") },
     auditlog:    { btn: document.getElementById("tab-auditlog"),    view: document.getElementById("view-auditlog") },
+    accounts:    { btn: document.getElementById("tab-accounts"),    view: document.getElementById("view-accounts") },
   };
   Object.values(tabs).forEach(({ btn, view }) => { btn.classList.remove("active"); view.classList.remove("active"); });
   if (key === "auditlog") {
@@ -767,6 +820,7 @@ function init() {
   document.getElementById("tab-inventory").addEventListener("click", () => switchTab("inventory"));
   document.getElementById("tab-dlactivity").addEventListener("click", () => switchTab("dlactivity"));
   document.getElementById("tab-auditlog").addEventListener("click", () => switchTab("auditlog"));
+  document.getElementById("tab-accounts").addEventListener("click", () => switchTab("accounts"));
 
   loadEmployees();
   loadMerchants();
@@ -777,8 +831,10 @@ function init() {
   loadLoadingOps();
   loadDlActivity();
   loadAuditLog();
+  loadAccounts();
   setupAuditFilters();
   loadOpeningBalance();
+  document.getElementById("account-form").addEventListener("submit", handleCreateAccount);
   document.getElementById("save-opening").addEventListener("click", saveOpeningBalance);
 
   setupFinanceModal();
@@ -1659,6 +1715,61 @@ async function deleteProduct(id) {
   if (!confirm(`هل تريد حذف المنتج "${p.name}"؟`)) return;
   try { await deleteDoc(doc(db, "products", id)); toast("تم حذف المنتج"); logDlAction("حذف منتج", `${p.name} — ${p.serialId || "—"}`); }
   catch (err) { console.error(err); toast("حدث خطأ", true); }
+}
+
+/* ══════════════════════════════════════
+   إدارة الحسابات
+══════════════════════════════════════ */
+function loadAccounts() {
+  onSnapshot(query(collection(db, "appUsers"), orderBy("createdAt", "desc")), snap => {
+    const rows = snap.docs.map(d => d.data());
+    document.getElementById("account-count").textContent = rows.length ? `${rows.length} حساب` : "";
+    const tbody = document.getElementById("account-tbody");
+    if (!rows.length) { tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state">لا توجد حسابات مُنشأة من هذه الصفحة بعد</div></td></tr>`; return; }
+    tbody.innerHTML = rows.map(r => `
+      <tr>
+        <td>${esc(r.email)}</td>
+        <td>${esc(r.name || "—")}</td>
+        <td>${esc(r.createdBy || "—")}</td>
+        <td>${fmtDateTime(r.createdAt)}</td>
+      </tr>`).join("");
+  }, err => console.error("loadAccounts failed", err));
+}
+
+async function handleCreateAccount(e) {
+  e.preventDefault();
+  const email = document.getElementById("account-email").value.trim();
+  const password = document.getElementById("account-password").value;
+  const name = document.getElementById("account-name").value.trim();
+  if (!email || password.length < 6) { toast("أدخل بريدًا صحيحًا وكلمة مرور 6 أحرف على الأقل", true); return; }
+  const btn = document.getElementById("account-submit-btn");
+  btn.disabled = true; btn.textContent = "جارِ الإنشاء...";
+  try {
+    await createUserWithEmailAndPassword(secondaryAuth, email, password);
+    await signOut(secondaryAuth); /* لضمان عدم بقاء جلسة نشطة على التطبيق الفرعي */
+    await addDoc(collection(db, "appUsers"), {
+      email, name: name || "",
+      createdBy: currentUser?.email ?? "—",
+      createdAt: serverTimestamp(),
+    });
+    await addDoc(collection(db, "auditLog"), {
+      action: "إضافة", entity: "حساب مستخدم", page: "السجل الشامل",
+      details: `${email}${name ? " — " + name : ""}`,
+      userEmail: currentUser?.email ?? "—",
+      createdAt: serverTimestamp(),
+    }).catch(err => console.error("auditLog write failed", err));
+    toast("تم إنشاء الحساب بنجاح");
+    document.getElementById("account-form").reset();
+  } catch (err) {
+    console.error(err);
+    let msg = "حدث خطأ أثناء إنشاء الحساب";
+    if (err.code === "auth/email-already-in-use") msg = "هذا البريد الإلكتروني مستخدم من قبل";
+    else if (err.code === "auth/invalid-email") msg = "البريد الإلكتروني غير صحيح";
+    else if (err.code === "auth/weak-password") msg = "كلمة المرور ضعيفة جدًا";
+    toast(msg, true);
+  } finally {
+    btn.disabled = false; btn.textContent = "إنشاء الحساب";
+  }
 }
 </script>
 </body>
