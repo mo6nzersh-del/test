@@ -178,7 +178,7 @@ function buildProductCardHTML(p) {
     <div class="wh-product-card">
       ${img}
       <div class="wh-product-info">
-        <div class="wh-product-name" title="${esc(p.name)}">${esc(p.name)}</div>
+        <div class="wh-product-name" title="${esc(p.name)}">${esc(p.name)} ${p.isVisiting ? `<span class="wh-product-visiting-badge" title="صنف زائر من مخزن آخر — نفس المعرّف الأصلي">زائر</span>` : ""}</div>
         ${p.serialId ? `<div class="wh-product-serial"># ${esc(p.serialId)}</div>` : ""}
         ${p.description ? `<div class="wh-product-desc">${esc(p.description)}</div>` : ""}
         <div class="wh-product-meta">
@@ -614,18 +614,17 @@ function initTransferForm() {
           batch.update(docRef(db, "products", destProdId), { quantity: (destProd.quantity || 0) + qty, updatedAt: serverTimestamp() });
         }
       } else {
-        // create new product in destination warehouse
-        const whIdx = warehouses.findIndex(w => w.id === toWhId);
-        const whNum = whIdx >= 0 ? whIdx + 1 : 1;
-        const existingCount = products.filter(p => p.warehouseId === toWhId).length;
-        const newSerial = `W${whNum}-${String(existingCount + 1).padStart(5, "0")}`;
+        // الصنف غير موجود في مخزن الوجهة: لا يُنشأ له رقم تسلسلي جديد،
+        // بل يُضاف كصنف "زائر" يحمل نفس معرّف المنتج الأصلي (نفس serialId) تبعًا لمخزنه الأصلي،
+        // لتجنّب تكرار نفس المنتج بمعرّفين مختلفين.
         const newRef = docRef(collection(db, "products"));
         destProductIdFinal = newRef.id;
         batch.set(newRef, {
-          name: srcProd.name, serialId: newSerial, description: srcProd.description || "",
+          name: srcProd.name, serialId: srcProd.serialId || "", description: srcProd.description || "",
           quantity: qty, quantityType: srcProd.quantityType || "قطعة",
           price: srcProd.price || 0, imageUrl: srcProd.imageUrl || null,
           warehouseId: toWhId, warehouseName: toWh?.name ?? "",
+          isVisiting: true, sourceProductId: srcProdId, sourceWarehouseId: fromWhId,
           createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
         });
       }
