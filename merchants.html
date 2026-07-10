@@ -920,10 +920,10 @@ function renderUnifiedList(){
       ? new Date(t.dateStr+"T00:00:00").toLocaleDateString("ar-EG",{year:"numeric",month:"short",day:"numeric"})
       : "—";
     const bal=balances[i];
+    const recIdCls=t._src==="finance"?"rec-id rec-id-link":"rec-id";
+    const recIdAttr=t._src==="finance"?` data-fin-id="${t.id}" title="انقر لعرض تفاصيل الحركة"`:"";
     div.innerHTML=`
-      <span class="rec-id${t._src==="finance"?" rec-id-link":""}" style="min-width:62px;text-align:center"
-        ${t._src==="finance"?`data-fin-id="${t.id}" title="انقر لعرض تفاصيل الحركة"`:""}>
-        ${esc(t.seqId)}</span>
+      <span class="${recIdCls}" style="min-width:62px;text-align:center"${recIdAttr}>${esc(t.seqId)}</span>
       ${typeBadge}
       <div class="record-main">
         <div class="title">${esc(t.note)||(isIn?"دفعة واردة":"دفعة صادرة")}</div>
