@@ -9,6 +9,71 @@
   <link rel="stylesheet" href="/assets/auth-guard-C6CJ8_8i.css" />
   <style>
     body{background:var(--bg)}
+    .rec-id{cursor:pointer;font-family:monospace;font-weight:800;color:var(--primary-dark,#2a5bbf);text-decoration:underline dotted;text-underline-offset:3px}
+    .rec-id:hover{color:var(--primary,#4a7dd4)}
+    .tx-detail-box{direction:rtl;font-family:Cairo,sans-serif}
+    .tx-detail-header{text-align:center;border-bottom:3px solid var(--primary);padding-bottom:16px;margin-bottom:18px}
+    .tx-detail-mark{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--primary,#4a7dd4),var(--primary-dark,#2a5bbf));color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+    .tx-detail-company{font-size:17px;font-weight:800;margin-bottom:2px}
+    .tx-detail-subtitle{font-size:12px;color:var(--muted)}
+    .tx-detail-id-row{display:flex;justify-content:center;gap:8px;margin:12px 0 0}
+    .tx-detail-id-badge{font-size:15px;font-weight:800;font-family:monospace;background:var(--primary-soft,#eef2fb);color:var(--primary-dark,#2a5bbf);border:1.5px solid var(--primary,#4a7dd4);border-radius:8px;padding:4px 14px}
+    .tx-detail-meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:var(--bg);border-radius:10px;padding:14px 16px;margin-bottom:16px}
+    .tx-detail-meta-grid .dm-item{display:flex;flex-direction:column;gap:3px}
+    .tx-detail-meta-grid .dm-label{font-size:11px;color:var(--muted);font-weight:700}
+    .tx-detail-meta-grid .dm-val{font-size:14px;font-weight:700;color:var(--ink)}
+    .tx-detail-amount-row{display:flex;justify-content:space-between;align-items:center;border-top:2px solid var(--primary);padding-top:14px;margin-top:4px}
+    .tx-detail-amount-label{font-size:14px;font-weight:800;color:var(--ink)}
+    .tx-detail-amount-val{font-size:22px;font-weight:900}
+    .tx-detail-amount-val.in{color:#1a6b3a}
+    .tx-detail-amount-val.out{color:#b3432f}
+    .tx-detail-desc-box{background:var(--bg);border-radius:8px;padding:10px 14px;margin-top:14px;font-size:13px;color:var(--muted)}
+    .tx-detail-desc-box strong{color:var(--ink);display:block;margin-bottom:4px;font-size:12px}
+    .tx-detail-footer{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);border-top:1px dashed var(--border);padding-top:12px;margin-top:16px}
+    .dl-print-only{display:none!important}
+    @media print{
+      body *{visibility:hidden}
+      .dl-print-only,.dl-print-only *{visibility:visible}
+      .dl-print-only{display:block!important}
+      .dl-screen-only{display:none!important}
+      #tx-detail-modal{display:block!important;position:fixed!important;top:0;left:0;right:0;bottom:0;background:#fff!important;padding:0!important;overflow:visible!important}
+      #tx-detail-modal .modal-box{box-shadow:none!important;border:none!important;max-height:none!important;overflow:visible!important;padding:0!important;border-radius:0!important;background:#fff!important;width:100%!important;max-width:100%!important}
+      #tx-detail-modal .modal-box-header,#tx-detail-print-footer{display:none!important}
+      .doc-watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-35deg);font-size:90px;font-weight:900;color:rgba(42,91,191,0.04);pointer-events:none;white-space:nowrap;z-index:0;letter-spacing:8px}
+      .doc-outer-border{border:3px double #1a3a6b;border-radius:4px;position:relative;overflow:hidden}
+      .doc-inner-border{border:1px solid #b8c8e8;margin:6px;border-radius:2px}
+      .doc-top-bar{background:#1a3a6b;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;color:#fff}
+      .doc-top-bar-left{text-align:left} .doc-top-bar-center{text-align:center;flex:1;padding:0 16px}
+      .doc-company-name{font-size:20px;font-weight:900;letter-spacing:1px;margin-bottom:2px}
+      .doc-company-sub{font-size:10px;opacity:.8}
+      .doc-doc-title{font-size:12px;font-weight:700;border:1.5px solid rgba(255,255,255,.5);border-radius:4px;padding:4px 12px;white-space:nowrap;opacity:.92}
+      .doc-serial-badge{font-size:15px;font-weight:900;font-family:monospace;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.4);border-radius:5px;padding:4px 12px;letter-spacing:1px}
+      .doc-body{padding:18px 22px}
+      .doc-type-ribbon{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px;padding:10px;background:#f4f7ff;border:1px solid #c8d8f4;border-radius:4px}
+      .doc-type-icon{font-size:22px} .doc-type-name{font-size:14px;font-weight:800;color:#1a3a6b;letter-spacing:.5px}
+      .doc-type-dir{font-size:12px;font-weight:700;border-radius:99px;padding:2px 12px}
+      .doc-type-dir.in{background:#e1f5e8;color:#1a6b3a;border:1px solid #a3d8b5}
+      .doc-type-dir.out{background:#fde8e5;color:#8b2010;border:1px solid #f0b8b0}
+      .doc-info-table{width:100%;border-collapse:collapse;margin-bottom:16px}
+      .doc-info-table td{padding:7px 12px;font-size:12px;border:1px solid #d4ddf0;vertical-align:top}
+      .doc-info-table .lbl{background:#f0f4fa;color:#3a5080;font-weight:700;width:30%;white-space:nowrap}
+      .doc-info-table .val{color:#111;font-weight:600}
+      .doc-amount-section{background:#f4f7ff;border:2px solid #1a3a6b;border-radius:4px;padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between}
+      .doc-amount-label{font-size:12px;font-weight:800;color:#1a3a6b}
+      .doc-amount-number{font-size:26px;font-weight:900}
+      .doc-amount-number.in{color:#1a6b3a} .doc-amount-number.out{color:#8b2010}
+      .doc-amount-words{font-size:11px;color:#555;margin-top:3px;font-style:italic}
+      .doc-desc-section{border:1px solid #d4ddf0;border-radius:3px;padding:10px 14px;margin-bottom:18px;background:#fafbff}
+      .doc-desc-section .doc-desc-lbl{font-size:10.5px;font-weight:700;color:#5a6a8a;margin-bottom:4px}
+      .doc-desc-section .doc-desc-val{font-size:12.5px;color:#222;line-height:1.6}
+      .doc-sigs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:20px}
+      .doc-sig-box{text-align:center}
+      .doc-sig-box .sig-label{font-size:10px;font-weight:700;color:#3a5080;margin-bottom:28px}
+      .doc-sig-box .sig-line{border-top:1.5px solid #1a3a6b;margin:0 8px;margin-bottom:4px}
+      .doc-sig-box .sig-name{font-size:9.5px;color:#888}
+      .doc-bottom-bar{background:#f0f4fa;border-top:2px solid #1a3a6b;padding:8px 22px;display:flex;justify-content:space-between;align-items:center;font-size:9.5px;color:#5a6a8a}
+      .doc-bottom-barcode{font-family:monospace;font-size:9px;background:#e4eaf6;border-radius:3px;padding:2px 8px;border:1px solid #c8d0e4;letter-spacing:1px}
+    }
     .dl-header{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
       background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
       padding:16px 20px;margin-bottom:18px;box-shadow:var(--shadow)}
@@ -110,7 +175,7 @@
             <option value="advance">سلفة موظف</option>
             <option value="withdrawal">سحب من الصندوق</option>
             <option value="deposit">إيداع في الصندوق</option>
-            <option value="merchant">دفعة تاجر</option>
+            <option value="merchant">دفعة تاجر (تسديد/دين)</option>
             <option value="other">عملية أخرى</option>
           </select>
           <select class="filter-select" id="fin-filter-dir">
@@ -166,7 +231,7 @@
       </div>
     </div>
 
-    <!-- ══════════ TAB 3: UNIFIED STATEMENT ══════════ -->
+    <!-- ══════════ TAB 3: UNIFIED STATEMENT ════════ng�═ -->
     <div class="section-view" id="view-statement">
       <div class="panel">
         <h3>كشف حساب موحّد</h3>
@@ -241,6 +306,21 @@
   </main>
 </div>
 
+<!-- ═══════ نافذة تفاصيل الحركة المالية ═══════ -->
+<div class="modal-overlay" id="tx-detail-modal">
+  <div class="modal-box" style="max-width:500px">
+    <div class="modal-box-header">
+      <h3>تفاصيل الحركة المالية</h3>
+      <button type="button" class="modal-close" id="tx-detail-close">&times;</button>
+    </div>
+    <div id="tx-detail-content" class="tx-detail-box"></div>
+    <div style="display:flex;gap:10px;margin-top:16px" id="tx-detail-print-footer">
+      <button type="button" class="btn" id="tx-detail-print-btn">🖨️ طباعة</button>
+      <button type="button" class="btn outline" id="tx-detail-close2">إغلاق</button>
+    </div>
+  </div>
+</div>
+
 <!-- ═══════ نافذة إضافة / تعديل حركة مالية ═══════ -->
 <div class="modal-overlay" id="fin-modal">
   <div class="modal-box" style="max-width:520px">
@@ -256,9 +336,11 @@
           <div class="type-opt" data-type="advance"><span class="ico">👤</span><span class="lbl">سلفة موظف</span><span class="sub">خارج من الصندوق</span></div>
           <div class="type-opt" data-type="withdrawal"><span class="ico">📤</span><span class="lbl">سحب</span><span class="sub">خارج من الصندوق</span></div>
           <div class="type-opt" data-type="deposit"><span class="ico">📥</span><span class="lbl">إيداع</span><span class="sub">داخل إلى الصندوق</span></div>
-          <div class="type-opt" data-type="merchant"><span class="ico">🤝</span><span class="lbl">دفعة تاجر</span><span class="sub">داخل أو خارج</span></div>
           <div class="type-opt" data-type="other"><span class="ico">📝</span><span class="lbl">أخرى</span><span class="sub">حدد الاتجاه</span></div>
         </div>
+        <p style="font-size:11.5px;color:var(--muted);margin:8px 0 0">
+          🤝 دفعات التجار (تسديد مستحقات / زيادة دين) تُسجَّل حصراً من صفحة التجار — تظهر هنا للقراءة والفلترة فقط.
+        </p>
       </div>
       <div class="dir-hint custom" id="fin-dir-hint">اختر نوع العملية أولاً</div>
       <div class="field" id="fin-dir-field" style="display:none">
@@ -422,7 +504,7 @@ const esc = t => { const d = document.createElement("div"); d.textContent = t ??
 const fmt = n => new Intl.NumberFormat("ar-EG", { maximumFractionDigits: 2 }).format(n || 0) + " ج.م";
 const fmtNum = n => new Intl.NumberFormat("ar-EG", { maximumFractionDigits: 3 }).format(n || 0);
 const today = () => new Date().toISOString().slice(0, 10);
-const fmtDate = s => s ? new Date(s + "T00:00:00").toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" }) : "—";
+const fmtDate = s => s ? new Date(s + "T00:00:00").toLocaleDateString�"ar-EG", { year: "numeric", month: "long", day: "numeric" }) : "—";
 const fmtDateTime = ts => {
   if (!ts) return "—";
   const d = ts?.toDate ? ts.toDate() : (ts instanceof Date ? ts : new Date(ts));
@@ -553,6 +635,7 @@ function init() {
   document.getElementById("save-opening").addEventListener("click", saveOpeningBalance);
 
   setupFinanceModal();
+  setupTxDetailModal();
   setupFinanceFilters();
   setupWhOpModal();
   setupWarehouseModal();
@@ -619,7 +702,7 @@ const TYPE_CFG = {
   withdrawal: { label: "سحب من الصندوق",  badge: "tb-withdrawal", dir: "out", fixed: true },
   deposit:    { label: "إيداع في الصندوق", badge: "tb-deposit",    dir: "in",  fixed: true },
   merchant:   { label: "دفعة تاجر",        badge: "tb-merchant",   dir: null,  fixed: false },
-  other:      { label: "عملية l�خرى",       badge: "tb-other",      dir: null,  fixed: false },
+  other:      { label: "عملية أخرى",       badge: "tb-other",      dir: null,  fixed: false },
 };
 
 let selectedFinType = "";
@@ -695,21 +778,30 @@ function renderFinanceTable() {
     const partyCell = (t.type === "merchant" && t.merchantId)
       ? `<span class="link-cell" data-merchant-id="${t.merchantId}">${esc(party)}</span>`
       : (t.employeeId ? `<span class="link-cell" data-employee-id="${t.employeeId}">${esc(party)}</span>` : esc(party));
+    const dirLabel = t.type === "merchant"
+      ? (t.dir === "out" ? "← تسديد مستحقات" : "← زيادة دين")
+      : (t.dir === "in" ? "← داخل" : "← خارج");
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td><span class="rec-id">${esc(t.finId || "—")}</span></td>
+      <td><span class="rec-id" data-id="${t.id}">${esc(t.finId || "—")}</span></td>
       <td style="white-space:nowrap;font-size:13px">${esc(fmtDate(t.date))}</td>
       <td><span class="type-badge ${cfg.badge}">${esc(cfg.label)}</span></td>
-      <td class="${t.dir === "in" ? "dir-in" : "dir-out"}">${t.dir === "in" ? "← داخل" : "← خارج"}</td>
+      <td class="${t.dir === "in" ? "dir-in" : "dir-out"}">${dirLabel}</td>
       <td style="font-weight:700;white-space:nowrap">${fmt(t.amount)}</td>
       <td style="font-size:13px;color:var(--muted)">${partyCell}</td>
       <td style="font-size:13px;color:var(--muted);max-width:200px">${esc(t.description || "—")}</td>
       <td><div class="row-actions">
-        <button class="edit" data-id="${t.id}">تعديل</button>
+        ${t.type === "merchant"
+          ? `<button class="view" data-id="${t.id}">عرض</button>`
+          : `<button class="edit" data-id="${t.id}">تعديل</button>`}
         <button class="del" data-id="${t.id}">حذف</button>
       </div></td>`;
     tbody.appendChild(tr);
   });
+  tbody.querySelectorAll(".rec-id[data-id]").forEach(el =>
+    el.addEventListener("click", () => openTxDetail(allFinTx.find(t => t.id === el.dataset.id))));
+  tbody.querySelectorAll(".view[data-id]").forEach(btn =>
+    btn.addEventListener("click", () => openTxDetail(allFinTx.find(t => t.id === btn.dataset.id))));
   tbody.querySelectorAll(".link-cell[data-merchant-id]").forEach(el =>
     el.addEventListener("click", () => { window.location.href = `/merchants.html?id=${encodeURIComponent(el.dataset.merchantId)}`; }));
   tbody.querySelectorAll(".link-cell[data-employee-id]").forEach(el =>
@@ -826,6 +918,7 @@ function updateFinDirHint() {
 async function saveFinTx(e) {
   e.preventDefault();
   if (!selectedFinType) { toast("اختر نوع العملية", true); return; }
+  if (selectedFinType === "merchant") { toast("دفعات التجار تُسجَّل فقط من صفحة التجار", true); return; }
   const cfg = TYPE_CFG[selectedFinType];
   const amount = Number(document.getElementById("fin-f-amount").value);
   if (!amount || amount <= 0) { toast("أدخل مبلغاً صحيحاً", true); return; }
@@ -868,6 +961,111 @@ async function saveFinTx(e) {
     closeFinModal();
   } catch (err) { console.error(err); toast("خطأ أثناء الحفظ", true); }
   finally { btn.disabled = false; btn.textContent = "حفظ العملية"; }
+}
+
+/* ── نافذة تفاصيل الحركة المالية (تُفتح بالنقر على المعرّف) ── */
+const TYPE_ICONS = { advance: "👤", withdrawal: "📤", deposit: "📥", merchant: "🤝", other: "📝" };
+
+function setupTxDetailModal() {
+  const modal = document.getElementById("tx-detail-modal"); if (!modal) return;
+  document.getElementById("tx-detail-close").addEventListener("click", () => modal.classList.remove("open"));
+  document.getElementById("tx-detail-close2").addEventListener("click", () => modal.classList.remove("open"));
+  document.getElementById("tx-detail-print-btn").addEventListener("click", () => window.print());
+  modal.addEventListener("click", e => { if (e.target === modal) modal.classList.remove("open"); });
+}
+
+function amountInWords(n) {
+  if (!n || isNaN(n)) return "صفر";
+  const whole = Math.floor(n), cents = Math.round((n - whole) * 100);
+  const ones = ["", "واحد", "اثنان", "ثلاثة", "أربعة", "خمسة", "ستة", "سبعة", "ثمانية", "تسعة", "عشرة", "أحد عشر", "اثنا عشر", "ثلاثة عشر", "أربعة عشر", "خمسة عشر", "ستة عشر", "سبعة عشر", "ثمانية عشر", "تسعة عشر"];
+  const tens = ["", "", "عشرون", "ثلاثون", "أربعون", "خمسون", "ستون", "سبعون", "ثمانون", "تسعون"];
+  const bH = v => { if (v < 20) return ones[v]; const t = tens[Math.floor(v / 10)], o = ones[v % 10]; return o ? o + " و" + t : t; };
+  const bT = v => { if (v < 100) return bH(v); const h = Math.floor(v / 100), r = v % 100; const hW = h === 1 ? "مئة" : h === 2 ? "مئتان" : ones[h] + " مئة"; return r ? hW + " و" + bH(r) : hW; };
+  const cv = v => { if (v === 0) return "صفر"; if (v < 1000) return bT(v); if (v < 1000000) { const th = Math.floor(v / 1000), r = v % 1000; const tW = th === 1 ? "ألف" : th === 2 ? "ألفان" : th < 11 ? bT(th) + " آلاف" : bT(th) + " ألف"; return r ? tW + " و" + bT(r) : tW; } const m = Math.floor(v / 1000000), r = v % 1000000; const mW = m === 1 ? "مليون" : m === 2 ? "مليونان" : bT(m) + " مليون"; return r ? mW + " و" + cv(r) : mW; };
+  let res = cv(whole) + " جنيه"; if (cents > 0) res += " و" + bH(cents) + " قرش"; return res;
+}
+
+function openTxDetail(t) {
+  if (!t) return;
+  const cfg = TYPE_CFG[t.type] ?? { label: t.type || "—", badge: "tb-other" };
+  const icon = TYPE_ICONS[t.type] ?? "📝";
+  const dirClass = t.dir === "in" ? "dir-in" : "dir-out";
+  const fM = s => { if (!s) return ""; const [y, m] = s.split("-"); return new Date(Number(y), Number(m) - 1, 1).toLocaleDateString("ar-EG", { month: "long", year: "numeric" }); };
+  const party = t.type === "advance" ? (t.employeeName || "—") : t.type === "merchant" ? (t.merchantName || t.partyName || "—") : (t.partyName || "—");
+  const infoRows = [
+    `<tr><td class="lbl">رقم الحركة</td><td class="val" style="font-family:monospace;font-weight:800;font-size:13px">${esc(t.finId || "—")}</td></tr>`,
+    `<tr><td class="lbl">التاريخ</td><td class="val">${esc(fmtDate(t.date))}</td></tr>`,
+    `<tr><td class="lbl">نوع العملية</td><td class="val">${esc(cfg.label)}</td></tr>`,
+    t.type === "merchant"
+      ? `<tr><td class="lbl">نوع الحركة</td><td class="val ${dirClass}">${t.dir === "out" ? "تسديد مستحقات (تقليل الدين) ↓" : "زيادة دين على التاجر ↑"}</td></tr>`
+      : `<tr><td class="lbl">اتجاه العملية</td><td class="val ${dirClass}">${t.dir === "in" ? "إيداع في الصندوق ↓" : "سحب من الصندوق ↑"}</td></tr>`,
+    t.type === "merchant" ? `<tr><td class="lbl">التاجر</td><td class="val">${esc(party)}</td></tr>` :
+    t.type === "advance" ? `<tr><td class="lbl">الموظف</td><td class="val">${esc(party)}</td></tr>${t.deductMonth ? `<tr><td class="lbl">شهر الخصم</td><td class="val">${esc(fM(t.deductMonth))}</td></tr>` : ""}` :
+    t.partyName ? `<tr><td class="lbl">الجهة</td><td class="val">${esc(party)}</td></tr>` : ""
+  ];
+  let partyRow = "";
+  if (t.type === "advance") partyRow = `<div class="dm-item"><div class="dm-label">الموظف</div><div class="dm-val">${esc(party)}</div></div>${t.deductMonth ? `<div class="dm-item"><div class="dm-label">شهر الخصم</div><div class="dm-val">${esc(fM(t.deductMonth))}</div></div>` : ""}`;
+  else if (t.type === "merchant") partyRow = `<div class="dm-item"><div class="dm-label">التاجر</div><div class="dm-val">${esc(party)}</div></div>`;
+  else if (t.partyName) partyRow = `<div class="dm-item"><div class="dm-label">الجهة</div><div class="dm-val">${esc(party)}</div></div>`;
+  const printDate = new Date().toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" });
+  document.getElementById("tx-detail-content").innerHTML = `
+  <div class="dl-screen-only">
+    <div class="tx-detail-header">
+      <div class="tx-detail-mark">${icon}</div>
+      <div class="tx-detail-company">أحمد وحمدي</div>
+      <div class="tx-detail-subtitle">نظام المحاسبة الداخلي</div>
+      <div class="tx-detail-id-row"><span class="tx-detail-id-badge">${esc(t.finId || "—")}</span></div>
+      <div style="margin-top:8px"><span class="type-badge ${cfg.badge}">${esc(cfg.label)}</span></div>
+    </div>
+    <div class="tx-detail-meta-grid">
+      <div class="dm-item"><div class="dm-label">التاريخ</div><div class="dm-val">${esc(fmtDate(t.date))}</div></div>
+      <div class="dm-item"><div class="dm-label">${t.type === "merchant" ? "نوع الحركة" : "الاتجاه"}</div><div class="dm-val ${dirClass}">${t.type === "merchant" ? (t.dir === "out" ? "← تسديد مستحقات" : "← زيادة دين") : (t.dir === "in" ? "← إيداع" : "← سحب")}</div></div>
+      ${partyRow}
+    </div>
+    <div class="tx-detail-amount-row">
+      <div class="tx-detail-amount-label">المبلغ الإجمالي</div>
+      <div class="tx-detail-amount-val ${t.dir === "in" ? "in" : "out"}">${fmt(t.amount)}</div>
+    </div>
+    ${t.description ? `<div class="tx-detail-desc-box"><strong>📝 الوصف / الملاحظات</strong>${esc(t.description)}</div>` : ""}
+    <div class="tx-detail-footer"><span>رقم الحركة: ${esc(t.finId || "—")}</span><span>نظام أحمد وحمدي © ${new Date().getFullYear()}</span></div>
+  </div>
+  <div class="doc-page dl-print-only" style="display:none">
+    <div class="doc-watermark">أحمد وحمدي</div>
+    <div class="doc-outer-border"><div class="doc-inner-border">
+      <div class="doc-top-bar">
+        <div class="doc-top-bar-left"><div class="doc-doc-title">سند ${t.dir === "in" ? "قبض" : "صرف"}</div></div>
+        <div class="doc-top-bar-center"><div class="doc-company-name">أحمد وحمدي</div><div class="doc-company-sub">نظام المحاسبة الداخلي</div></div>
+        <div><div class="doc-serial-badge">${esc(t.finId || "—")}</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="doc-type-ribbon">
+          <span class="doc-type-icon">${icon}</span>
+          <span class="doc-type-name">${esc(cfg.label)}</span>
+          <span class="doc-type-dir ${t.dir === "in" ? "in" : "out"}">${t.dir === "in" ? "إيداع في الصندوق ↓" : "سحب من الصندوق ↑"}</span>
+        </div>
+        <table class="doc-info-table">${infoRows.join("")}</table>
+        <div class="doc-amount-section">
+          <div>
+            <div class="doc-amount-label">إجمالي مبلغ ${t.dir === "in" ? "الإيداع" : "السحب"}</div>
+            <div class="doc-amount-words">فقط ${amountInWords(t.amount)} لا غير</div>
+          </div>
+          <div class="doc-amount-number ${t.dir === "in" ? "in" : "out"}">${fmt(t.amount)}</div>
+        </div>
+        ${t.description ? `<div class="doc-desc-section"><div class="doc-desc-lbl">البيان / الملاحظات</div><div class="doc-desc-val">${esc(t.description)}</div></div>` : ""}
+        <div class="doc-sigs">
+          <div class="doc-sig-box"><div class="sig-label">المحاسب / المُعِدّ</div><div class="sig-line"></div><div class="sig-name">الاسم والتوقيع</div></div>
+          <div class="doc-sig-box"><div class="sig-label">${t.type === "merchant" ? "التاجر / المستلم" : t.type === "advance" ? "الموظف / المستلم" : "الجهة المعنية"}</div><div class="sig-line"></div><div class="sig-name">${esc(party !== "—" ? party : "الاسم والتوقيع")}</div></div>
+          <div class="doc-sig-box"><div class="sig-label">المدير المفوّض</div><div class="sig-line"></div><div class="sig-name">الاسم والتوقيع والختم</div></div>
+        </div>
+      </div>
+      <div class="doc-bottom-bar">
+        <div>تاريخ الطباعة: ${printDate}</div>
+        <div class="doc-bottom-barcode">${esc(t.finId || "—")} — أحمد وحمدي</div>
+        <div>هذا المستند صادر من نظام المحاسبة الداخلي</div>
+      </div>
+    </div></div>
+  </div>`;
+  document.getElementById("tx-detail-modal").classList.add("open");
 }
 
 /* ══════════════════════════════════════
