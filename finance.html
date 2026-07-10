@@ -599,7 +599,9 @@ function renderTable(){
       :(t.partyName||"—");
     const partyCell=(t.type==="merchant"&&t.merchantId)
       ?`<span class="link-cell" data-merchant-id="${t.merchantId}">${esc(party)}</span>`
-      :esc(party);
+      :(t.employeeId
+        ?`<span class="link-cell" data-employee-id="${t.employeeId}">${esc(party)}</span>`
+        :esc(party));
     const tr=document.createElement("tr");
     tr.innerHTML=`
       <td><span class="rec-id">${esc(t.finId||"—")}</span></td>
@@ -617,6 +619,8 @@ function renderTable(){
   });
   tbody.querySelectorAll(".link-cell[data-merchant-id]").forEach(el=>
     el.addEventListener("click",()=>{ window.location.href=`/merchants.html?id=${encodeURIComponent(el.dataset.merchantId)}`; }));
+  tbody.querySelectorAll(".link-cell[data-employee-id]").forEach(el=>
+    el.addEventListener("click",()=>{ window.location.href=`/employees.html?id=${encodeURIComponent(el.dataset.employeeId)}`; }));
   tbody.querySelectorAll(".edit").forEach(btn=>
     btn.addEventListener("click",()=>openModal(allTx.find(t=>t.id===btn.dataset.id))));
   tbody.querySelectorAll(".del").forEach(btn=>
