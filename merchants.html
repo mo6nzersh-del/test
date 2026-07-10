@@ -427,11 +427,12 @@ let pendingOpenId=new URLSearchParams(window.location.search).get("id");
 function init(){
   setupMerchantModal();
   setupDetail();
-  setupDetailModal();
   loadMerchants();
   loadAllMerchantTxs();
   loadFinTxs();
   loadActivityOpMap();
+  // نافذة التفاصيل — مستقلة عن تحميل البيانات
+  try{ setupDetailModal(); }catch(e){ console.warn("setupDetailModal:",e); }
 }
 
 /* ── نافذة تفاصيل الحركة ── */
@@ -565,7 +566,7 @@ function openMerModal(mer){
     document.getElementById("merchant-phone").value  =mer.phone??"";
     document.getElementById("merchant-email").value  =mer.email??"";
   } else {
-    editM�erId=null;
+    editMerId=null;
     document.getElementById("merchant-modal-title").textContent="إضافة تاجر";
   }
   document.getElementById("merchant-modal").classList.add("open");
@@ -771,7 +772,7 @@ async function saveFinTx(e){
     const cRef=doc(db,"counters","finance_trans");
     let seqNum=1;
     await runTransaction(db,async tx=>{
-      const snap=await tx.get(c�Ref);
+      const snap=await tx.get(cRef);
       seqNum=(snap.exists()?snap.data().seq:0)+1;
       tx.set(cRef,{seq:seqNum},{merge:true});
     });
