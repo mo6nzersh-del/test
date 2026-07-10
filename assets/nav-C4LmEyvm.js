@@ -1,4 +1,4 @@
-import{l as n}from"./auth-guard-DMMO1gWE.js";const r="/",l=[{href:"dashboard.html",label:"الرئيسية"},{href:"products.html",label:"المنتجات"},{href:"merchants.html",label:"التجار"},{href:"employees.html",label:"الموظفين"}];function i(a,e){const t=document.getElementById("topbar");if(!t)return;const o=l.map(s=>`<a href="${r}${s.href}" class="${s.href===a?"active":""}">${s.label}</a>`).join("");t.innerHTML=`
+import{l as n}from"./auth-guard-DMMO1gWE.js";const r="/",l=[{href:"dashboard.html",label:"الرئيسية"},{href:"products.html",label:"المنتجات"},{href:"merchants.html",label:"التجار"},{href:"employees.html",label:"الموظفين"},{href:"finance.html",label:"المالية"}];function i(a,e){const t=document.getElementById("topbar");if(!t)return;const o=l.map(s=>`<a href="${r}${s.href}" class="${s.href===a?"active":""}">${s.label}</a>`).join("");t.innerHTML=`
     <div class="topbar-inner">
       <div class="brand">
         <span class="mark">أ</span>
