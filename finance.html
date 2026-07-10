@@ -36,6 +36,25 @@
     .stat-pf-total{border-top:3px solid #4caf7d}
     .stat-pf-total .sc-val{color:#1a6b3a}
 
+    /* ── نافذة دفعة التاجر السريعة ── */
+    .mp-type-opt{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:10px;
+      border:2px solid var(--border);background:var(--surface);cursor:pointer;transition:all .15s;margin-bottom:8px}
+    .mp-type-opt:hover{border-color:var(--primary)}
+    .mp-type-opt.sel-out.selected{border-color:#4caf7d;background:#f0fbf4}
+    .mp-type-opt.sel-in.selected {border-color:#e07070;background:#fdf3f3}
+    .mp-type-opt input[type=radio]{width:18px;height:18px;flex-shrink:0;accent-color:var(--primary);cursor:pointer}
+    .mp-type-label{font-weight:700;font-size:13.5px;color:var(--ink)}
+    .mp-type-sub{font-size:11.5px;color:var(--muted);margin-top:2px}
+    .mp-cash-row{display:flex;align-items:flex-start;gap:10px;background:#fefaf3;
+      border:1.5px solid #d4a854;border-radius:10px;padding:12px 14px;margin:14px 0}
+    .mp-cash-row input[type=checkbox]{width:18px;height:18px;margin-top:1px;flex-shrink:0;accent-color:#d4a854;cursor:pointer}
+    .mp-cash-label{font-size:13px;font-weight:700;color:var(--ink)}
+    .mp-cash-note{font-size:11.5px;color:var(--muted);margin-top:3px;line-height:1.5}
+    .mp-mer-select{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;
+      font-family:inherit;font-size:14px;color:var(--ink);background:var(--surface);outline:none;
+      transition:border-color .15s}
+    .mp-mer-select:focus{border-color:var(--primary)}
+
     /* ── أزرار الإجراء السريع ── */
     .quick-actions{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}
     .qa-btn{display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:10px;
@@ -341,8 +360,7 @@
       <button class="qa-btn t-out" data-type="withdrawal">📤 سحب من الصندوق</button>
       <button class="qa-btn t-in"  data-type="deposit">📥 إيداع في الصندوق</button>
       <button class="qa-btn t-oth" data-type="other">📝 عملية أخرى</button>
-      <!-- دفعات التجار أصبحت تُسجَّل فقط من صفحة التاجر (صندوق المستحقات/المنتجات) -->
-      <a class="qa-btn t-mer" href="/merchants.html" style="text-decoration:none">🤝 دفعات التجار ← صفحة التجار</a>
+      <button class="qa-btn t-mer" id="open-mp-modal-btn">🤝 دفعة تاجر سريعة</button>
     </div>
 
     <!-- جدول الحركات -->
@@ -382,6 +400,73 @@
     </div>
 
   </main>
+</div>
+
+<!-- ═══════ نافذة دفعة التاجر السريعة ═══════ -->
+<div class="modal-overlay" id="mp-modal">
+  <div class="modal-box" style="max-width:490px">
+    <div class="modal-box-header">
+      <h3 id="mp-modal-title">دفعة مالية للتاجر</h3>
+      <button type="button" class="modal-close" id="mp-modal-close">&times;</button>
+    </div>
+
+    <!-- اختيار التاجر -->
+    <div class="field" style="margin-bottom:14px">
+      <label style="font-size:13px;font-weight:700;color:var(--muted);display:block;margin-bottom:6px">اسم التاجر *</label>
+      <select class="mp-mer-select" id="mp-merchant-sel">
+        <option value="">— اختر التاجر —</option>
+      </select>
+    </div>
+
+    <!-- نوع الحركة -->
+    <label style="font-size:13px;font-weight:700;color:var(--muted);display:block;margin-bottom:8px">نوع الحركة *</label>
+    <div class="mp-type-opt sel-out selected" id="mp-opt-out">
+      <input type="radio" name="mp-pay-type" value="out" id="mp-radio-out" checked />
+      <div>
+        <div class="mp-type-label">💳 التاجر دفع نقداً — تسديد مستحقات</div>
+        <div class="mp-type-sub">(يقلل دينه)</div>
+      </div>
+    </div>
+    <div class="mp-type-opt sel-in" id="mp-opt-in">
+      <input type="radio" name="mp-pay-type" value="in" id="mp-radio-in" />
+      <div>
+        <div class="mp-type-label">➕ إضافة مبلغ على حساب التاجر</div>
+        <div class="mp-type-sub">(يزيد دينه)</div>
+      </div>
+    </div>
+
+    <!-- هل هي نقدية فعلياً؟ -->
+    <div class="mp-cash-row">
+      <input type="checkbox" id="mp-cash" checked />
+      <div>
+        <div class="mp-cash-label">💰 هذه الحركة نقدية فعلياً (دخلت/خرجت من صندوق الكاش)</div>
+        <div class="mp-cash-note">فعّلها إذا استلمت أو دفعت نقداً حقيقياً، عطّلها إذا كانت تسوية دين فقط بدون نقد (مثل حسم أو تنازل).</div>
+      </div>
+    </div>
+
+    <!-- المبلغ والتاريخ -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+      <div class="field">
+        <label for="mp-amount">المبلغ (ج.م) *</label>
+        <input type="number" id="mp-amount" min="0.01" step="0.01" placeholder="0.00" />
+      </div>
+      <div class="field">
+        <label for="mp-date">التاريخ *</label>
+        <input type="date" id="mp-date" />
+      </div>
+    </div>
+
+    <!-- الوصف -->
+    <div class="field" style="margin-bottom:16px">
+      <label for="mp-desc">الوصف / الملاحظات</label>
+      <textarea id="mp-desc" rows="2" placeholder="مثال: دفعة أولى، سداد جزئي..." style="resize:vertical;min-height:52px"></textarea>
+    </div>
+
+    <div style="display:flex;gap:10px">
+      <button type="button" class="btn" id="mp-save-btn">حفظ الدفعة</button>
+      <button type="button" class="btn outline" id="mp-cancel-btn">إلغاء</button>
+    </div>
+  </div>
 </div>
 
 <!-- ═══════ نافذة تفاصيل الحركة المالية ═══════ -->
@@ -645,6 +730,7 @@ async function nextFinId(){
 function init(){
   setupModal();
   setupDetailModal();
+  setupMerchantPayModal();
   setupFilters();
   loadOpeningBalance();
   loadEmployees();
@@ -1195,6 +1281,123 @@ function updateDirHint(){
   if(!dir){ hint.className="dir-hint custom"; hint.textContent="حدد اتجاه العملية"; }
   else if(dir==="in"){ hint.className="dir-hint in"; hint.textContent="✅ هذه العملية ستُضاف إلى رصيد الصندوق"; }
   else { hint.className="dir-hint out"; hint.textContent="⚠️ هذه العملية ستُخصم من رصيد الصندوق"; }
+}
+
+/* ══════════════════════════════════════
+   دفعة التاجر السريعة
+══════════════════════════════════════ */
+function setupMerchantPayModal(){
+  const modal=document.getElementById("mp-modal");
+
+  document.getElementById("open-mp-modal-btn").addEventListener("click",openMpModal);
+  document.getElementById("mp-modal-close").addEventListener("click",closeMpModal);
+  document.getElementById("mp-cancel-btn").addEventListener("click",closeMpModal);
+  modal.addEventListener("click",e=>{ if(e.target===modal) closeMpModal(); });
+
+  // تحديث عنوان النافذة عند اختيار تاجر
+  document.getElementById("mp-merchant-sel").addEventListener("change",()=>{
+    const m=merchants.find(x=>x.id===document.getElementById("mp-merchant-sel").value);
+    document.getElementById("mp-modal-title").textContent=m?`دفعة مالية — ${m.name}`:"دفعة مالية للتاجر";
+  });
+
+  // خيارات النوع — النقر على الصف بأكمله
+  ["mp-opt-out","mp-opt-in"].forEach(id=>{
+    document.getElementById(id).addEventListener("click",()=>{
+      document.querySelectorAll(".mp-type-opt").forEach(o=>o.classList.remove("selected"));
+      document.getElementById(id).classList.add("selected");
+      const val=id==="mp-opt-out"?"out":"in";
+      document.getElementById(val==="out"?"mp-radio-out":"mp-radio-in").checked=true;
+      // إضافة للحساب ← الغالب أنها ليست نقدية
+      if(val==="in") document.getElementById("mp-cash").checked=false;
+      else           document.getElementById("mp-cash").checked=true;
+    });
+  });
+
+  document.getElementById("mp-save-btn").addEventListener("click",saveMerchantPay);
+}
+
+function openMpModal(){
+  document.getElementById("mp-merchant-sel").value="";
+  document.getElementById("mp-modal-title").textContent="دفعة مالية للتاجر";
+  document.querySelectorAll(".mp-type-opt").forEach(o=>o.classList.remove("selected"));
+  document.getElementById("mp-opt-out").classList.add("selected");
+  document.getElementById("mp-radio-out").checked=true;
+  document.getElementById("mp-cash").checked=true;
+  document.getElementById("mp-amount").value="";
+  document.getElementById("mp-date").value=today();
+  document.getElementById("mp-desc").value="";
+  // تحديث قائمة التجار بأحدث البيانات
+  const sel=document.getElementById("mp-merchant-sel");
+  sel.innerHTML='<option value="">— اختر التاجر —</option>';
+  merchants.forEach(m=>{
+    const o=document.createElement("option");
+    o.value=m.id; o.textContent=m.name;
+    sel.appendChild(o);
+  });
+  document.getElementById("mp-modal").classList.add("open");
+}
+
+function closeMpModal(){
+  document.getElementById("mp-modal").classList.remove("open");
+}
+
+async function saveMerchantPay(){
+  const merchantId=document.getElementById("mp-merchant-sel").value;
+  const merchant=merchants.find(m=>m.id===merchantId);
+  if(!merchantId||!merchant){ toast("اختر التاجر أولاً",true); return; }
+
+  const payType=document.querySelector("input[name='mp-pay-type']:checked")?.value;
+  if(!payType){ toast("اختر نوع الحركة",true); return; }
+
+  const amount=Number(document.getElementById("mp-amount").value);
+  if(!amount||amount<=0){ toast("أدخل مبلغاً صحيحاً",true); return; }
+
+  const date=document.getElementById("mp-date").value;
+  if(!date){ toast("اختر التاريخ",true); return; }
+
+  const isCash=document.getElementById("mp-cash").checked;
+  const desc=document.getElementById("mp-desc").value.trim();
+
+  const btn=document.getElementById("mp-save-btn");
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
+
+  try{
+    // ١. سجّل في merchantTransactions
+    await addDoc(collection(db,"merchantTransactions"),{
+      merchantId,
+      merchantName: merchant.name,
+      type: payType,   // "out"=سداد يقلل الدين, "in"=إضافة يزيد الدين
+      amount, date,
+      description: desc,
+      isFromFinance: true,
+      _active: true,
+      createdAt: serverTimestamp(),
+    });
+
+    // ٢. إذا كانت نقدية فعلياً → سجّل في finance_transactions
+    if(isCash){
+      // payType=out → التاجر دفع → نقد يدخل الصندوق → dir=in
+      // payType=in  → نضيف لحسابه → نقد يخرج الصندوق → dir=out
+      const dir=payType==="out"?"in":"out";
+      const finId=await nextFinId();
+      const autoDesc=desc||(payType==="out"?`دفعة من ${merchant.name}`:`إضافة لحساب ${merchant.name}`);
+      await addDoc(collection(db,"finance_transactions"),{
+        type:"merchant", dir, amount, date,
+        description: autoDesc,
+        merchantId, merchantName: merchant.name, partyName: merchant.name,
+        finId, _active:true,
+        createdAt:serverTimestamp(), updatedAt:serverTimestamp(),
+      });
+      toast("تم الحفظ — "+finId);
+    } else {
+      toast("تم حفظ الدفعة");
+    }
+    closeMpModal();
+  }catch(err){
+    console.error(err); toast("خطأ أثناء الحفظ",true);
+  }finally{
+    btn.disabled=false; btn.textContent="حفظ الدفعة";
+  }
 }
 
 async function saveTx(e){
