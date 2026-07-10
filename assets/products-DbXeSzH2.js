@@ -65,6 +65,7 @@ initPage(user => {
   initWarehouseModal();
   initProductModal();
   initInvoiceModal();
+  initOpDeletedModal();
   initOpTypeSwitcher();
   initProductionForm();
   initTransferForm();
@@ -157,7 +158,6 @@ function buildWarehouseSection(wh, whProducts) {
       <div class="warehouse-section-title">🏪 ${esc(wh.name)} ${badge}</div>
       <div class="warehouse-section-actions" style="display:flex;gap:8px">
         <button type="button" class="btn small" data-wh-add="${wh.id}">+ إضافة منتج</button>
-        <button type="button" class="btn small ghost" data-wh-del="${wh.id}" title="حذف المخزن">🗑</button>
       </div>
     </div>
     <div class="warehouse-section-body">
@@ -197,14 +197,10 @@ function initWarehouseContainerDelegation() {
   const container = document.getElementById("warehouses-container");
   if (!container) return;
   container.addEventListener("click", e => {
-    const btn = e.target.closest("[data-wh-add],[data-wh-del],[data-prod-id]");
+    // حذف المخازن أصبح متاحاً فقط من صفحة DeepLog
+    const btn = e.target.closest("[data-wh-add],[data-prod-id]");
     if (!btn) return;
     if (btn.dataset.whAdd) { openProductModal(null, btn.dataset.whAdd); return; }
-    if (btn.dataset.whDel) {
-      const wh = warehouses.find(w => w.id === btn.dataset.whDel);
-      if (wh) deleteWarehouse(wh.id, wh.name);
-      return;
-    }
     if (btn.dataset.prodId) {
       if (btn.classList.contains("edit-prod-btn")) {
         const prod = products.find(p => p.id === btn.dataset.prodId);
@@ -240,20 +236,7 @@ function initWarehouseModal() {
   });
 }
 
-async function deleteWarehouse(whId, whName) {
-  const whProds = products.filter(p => p.warehouseId === whId);
-  const msg = whProds.length > 0
-    ? `سيتم حذف المخزن "${whName}" و${whProds.length} منتجاته. هل أنت متأكد؟`
-    : `هل تريد حذف المخزن "${whName}"؟`;
-  if (!confirm(msg)) return;
-  try {
-    const batch = writeBatch(db);
-    whProds.forEach(p => batch.delete(docRef(db, "products", p.id)));
-    batch.delete(docRef(db, "warehouses", whId));
-    await batch.commit();
-    showToast("تم الحذف");
-  } catch (err) { console.error(err); showToast("حدث خطأ", true); }
-}
+/* حذف المخازن أصبح متاحاً فقط من صفحة DeepLog، ولا يمكن تنفيذه من هذه الصفحة */
 
 /* ══════════════════════════════════════
    PRODUCT MODAL
@@ -883,12 +866,27 @@ function bindSerialLinks(container) {
 }
 
 function openOperationPreview(opId, kind, seqLabel) {
-  if (!opId) { showToast("لا يوجد رقم عملية لهذه الحركة", true); return; }
+  if (!opId) { showDeletedOperationNotice(); return; }
   const record = kind === "loading" ? loadingRecordsCache[opId] : movementsRecordsCache[opId];
   const finalRecord = record || movementsRecordsCache[opId] || loadingRecordsCache[opId];
-  if (!finalRecord) { showToast("تعذر العثور على تفاصيل هذه الحركة", true); return; }
+  if (!finalRecord) { showDeletedOperationNotice(); return; }
   // استخدم الرقم التسلسلي (OP-00006) نفسه المعروض في سجل العمليات بدلاً من جزء من opId
   showInvoice({ ...finalRecord, seqLabel: seqLabel || finalRecord.seqLabel });
+}
+
+/* تُعرض عند محاولة معاينة حركة تم حذفها بدلاً من إشعار عابر */
+function showDeletedOperationNotice() {
+  const modal = document.getElementById("op-deleted-modal");
+  if (modal) modal.classList.add("open");
+}
+
+function initOpDeletedModal() {
+  const modal = document.getElementById("op-deleted-modal");
+  if (!modal) return;
+  const close = () => modal.classList.remove("open");
+  document.getElementById("op-deleted-modal-close")?.addEventListener("click", close);
+  document.getElementById("op-deleted-close-btn2")?.addEventListener("click", close);
+  modal.addEventListener("click", e => { if (e.target === modal) close(); });
 }
 
 function bindDeleteBtns(container, colName) {
