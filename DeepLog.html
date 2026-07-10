@@ -198,8 +198,8 @@
         </div>
         <div class="table-wrap">
           <table class="data-table">
-            <thead><tr><th>المنتج</th><th>المخزن</th><th>الكمية</th><th>السعر</th><th></th></tr></thead>
-            <tbody id="prod-tbody"><tr><td colspan="5"><div class="empty-state">جارِ التحميل...</div></td></tr></tbody>
+            <thead><tr><th>المنتج</th><th>الرقم التسلسلي</th><th>المخزن</th><th>الكمية</th><th>السعر</th><th></th></tr></thead>
+            <tbody id="prod-tbody"><tr><td colspan="6"><div class="empty-state">جارِ التحميل...</div></td></tr></tbody>
           </table>
         </div>
       </div>
@@ -322,6 +322,15 @@
         <select id="product-warehouse" required><option value="">اختر مخزناً</option></select></div>
       <div class="field"><label for="product-name">اسم المنتج *</label>
         <input type="text" id="product-name" required placeholder="مثال: أرز بسمتي" /></div>
+      <div class="field"><label for="product-serial">رقم التعريف التسلسلي</label>
+        <input type="text" id="product-serial" placeholder="يُولَّد تلقائياً" readonly
+          style="background:var(--bg);color:var(--muted);cursor:not-allowed;font-family:monospace;font-weight:700" /></div>
+      <div class="field"><label>صورة المنتج (اختياري)</label>
+        <label class="file-drop" id="file-drop-label">
+          <span id="file-drop-text">اضغط لاختيار صورة</span>
+          <img id="image-preview" style="display:none" />
+        </label>
+        <input type="file" id="product-image" accept="image/*" style="display:none" /></div>
       <div class="field"><label for="product-desc">الوصف</label>
         <input type="text" id="product-desc" placeholder="وصف مختصر للمنتج" /></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
@@ -408,6 +417,37 @@ function switchTab(key) {
 /* ── الحالة العامة ── */
 let employees = [], merchants = [], warehouses = [], products = [];
 let allFinTx = [], allWhOps = [], allLoadOps = [];
+let pendingProductFile = null;
+
+/* ضغط صورة المنتج قبل الحفظ (نفس منطق الواجهة الرئيسية) */
+function compressImage(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let { width, height } = img;
+      if (width > height && width > 480) { height = Math.round(height * 480 / width); width = 480; }
+      else if (height > width && height > 480) { width = Math.round(width * 480 / height); height = 480; }
+      const canvas = document.createElement("canvas");
+      canvas.width = width; canvas.height = height;
+      canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.7);
+      if (dataUrl.length > 716800) { reject(new Error("الصورة كبيرة جدًا حتى بعد الضغط، جرب صورة أصغر")); return; }
+      resolve(dataUrl);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error("تعذر قراءة الصورة")); };
+    img.src = url;
+  });
+}
+
+/* رقم تسلسلي: W{ترتيب المخزن}-{رقم متسلسل من 5 خانات} — يُولَّد تلقائياً دائماً */
+function generateSerial(warehouseId) {
+  const idx = warehouses.findIndex(w => w.id === warehouseId);
+  const whNum = idx >= 0 ? idx + 1 : 1;
+  const count = products.filter(p => p.warehouseId === warehouseId).length + 1;
+  return `W${whNum}-${String(count).padStart(5, "0")}`;
+}
 
 function init() {
   document.getElementById("tab-finance").addEventListener("click", () => switchTab("finance"));
@@ -1057,12 +1097,16 @@ function renderProductsTable() {
   const tbody = document.getElementById("prod-tbody");
   if (!tbody) return;
   let rows = products.filter(p => (!whF || p.warehouseId === whF) && (!searchF || (p.name || "").toLowerCase().includes(searchF)));
-  if (!rows.length) { tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">لا توجد منتجات مطابقة</div></td></tr>'; return; }
+  if (!rows.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">لا توجد منتجات مطابقة</div></td></tr>'; return; }
   tbody.innerHTML = "";
   rows.forEach(p => {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td style="font-weight:700">${esc(p.name)}</td>
+      <td style="font-weight:700">
+        ${p.imageUrl ? `<img src="${p.imageUrl}" alt="" style="width:26px;height:26px;object-fit:cover;border-radius:5px;margin-inline-end:6px;vertical-align:middle" />` : ""}
+        ${esc(p.name)}${p.isVisiting ? ` <span style="font-size:10px;font-weight:700;color:#92620a;background:#fdf1d6;border:1px solid #f0d99b;border-radius:5px;padding:1px 6px">زائر</span>` : ""}
+      </td>
+      <td style="font-family:monospace;font-size:12px;color:var(--muted)">${p.serialId ? esc(p.serialId) : "—"}</td>
       <td style="font-size:13px">${esc(p.warehouseName || "—")}</td>
       <td>${fmtNum(p.quantity || 0)} ${esc(p.quantityType || "")}</td>
       <td>${p.price ? fmt(p.price) : "—"}</td>
@@ -1088,17 +1132,41 @@ function setupProductModal() {
   document.getElementById("product-form").addEventListener("submit", saveProduct);
   document.getElementById("prod-filter-wh").addEventListener("change", renderProductsTable);
   document.getElementById("prod-filter-search").addEventListener("input", renderProductsTable);
+
+  const fileInput = document.getElementById("product-image");
+  const dropLabel = document.getElementById("file-drop-label");
+  const preview = document.getElementById("image-preview");
+  const dropText = document.getElementById("file-drop-text");
+  dropLabel.addEventListener("click", e => { e.preventDefault(); fileInput.click(); });
+  fileInput.addEventListener("change", () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    pendingProductFile = file;
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = "block";
+    dropText.textContent = "تم اختيار صورة جديدة";
+  });
 }
 
 function openProductModal(p) {
+  pendingProductFile = null;
+  const preview = document.getElementById("image-preview");
+  const dropText = document.getElementById("file-drop-text");
+  document.getElementById("product-form").reset();
+  preview.style.display = "none";
+  dropText.textContent = "اضغط لاختيار صورة";
   document.getElementById("product-modal-title").textContent = p ? "تعديل المنتج" : "إضافة منتج";
   document.getElementById("product-edit-id").value = p?.id ?? "";
-  document.getElementById("product-warehouse").value = p?.warehouseId ?? "";
+  const warehouseId = p?.warehouseId ?? document.getElementById("product-warehouse").value ?? "";
+  document.getElementById("product-warehouse").value = warehouseId;
   document.getElementById("product-name").value = p?.name ?? "";
+  // الرقم التسلسلي يُولَّد تلقائياً دائماً؛ يُحفظ كما هو عند التعديل
+  document.getElementById("product-serial").value = p?.serialId || (warehouseId ? generateSerial(warehouseId) : "");
   document.getElementById("product-desc").value = p?.description ?? "";
   document.getElementById("product-quantity").value = p?.quantity ?? "";
   document.getElementById("product-qty-type").value = p?.quantityType ?? "قطعة";
   document.getElementById("product-price").value = p?.price ?? "";
+  if (p?.imageUrl) { preview.src = p.imageUrl; preview.style.display = "block"; dropText.textContent = "الصورة الحالية"; }
   document.getElementById("product-del-btn").style.display = p ? "inline-flex" : "none";
   document.getElementById("product-modal").classList.add("open");
 }
@@ -1114,8 +1182,12 @@ async function saveProduct(e) {
   const btn = document.getElementById("product-submit-btn");
   btn.disabled = true; btn.innerHTML = '<span class="spinner"></span>';
   try {
+    const existing = editId ? products.find(p => p.id === editId) : null;
+    let imageUrl = existing?.imageUrl ?? null;
+    if (pendingProductFile) imageUrl = await compressImage(pendingProductFile);
+    const serialId = document.getElementById("product-serial").value.trim() || generateSerial(warehouseId);
     const data = {
-      name, warehouseId, warehouseName: wh?.name ?? "",
+      name, warehouseId, warehouseName: wh?.name ?? "", serialId, imageUrl,
       description: document.getElementById("product-desc").value.trim(),
       quantity: Number(document.getElementById("product-quantity").value) || 0,
       quantityType: document.getElementById("product-qty-type").value,
