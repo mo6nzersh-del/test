@@ -83,6 +83,14 @@
       .log-transfer{background:#e8f0fb;color:#2a5bbf}
       .log-load{background:#fdf4e3;color:#a06a10}
       .log-time{font-size:11px;color:var(--muted);font-family:monospace}
+      /* ── clickable serial numbers → operation preview ── */
+      .log-serial-link{transition:opacity .15s}
+      .log-serial-link:hover{opacity:.75}
+      .op-serial-link{display:inline-block;font-family:monospace;font-size:11px;font-weight:700;
+        color:var(--primary-dark);background:var(--primary-soft);border-radius:5px;padding:2px 7px;
+        margin-inline-start:6px;cursor:pointer;text-decoration:underline;white-space:nowrap;
+        transition:opacity .15s}
+      .op-serial-link:hover{opacity:.75}
       /* ── prod/load line rows styling ── */
       .prod-line-row select,
       .prod-line-row input[type="number"]{
@@ -394,7 +402,7 @@
     <div class="modal-overlay" id="invoice-modal">
       <div class="modal-box wide">
         <div class="modal-box-header">
-          <h3>فاتورة العملية</h3>
+          <h3 id="invoice-modal-title">فاتورة العملية</h3>
           <button type="button" class="modal-close" id="invoice-modal-close">&times;</button>
         </div>
         <div id="invoice-content" class="invoice-box"></div>
