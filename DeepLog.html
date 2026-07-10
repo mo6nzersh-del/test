@@ -86,6 +86,20 @@
     <!-- ══════════ TAB 1: FINANCE ══════════ -->
     <div class="section-view active" id="view-finance">
       <div class="panel">
+        <div class="panel-header"><h3>⚙️ إعدادات صندوق الكاش</h3></div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-top:4px">
+          <div class="field" style="margin:0;flex:1;min-width:200px">
+            <label for="opening-balance" style="font-size:13px">الرصيد الافتتاحي (ج.م)</label>
+            <input type="number" id="opening-balance" min="0" step="0.01" placeholder="0.00" style="margin-top:4px" />
+          </div>
+          <button class="btn small" id="save-opening" style="margin-top:20px">حفظ الرصيد</button>
+          <p style="font-size:12px;color:var(--muted);margin:20px 0 0;flex:100%">
+            الرصيد الافتتاحي هو المبلغ الموجود في صندوق الكاش قبل تسجيل أي حركة في هذا النظام.
+            هذا الإعداد نُقل إلى هنا فقط — صفحة المالية تعرض الرصيد المحسوب دون إمكانية تعديله.
+          </p>
+        </div>
+      </div>
+      <div class="panel">
         <div class="panel-header">
           <h3>سجل الحركات المالية</h3>
           <span id="fin-count" style="font-size:13px;color:var(--muted)"></span>
@@ -381,7 +395,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, collection, doc,
-  addDoc, updateDoc, deleteDoc, getDoc,
+  addDoc, updateDoc, deleteDoc, getDoc, setDoc,
   query, orderBy, onSnapshot, writeBatch,
   serverTimestamp, runTransaction
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -441,6 +455,22 @@ let employees = [], merchants = [], warehouses = [], products = [];
 let allFinTx = [], allWhOps = [], allLoadOps = [];
 let pendingProductFile = null;
 let currentUser = null;
+
+/* ── الرصيد الافتتاحي لصندوق الكاش (تعديل حصري من هذه الصفحة) ── */
+async function loadOpeningBalance() {
+  try {
+    const snap = await getDoc(doc(db, "finance_settings", "main"));
+    if (snap.exists()) document.getElementById("opening-balance").value = snap.data().openingBalance ?? 0;
+  } catch (e) { console.error(e); }
+}
+async function saveOpeningBalance() {
+  const val = Number(document.getElementById("opening-balance").value) || 0;
+  try {
+    await setDoc(doc(db, "finance_settings", "main"), { openingBalance: val }, { merge: true });
+    toast("تم حفظ الرصيد الافتتاحي");
+    logDlAction("تعديل الرصيد الافتتاحي", `القيمة الجديدة: ${fmt(val)}`);
+  } catch (e) { console.error(e); toast("خطأ", true); }
+}
 
 /* سجل حركات خاص بهذه الصفحة فقط — مجموعة مستقلة عن سجل العمليات العام */
 async function logDlAction(action, details) {
@@ -519,6 +549,8 @@ function init() {
   loadWarehouseOps();
   loadLoadingOps();
   loadDlActivity();
+  loadOpeningBalance();
+  document.getElementById("save-opening").addEventListener("click", saveOpeningBalance);
 
   setupFinanceModal();
   setupFinanceFilters();
