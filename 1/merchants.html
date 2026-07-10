@@ -6,10 +6,9 @@
   <title>التجار - أحمد وحمدي</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="stylesheet" href="/assets/auth-guard-C6CJ8_8i-r2.css" />
+  <link rel="stylesheet" href="/assets/auth-guard-C6CJ8_8i.css" />
     <!-- mobile-nav-critical-marker -->
       <style>
-        /* حرج: تنسيق قائمة الجوال - مضمّن لضمان ظهوره حتى لو تأخر تحميل CSS الخارجي أو كان مخزنًا مؤقتًا */
         .nav-toggle{display:none!important}
         .mobile-nav{display:none!important}
         @media(max-width:760px){
@@ -321,14 +320,16 @@ function renderNav(user){
   document.getElementById("logout-btn-mobile").addEventListener("click",()=>signOut(auth).then(()=>location.href="/"));
   const navToggle = document.getElementById("nav-toggle");
   const mobileNav = document.getElementById("mobile-nav");
-  navToggle.addEventListener("click", ()=>{
-    const isOpen = mobileNav.classList.toggle("open");
-    navToggle.textContent = isOpen ? "✕" : "☰";
-  });
-  mobileNav.querySelectorAll("a").forEach(a=>a.addEventListener("click", ()=>{
-    mobileNav.classList.remove("open");
-    navToggle.textContent = "☰";
-  }));
+  if (navToggle && mobileNav) {
+    navToggle.addEventListener("click", () => {
+      const open = mobileNav.classList.toggle("open");
+      navToggle.textContent = open ? "✕" : "☰";
+    });
+    mobileNav.querySelectorAll("a").forEach(a => a.addEventListener("click", () => {
+      mobileNav.classList.remove("open");
+      navToggle.textContent = "☰";
+    }));
+  }
 }
 
 /* ── حالة ── */
