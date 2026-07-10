@@ -35,6 +35,13 @@
     .stat-pf-dues  .sc-val{color:#7a4f10}
     .stat-pf-total{border-top:3px solid #4caf7d}
     .stat-pf-total .sc-val{color:#1a6b3a}
+    .stat-pf-wh   {border-top:3px solid #7c3aed}
+    .stat-pf-wh   .sc-val{color:#5b21b6}
+    .wh-inline-select{border:1.5px solid var(--border);border-radius:7px;padding:5px 9px;
+      background:var(--surface);font-family:inherit;font-size:12px;color:var(--ink);
+      cursor:pointer;outline:none;transition:border-color .15s;margin-top:6px;width:100%}
+    .wh-inline-select:focus{border-color:#7c3aed}
+    .wh-inline-select:disabled{opacity:.5;cursor:not-allowed}
 
     /* ── نافذة دفعة التاجر السريعة ── */
     .mp-type-opt{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:10px;
@@ -351,6 +358,14 @@
         <div class="sc-label">📦 إجمالي صندوق المنتجات</div>
         <div class="sc-val" id="stat-pf-total">—</div>
         <div class="sc-sub">قيمة المخزون + مستحقات التجار</div>
+      </div>
+      <div class="stat-card stat-pf-wh">
+        <div class="sc-label">🏪 قيمة مخزن محدد (بدون بناء)</div>
+        <div class="sc-val" id="stat-pf-wh-value">—</div>
+        <div class="sc-sub" id="stat-pf-wh-count">كمية × سعر لمنتجات المخزن</div>
+        <select class="wh-inline-select" id="wh-finance-select" disabled>
+          <option value="">جارِ التحميل...</option>
+        </select>
       </div>
     </div>
 
@@ -1461,6 +1476,66 @@ async function saveTx(e){
   }catch(err){ console.error(err); toast("خطأ أثناء الحفظ",true); }
   finally{ btn.disabled=false; btn.textContent="حفظ العملية"; }
 }
+</script>
+
+<!-- ═══════ قيمة مخزن محدد — يستخدم نفس تطبيق Firebase الافتراضي ═══════ -->
+<script type="module">
+  import { getApp }    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged }
+                       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, collection, getDocs, query, orderBy }
+                       from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  const _app  = getApp();
+  const _auth = getAuth(_app);
+  const _db   = getFirestore(_app);
+  const _fmt  = n => new Intl.NumberFormat("ar-EG",{maximumFractionDigits:2}).format(n||0)+" ج.م";
+
+  let _whs=[], _prods=[], _selWhId=null;
+
+  const selEl = document.getElementById("wh-finance-select");
+  const valEl = document.getElementById("stat-pf-wh-value");
+  const cntEl = document.getElementById("stat-pf-wh-count");
+
+  onAuthStateChanged(_auth, user => { if(user) initWhValue(); });
+
+  async function initWhValue(){
+    try{
+      const [whSnap, prodSnap] = await Promise.all([
+        getDocs(query(collection(_db,"warehouses"), orderBy("createdAt","asc"))),
+        getDocs(collection(_db,"products")),
+      ]);
+      _whs   = whSnap.docs.map(d=>({id:d.id,...d.data()}));
+      _prods = prodSnap.docs.map(d=>({id:d.id,...d.data()}));
+
+      if(!_whs.length){
+        selEl.innerHTML='<option value="">لا توجد مخازن</option>';
+        valEl.textContent="—"; return;
+      }
+
+      selEl.innerHTML = _whs.map(w=>`<option value="${w.id}">${w.name}</option>`).join("");
+      selEl.disabled  = false;
+
+      const def = _whs[1] || _whs[0];
+      _selWhId  = def.id;
+      selEl.value = _selWhId;
+      renderWhValue();
+
+      selEl.addEventListener("change",()=>{ _selWhId=selEl.value; renderWhValue(); });
+    }catch(err){
+      console.error("wh-stat:",err);
+      valEl.textContent="خطأ";
+      cntEl.textContent=err.message??"";
+    }
+  }
+
+  function renderWhValue(){
+    const ps   = _prods.filter(p=>p.warehouseId===_selWhId);
+    const total = ps.reduce((s,p)=>s+(Number(p.quantity)||0)*(Number(p.price)||0),0);
+    valEl.textContent = _fmt(total);
+    const wh = _whs.find(w=>w.id===_selWhId);
+    cntEl.textContent = `${ps.length} منتج — ${wh?.name??""}`;
+  }
 </script>
 </body>
 </html>
