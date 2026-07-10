@@ -597,6 +597,7 @@ function initTransferForm() {
       // deduct from source
       batch.update(docRef(db, "products", srcProdId), { quantity: (srcProd.quantity || 0) - qty, updatedAt: serverTimestamp() });
       let destProdName = srcProd.name;
+      let destProductIdFinal = destProdId || "";
       // add to destination
       if (destProdId) {
         const destProd = products.find(p => p.id === destProdId);
@@ -611,6 +612,7 @@ function initTransferForm() {
         const existingCount = products.filter(p => p.warehouseId === toWhId).length;
         const newSerial = `W${whNum}-${String(existingCount + 1).padStart(5, "0")}`;
         const newRef = docRef(collection(db, "products"));
+        destProductIdFinal = newRef.id;
         batch.set(newRef, {
           name: srcProd.name, serialId: newSerial, description: srcProd.description || "",
           quantity: qty, quantityType: srcProd.quantityType || "قطعة",
@@ -626,6 +628,7 @@ function initTransferForm() {
         fromWarehouseId: fromWhId, fromWarehouseName: fromWh?.name ?? "",
         toWarehouseId: toWhId, toWarehouseName: toWh?.name ?? "",
         productId: srcProdId, productName: srcProd.name,
+        destProductId: destProductIdFinal,
         quantity: qty, unit: srcProd.quantityType || "",
         note, performedBy: currentUser?.email ?? "—",
         createdAt: serverTimestamp(),
