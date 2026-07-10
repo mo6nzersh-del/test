@@ -76,6 +76,24 @@
           </div>
         </div>
 
+        <div class="panel dash-group" id="products-fund-panel">
+          <h3>📦 صندوق المنتجات</h3>
+          <div class="stat-grid">
+            <div class="stat-card">
+              <div class="label">قيمة المخزون بالمخازن</div>
+              <div class="value" id="stat-pf-inventory">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">مستحقات التجار (بضاعة غير مدفوعة)</div>
+              <div class="value" id="stat-pf-dues">—</div>
+            </div>
+            <div class="stat-card">
+              <div class="label">إجمالي صندوق المنتجات</div>
+              <div class="value" id="stat-pf-total">—</div>
+            </div>
+          </div>
+        </div>
+
         <div class="panel dash-group">
           <h3>التجار</h3>
           <div class="stat-grid">
@@ -130,4 +148,66 @@
       </main>
     </div>
   </body>
+
+  <!-- ═══════ صندوق المنتجات — حساب مستقل (قيمة المخزون + مستحقات التجار) ═══════ -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const pfApp  = initializeApp({
+      apiKey:            "AIzaSyDQsaNVskKiV2cwPVlJDixpTD1S-Dhp7gs",
+      authDomain:        "reta-and-hamd.firebaseapp.com",
+      projectId:         "reta-and-hamd",
+      storageBucket:     "reta-and-hamd.firebasestorage.app",
+      messagingSenderId: "220767743863",
+      appId:             "1:220767743863:web:2ecd37bd5830a39ec1bb72"
+    }, "products-fund-app");
+    const pfAuth = getAuth(pfApp);
+    const pfDb   = getFirestore(pfApp);
+
+    const pfFmt = n => new Intl.NumberFormat("ar-EG",{maximumFractionDigits:2}).format(n||0)+" ج.م";
+
+    onAuthStateChanged(pfAuth, user => { if (user) loadProductsFund(); });
+
+    async function loadProductsFund(){
+      try{
+        const [prodSnap, merTxSnap, finTxSnap] = await Promise.all([
+          getDocs(collection(pfDb,"products")),
+          getDocs(collection(pfDb,"merchantTransactions")),
+          getDocs(collection(pfDb,"finance_transactions")),
+        ]);
+
+        // 1) قيمة المخزون = كمية كل منتج × سعره
+        const inventoryValue = prodSnap.docs.reduce((s,d)=>{
+          const p=d.data();
+          return s+(Number(p.quantity)||0)*(Number(p.price)||0);
+        }, 0);
+
+        // 2) مستحقات التجار = رصيد كل تاجر (موجب فقط) من حركاته المباشرة + دفعاته المالية
+        const byMerchant = {};
+        merTxSnap.docs.forEach(d=>{
+          const t=d.data(); if(!t.merchantId) return;
+          const amt=(t.type==="out"?-1:1)*(Number(t.amount)||0);
+          byMerchant[t.merchantId]=(byMerchant[t.merchantId]||0)+amt;
+        });
+        finTxSnap.docs.forEach(d=>{
+          const t=d.data();
+          if(t.type!=="merchant"||t._active===false||!t.merchantId) return;
+          const amt=(t.dir==="in"?1:-1)*(Number(t.amount)||0);
+          byMerchant[t.merchantId]=(byMerchant[t.merchantId]||0)+amt;
+        });
+        const merchantDues = Object.values(byMerchant).reduce((s,bal)=>s+Math.max(0,bal),0);
+
+        document.getElementById("stat-pf-inventory").textContent = pfFmt(inventoryValue);
+        document.getElementById("stat-pf-dues").textContent      = pfFmt(merchantDues);
+        document.getElementById("stat-pf-total").textContent     = pfFmt(inventoryValue+merchantDues);
+      }catch(err){
+        console.error(err);
+        ["stat-pf-inventory","stat-pf-dues","stat-pf-total"].forEach(id=>{
+          const el=document.getElementById(id); if(el) el.textContent="خطأ";
+        });
+      }
+    }
+  </script>
 </html>
