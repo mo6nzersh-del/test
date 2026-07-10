@@ -1,440 +1,1044 @@
-<!doctype html>
-<html lang="ar" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>المنتجات - أحمد وحمدي</title>
-    <meta name="robots" content="noindex, nofollow" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <script type="module" crossorigin src="/assets/products-DbXeSzH2.js"></script>
-    <link rel="modulepreload" crossorigin href="/assets/auth-guard-DMMO1gWE.js">
-    <link rel="modulepreload" crossorigin href="/assets/nav-C4LmEyvm.js">
-    <link rel="modulepreload" crossorigin href="/assets/image-utils-ix_Ztzsr.js">
-    <link rel="stylesheet" crossorigin href="/assets/auth-guard-C6CJ8_8i.css">
-    <style>
-      /* ── Warehouse sections ── */
-      .warehouse-section{border:1px solid var(--border);border-radius:10px;margin-bottom:20px;overflow:hidden;background:var(--surface)}
-      .warehouse-section-header{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:var(--bg);border-bottom:1px solid var(--border);gap:12px}
-      .warehouse-section-title{font-weight:700;font-size:1rem;color:var(--ink);display:flex;align-items:center;gap:8px}
-      .warehouse-section-title .wh-count{font-size:.78rem;font-weight:500;color:var(--muted);background:var(--border);border-radius:20px;padding:1px 9px}
-      .warehouse-section-body{padding:16px 18px}
-      .wh-products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
-      .wh-product-card{border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--surface)}
-      .wh-product-img{width:100%;height:120px;object-fit:cover;display:block;background:var(--bg)}
-      .wh-product-img-placeholder{width:100%;height:120px;background:var(--bg);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:2rem}
-      .wh-product-info{padding:10px 12px 12px}
-      .wh-product-name{font-weight:700;font-size:.92rem;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-      .wh-product-serial{font-size:.72rem;color:var(--muted);margin-bottom:5px;font-family:monospace}
-      .wh-product-desc{font-size:.76rem;color:var(--muted);margin-bottom:7px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-      .wh-product-meta{display:flex;justify-content:space-between;align-items:flex-end;gap:6px;flex-wrap:wrap}
-      .wh-product-qty{font-size:.82rem;font-weight:700;color:var(--ink)}
-      .wh-product-qty span{font-weight:400;color:var(--muted);font-size:.75rem}
-      .wh-product-price{font-size:.84rem;font-weight:700;color:var(--primary)}
-      .wh-product-actions{display:flex;gap:5px;margin-top:9px;padding-top:8px;border-top:1px solid var(--border)}
-      .wh-product-actions button{flex:1;padding:5px 0;border:none;border-radius:5px;cursor:pointer;font-size:.76rem;font-family:inherit}
-      .wh-product-actions .edit-btn{background:var(--bg);color:var(--ink)}
-      .wh-product-actions .del-btn{background:#fee2e2;color:#dc2626}
-      .wh-empty-products{text-align:center;padding:20px 0;color:var(--muted);font-size:.86rem}
-      /* ── op-type toggle ── */
-      .op-type-group{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
-      .op-type-btn{flex:1;min-width:120px;padding:12px 10px;border:2px solid var(--border);border-radius:10px;background:var(--surface);font-family:inherit;font-weight:700;font-size:.88rem;color:var(--muted);cursor:pointer;text-align:center;transition:all .15s}
-      .op-type-btn:hover{border-color:var(--primary);color:var(--primary-dark);background:var(--primary-soft)}
-      .op-type-btn.active{border-color:var(--primary);background:var(--primary-soft);color:var(--primary-dark)}
-      /* ── op forms ── */
-      .op-form-section{display:none}
-      .op-form-section.active{display:block}
-      .items-lines-block{background:var(--bg);border-radius:10px;padding:12px;margin-bottom:12px}
-      .items-lines-block h4{margin:0 0 10px;font-size:.85rem;color:var(--muted)}
-      .prod-line-row{display:grid;grid-template-columns:2fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px}
-      .prod-line-row .line-hint{grid-column:1/-1;font-size:.75rem;color:var(--primary-dark);font-weight:600;padding:2px 4px}
-      .prod-line-row .remove-line{background:var(--danger-soft);color:var(--danger);border:none;border-radius:7px;padding:7px 11px;font-weight:700;font-size:.8rem;cursor:pointer}
-      /* ── invoice (print) ── */
-      .invoice-box{font-family:Cairo,sans-serif;direction:rtl;max-width:640px;margin:0 auto}
-      .invoice-header{text-align:center;border-bottom:3px solid var(--primary);padding-bottom:16px;margin-bottom:16px}
-      .invoice-mark{width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 8px}
-      .invoice-company{font-size:18px;font-weight:800;margin-bottom:2px}
-      .invoice-sub{font-size:12px;color:var(--muted)}
-      .invoice-meta-row{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:14px;flex-wrap:wrap;gap:8px;background:var(--bg);padding:10px 14px;border-radius:8px}
-      .invoice-meta-row span{color:var(--muted)}
-      .invoice-meta-row strong{color:var(--ink)}
-      .invoice-type-badge{display:inline-block;padding:5px 14px;border-radius:999px;font-size:12.5px;font-weight:700;margin-bottom:14px}
-      .inv-prod{background:var(--primary-soft);color:var(--primary-dark)}
-      .inv-transfer{background:#e8f0fb;color:#2a5bbf}
-      .inv-load{background:#fdf4e3;color:#a06a10}
-      .invoice-table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:13px}
-      .invoice-table th{text-align:right;padding:7px 10px;background:var(--bg);font-size:12px;font-weight:700;color:var(--muted);border-bottom:1.5px solid var(--border)}
-      .invoice-table td{padding:8px 10px;border-bottom:1px solid var(--border)}
-      .invoice-table tr:last-child td{border-bottom:none}
-      .invoice-total-row{display:flex;justify-content:space-between;font-size:16px;font-weight:800;color:var(--primary-dark);border-top:2px solid var(--primary);padding-top:12px;margin-top:4px}
-      .invoice-footer{margin-top:18px;padding-top:14px;border-top:1px dashed var(--border);display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted)}
-      .invoice-sig{text-align:center}
-      .invoice-sig-line{width:120px;border-top:1px solid var(--ink);margin:28px auto 4px}
-      /* ── record badges ── */
-      .record-badge.production{background:var(--primary-soft);color:var(--primary-dark)}
-      .record-badge.transfer{background:#e8f0fb;color:#2a5bbf}
-      .record-badge.loading{background:#fdf4e3;color:#a06a10}
-      /* ── log table ── */
-      .log-table{width:100%;border-collapse:collapse}
-      .log-table th{text-align:right;font-size:12px;color:var(--muted);font-weight:700;padding:7px 10px;border-bottom:1.5px solid var(--border)}
-      .log-table td{padding:9px 10px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:top}
-      .log-table tr:last-child td{border-bottom:none}
-      .log-badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
-      .log-prod{background:var(--primary-soft);color:var(--primary-dark)}
-      .log-transfer{background:#e8f0fb;color:#2a5bbf}
-      .log-load{background:#fdf4e3;color:#a06a10}
-      .log-time{font-size:11px;color:var(--muted);font-family:monospace}
-      /* ── clickable serial numbers → operation preview ── */
-      .log-serial-link{transition:opacity .15s}
-      .log-serial-link:hover{opacity:.75}
-      .op-serial-link{display:inline-block;font-family:monospace;font-size:11px;font-weight:700;
-        color:var(--primary-dark);background:var(--primary-soft);border-radius:5px;padding:2px 7px;
-        margin-inline-start:6px;cursor:pointer;text-decoration:underline;white-space:nowrap;
-        transition:opacity .15s}
-      .op-serial-link:hover{opacity:.75}
-      .wh-product-visiting-badge{display:inline-block;font-size:10px;font-weight:700;color:#92620a;
-        background:#fdf1d6;border:1px solid #f0d99b;border-radius:5px;padding:1px 6px;
-        margin-inline-start:4px;vertical-align:middle}
-      /* ── prod/load line rows styling ── */
-      .prod-line-row select,
-      .prod-line-row input[type="number"]{
-        width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;
-        font-family:inherit;font-size:.88rem;background:var(--surface);color:var(--ink);
-        outline:none;transition:border-color .15s;box-sizing:border-box;
-      }
-      .prod-line-row select:focus,
-      .prod-line-row input[type="number"]:focus{border-color:var(--primary)}
-      .remove-line{background:var(--danger-soft)!important;color:var(--danger)!important;
-        border:none!important;border-radius:7px!important;padding:8px 12px!important;
-        font-weight:700!important;font-size:.8rem!important;cursor:pointer!important;
-        white-space:nowrap!important}
-      .remove-line:disabled{opacity:.4;cursor:not-allowed!important}
-      /* ── print styles ── */
-      @media print{
-        /* hide everything except the invoice content */
-        body > *{display:none!important}
-        #invoice-modal{
-          display:block!important;position:static!important;
-          background:none!important;padding:0!important;
-          overflow:visible!important;
+import{r as initPage,u as updateDoc,a as docRef,d as db,s as serverTimestamp,b as addDoc,c as collection,q as query,o as orderBy,e as onSnapshot,f as deleteDoc,k as writeBatch}from"./auth-guard-DMMO1gWE.js";
+import{r as renderNav,s as showToast,f as formatDate}from"./nav-C4LmEyvm.js";
+import{f as compressImage}from"./image-utils-ix_Ztzsr.js";
+
+const BASE = "/";
+
+/* ─── state ─── */
+let currentUser = null;
+let warehouses = [];
+let products = [];
+let merchants = [];
+let warehousesLoaded = false;
+let productsLoaded = false;
+let pendingProductFile = null;
+let editingProductId = null;
+
+// production form lines
+let prodInputLines = [];
+let prodOutputLines = [];
+let lineCounter = 0;
+
+// loading form lines
+let loadLines = [];
+let loadLineCounter = 0;
+
+// caches of full operation records, keyed by opId, for detail replay
+let movementsRecordsCache = {};
+let loadingRecordsCache = {};
+
+/* ─── helpers ─── */
+function esc(v) {
+  const d = document.createElement("div");
+  d.textContent = v ?? "";
+  return d.innerHTML;
+}
+function fmtMoney(v) {
+  return new Intl.NumberFormat("ar-EG", { maximumFractionDigits: 2 }).format(v || 0) + " ج.م";
+}
+function fmtNum(v) {
+  return new Intl.NumberFormat("ar-EG", { maximumFractionDigits: 3 }).format(v || 0);
+}
+function fmtDateTime(ts) {
+  const d = ts?.toDate ? ts.toDate() : (ts instanceof Date ? ts : new Date(ts));
+  return d.toLocaleString("ar-EG", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+function fmtDateTimeLong(ts) {
+  const d = ts?.toDate ? ts.toDate() : (ts instanceof Date ? ts : new Date(ts));
+  return d.toLocaleString("ar-EG", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+
+/* serial ID: W{warehouseIndex}-{5-digit sequence} — always auto-generated */
+function generateSerial(warehouseId) {
+  const idx = warehouses.findIndex(w => w.id === warehouseId);
+  const whNum = idx >= 0 ? idx + 1 : 1;
+  // count existing products in this warehouse (already loaded) + 1
+  const count = products.filter(p => p.warehouseId === warehouseId).length + 1;
+  return `W${whNum}-${String(count).padStart(5, "0")}`;
+}
+
+/* ─── init ─── */
+initPage(user => {
+  currentUser = user;
+  initTabs();
+  initWarehouseContainerDelegation();
+  initWarehouseModal();
+  initProductModal();
+  initInvoiceModal();
+  initOpDeletedModal();
+  initOpTypeSwitcher();
+  initProductionForm();
+  initTransferForm();
+  initLoadingForm();
+  loadWarehouses();
+  loadProducts();
+  loadMerchants();
+  loadMovementsRecords();
+  loadLoadingRecords();
+  loadActivityLog();
+  renderNav(`${BASE}products.html`, user);
+});
+
+/* ══════════════════════════════════════
+   TABS
+══════════════════════════════════════ */
+function initTabs() {
+  const tabs = {
+    movements: { btn: document.getElementById("tab-movements"),   view: document.getElementById("view-movements") },
+    loading:   { btn: document.getElementById("tab-loading"),     view: document.getElementById("view-loading") },
+    warehouses:{ btn: document.getElementById("tab-warehouses"),  view: document.getElementById("view-warehouses") },
+    log:       { btn: document.getElementById("tab-log"),         view: document.getElementById("view-log") },
+  };
+  Object.entries(tabs).forEach(([key, { btn }]) => {
+    btn.addEventListener("click", () => {
+      Object.values(tabs).forEach(({ btn: b, view: v }) => {
+        b.classList.remove("active");
+        v.classList.remove("active");
+      });
+      tabs[key].btn.classList.add("active");
+      tabs[key].view.classList.add("active");
+    });
+  });
+}
+
+/* ══════════════════════════════════════
+   LOAD DATA
+══════════════════════════════════════ */
+function loadWarehouses() {
+  const q = query(collection(db, "warehouses"), orderBy("createdAt", "asc"));
+  onSnapshot(q, snap => {
+    warehouses = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    warehousesLoaded = true;
+    if (productsLoaded) renderWarehousesContainer();
+    refreshAllWarehouseSelects();
+  }, err => console.error(err));
+}
+
+function loadProducts() {
+  const q = query(collection(db, "products"), orderBy("createdAt", "asc"));
+  onSnapshot(q, snap => {
+    products = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    productsLoaded = true;
+    if (warehousesLoaded) renderWarehousesContainer();
+  }, err => console.error(err));
+}
+
+function loadMerchants() {
+  const q = query(collection(db, "merchants"), orderBy("createdAt", "desc"));
+  onSnapshot(q, snap => {
+    merchants = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    refreshMerchantSelects();
+  }, err => console.error(err));
+}
+
+/* ══════════════════════════════════════
+   WAREHOUSE SECTIONS
+══════════════════════════════════════ */
+function renderWarehousesContainer() {
+  const container = document.getElementById("warehouses-container");
+  if (!container) return;
+  if (warehouses.length === 0) {
+    container.innerHTML = '<div class="empty-state">لا توجد مخازن بعد. أضف مخزنًا أولاً.</div>';
+    return;
+  }
+  container.innerHTML = "";
+  warehouses.forEach(wh => {
+    const whProducts = products.filter(p => p.warehouseId === wh.id);
+    container.appendChild(buildWarehouseSection(wh, whProducts));
+  });
+}
+
+function buildWarehouseSection(wh, whProducts) {
+  const section = document.createElement("div");
+  section.className = "warehouse-section";
+  section.dataset.whId = wh.id;
+  const badge = whProducts.length > 0 ? `<span class="wh-count">${whProducts.length} منتج</span>` : "";
+  section.innerHTML = `
+    <div class="warehouse-section-header">
+      <div class="warehouse-section-title">🏪 ${esc(wh.name)} ${badge}</div>
+      <div class="warehouse-section-actions" style="display:flex;gap:8px">
+        <button type="button" class="btn small" data-wh-add="${wh.id}">+ إضافة منتج</button>
+      </div>
+    </div>
+    <div class="warehouse-section-body">
+      <div class="wh-products-grid" id="wh-grid-${wh.id}">
+        ${whProducts.length === 0
+          ? '<div class="wh-empty-products">لا توجد منتجات في هذا المخزن بعد</div>'
+          : whProducts.map(p => buildProductCardHTML(p)).join("")}
+      </div>
+    </div>`;
+  return section;
+}
+
+function buildProductCardHTML(p) {
+  const img = p.imageUrl
+    ? `<img class="wh-product-img" src="${p.imageUrl}" alt="${esc(p.name)}" />`
+    : `<div class="wh-product-img-placeholder">📦</div>`;
+  return `
+    <div class="wh-product-card">
+      ${img}
+      <div class="wh-product-info">
+        <div class="wh-product-name" title="${esc(p.name)}">${esc(p.name)} ${p.isVisiting ? `<span class="wh-product-visiting-badge" title="صنف زائر من مخزن آخر — نفس المعرّف الأصلي">زائر</span>` : ""}</div>
+        ${p.serialId ? `<div class="wh-product-serial"># ${esc(p.serialId)}</div>` : ""}
+        ${p.description ? `<div class="wh-product-desc">${esc(p.description)}</div>` : ""}
+        <div class="wh-product-meta">
+          <div class="wh-product-qty">${fmtNum(p.quantity || 0)} <span>${esc(p.quantityType || "")}</span></div>
+          <div class="wh-product-price">${p.price ? fmtMoney(p.price) : "—"}</div>
+        </div>
+        <div class="wh-product-actions">
+          <button type="button" class="edit-btn edit-prod-btn" data-prod-id="${p.id}">تعديل</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function initWarehouseContainerDelegation() {
+  const container = document.getElementById("warehouses-container");
+  if (!container) return;
+  container.addEventListener("click", e => {
+    // حذف المخازن أصبح متاحاً فقط من صفحة DeepLog
+    const btn = e.target.closest("[data-wh-add],[data-prod-id]");
+    if (!btn) return;
+    if (btn.dataset.whAdd) { openProductModal(null, btn.dataset.whAdd); return; }
+    if (btn.dataset.prodId && btn.classList.contains("edit-prod-btn")) {
+      const prod = products.find(p => p.id === btn.dataset.prodId);
+      if (prod) openProductModal(prod, prod.warehouseId);
+    }
+  });
+}
+
+/* ══════════════════════════════════════
+   WAREHOUSE MODAL
+══════════════════════════════════════ */
+function initWarehouseModal() {
+  const modal = document.getElementById("warehouse-modal");
+  const form = document.getElementById("warehouse-form");
+  const submitBtn = document.getElementById("warehouse-submit-btn");
+  document.getElementById("add-warehouse-btn").addEventListener("click", () => { form.reset(); modal.classList.add("open"); });
+  document.getElementById("warehouse-modal-close").addEventListener("click", () => modal.classList.remove("open"));
+  modal.addEventListener("click", e => { if (e.target === modal) modal.classList.remove("open"); });
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const name = document.getElementById("warehouse-name").value.trim();
+    if (!name) return;
+    submitBtn.disabled = true; submitBtn.innerHTML = '<span class="spinner"></span>';
+    try {
+      await addDoc(collection(db, "warehouses"), { name, createdAt: serverTimestamp() });
+      showToast("تمت إضافة المخزن");
+      modal.classList.remove("open");
+    } catch (err) { console.error(err); showToast("حدث خطأ", true); }
+    finally { submitBtn.disabled = false; submitBtn.textContent = "حفظ المخزن"; }
+  });
+}
+
+/* حذف المخازن أصبح متاحاً فقط من صفحة DeepLog، ولا يمكن تنفيذه من هذه الصفحة */
+
+/* ══════════════════════════════════════
+   PRODUCT MODAL
+══════════════════════════════════════ */
+function initProductModal() {
+  const modal = document.getElementById("product-modal");
+  const fileInput = document.getElementById("product-image");
+  const dropLabel = document.getElementById("file-drop-label");
+  const preview = document.getElementById("image-preview");
+  const dropText = document.getElementById("file-drop-text");
+  document.getElementById("product-modal-close").addEventListener("click", closeProductModal);
+  modal.addEventListener("click", e => { if (e.target === modal) closeProductModal(); });
+  dropLabel.addEventListener("click", e => { e.preventDefault(); fileInput.click(); });
+  fileInput.addEventListener("change", () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    pendingProductFile = file;
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = "block";
+    dropText.textContent = file.name;
+  });
+  document.getElementById("product-form").addEventListener("submit", async e => {
+    e.preventDefault();
+    await saveProduct();
+  });
+}
+
+function openProductModal(product, warehouseId) {
+  editingProductId = product ? product.id : null;
+  pendingProductFile = null;
+  const modal = document.getElementById("product-modal");
+  const title = document.getElementById("product-modal-title");
+  const form = document.getElementById("product-form");
+  const preview = document.getElementById("image-preview");
+  const dropText = document.getElementById("file-drop-text");
+  form.reset();
+  preview.style.display = "none";
+  dropText.textContent = "اضغط لاختيار صورة";
+  document.getElementById("product-warehouse-id").value = warehouseId || "";
+  if (product) {
+    title.textContent = "تعديل المنتج";
+    document.getElementById("product-id").value = product.id;
+    document.getElementById("product-name").value = product.name || "";
+    // serial is always readonly – keep existing value when editing
+    document.getElementById("product-serial").value = product.serialId || generateSerial(product.warehouseId || warehouseId);
+    document.getElementById("product-desc").value = product.description || "";
+    document.getElementById("product-quantity").value = product.quantity ?? "";
+    document.getElementById("product-qty-type").value = product.quantityType || "قطعة";
+    document.getElementById("product-price").value = product.price ?? "";
+    if (product.imageUrl) { preview.src = product.imageUrl; preview.style.display = "block"; dropText.textContent = "الصورة الحالية"; }
+  } else {
+    title.textContent = "إضافة منتج";
+    document.getElementById("product-id").value = "";
+    // always auto-generate serial for new products
+    document.getElementById("product-serial").value = warehouseId ? generateSerial(warehouseId) : "";
+  }
+  modal.classList.add("open");
+}
+
+function closeProductModal() {
+  document.getElementById("product-modal").classList.remove("open");
+  editingProductId = null;
+  pendingProductFile = null;
+}
+
+async function saveProduct() {
+  const name = document.getElementById("product-name").value.trim();
+  if (!name) return;
+  const warehouseId = document.getElementById("product-warehouse-id").value;
+  const serialId = document.getElementById("product-serial").value.trim();
+  const description = document.getElementById("product-desc").value.trim();
+  // الكمية للعرض فقط في هذه الصفحة ولا يمكن تعديلها هنا — تُدار حصراً من DeepLog
+  const quantity = editingProductId
+    ? (products.find(p => p.id === editingProductId)?.quantity ?? 0)
+    : 0;
+  const quantityType = document.getElementById("product-qty-type").value;
+  const price = Number(document.getElementById("product-price").value) || 0;
+  const submitBtn = document.getElementById("product-submit-btn");
+  submitBtn.disabled = true; submitBtn.innerHTML = '<span class="spinner"></span>';
+  try {
+    let imageUrl = editingProductId ? (products.find(p => p.id === editingProductId)?.imageUrl ?? null) : null;
+    if (pendingProductFile) imageUrl = await compressImage(pendingProductFile);
+    const wh = warehouses.find(w => w.id === warehouseId);
+    const data = { name, serialId, description, quantity, quantityType, price, imageUrl,
+      warehouseId, warehouseName: wh?.name ?? "", updatedAt: serverTimestamp() };
+    if (editingProductId) {
+      await updateDoc(docRef(db, "products", editingProductId), data);
+      showToast("تم تحديث المنتج");
+    } else {
+      data.createdAt = serverTimestamp();
+      await addDoc(collection(db, "products"), data);
+      showToast("تمت إضافة المنتج");
+    }
+    closeProductModal();
+  } catch (err) { console.error(err); showToast("حدث خطأ أثناء الحفظ", true); }
+  finally { submitBtn.disabled = false; submitBtn.textContent = "حفظ المنتج"; }
+}
+
+/* حذف المنتجات أصبح متاحاً فقط من صفحة DeepLog */
+
+/* ══════════════════════════════════════
+   SELECTS REFRESH
+══════════════════════════════════════ */
+function refreshAllWarehouseSelects() {
+  ["prod-from-wh","prod-to-wh","trans-from-wh","trans-to-wh","load-warehouse"].forEach(id => {
+    const sel = document.getElementById(id);
+    if (!sel) return;
+    const prev = sel.value;
+    sel.innerHTML = '<option value="">اختر مخزناً</option>';
+    warehouses.forEach(wh => {
+      const opt = document.createElement("option");
+      opt.value = wh.id; opt.textContent = wh.name;
+      sel.appendChild(opt);
+    });
+    sel.value = prev;
+  });
+}
+
+function refreshMerchantSelects() {
+  const sel = document.getElementById("load-merchant");
+  if (!sel) return;
+  const prev = sel.value;
+  sel.innerHTML = '<option value="">اختر تاجراً</option>';
+  merchants.forEach(m => {
+    const opt = document.createElement("option");
+    opt.value = m.id; opt.textContent = m.name;
+    sel.appendChild(opt);
+  });
+  sel.value = prev;
+}
+
+/* ══════════════════════════════════════
+   OP TYPE SWITCHER (production / transfer)
+══════════════════════════════════════ */
+function initOpTypeSwitcher() {
+  document.querySelectorAll(".op-type-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll(".op-type-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      const op = btn.dataset.op;
+      document.querySelectorAll(".op-form-section").forEach(s => s.classList.remove("active"));
+      document.getElementById(`form-${op}`).classList.add("active");
+    });
+  });
+}
+
+/* ══════════════════════════════════════
+   PRODUCTION FORM
+══════════════════════════════════════ */
+function initProductionForm() {
+  prodInputLines = [{ id: ++lineCounter, productId: "", qty: 1 }];
+  prodOutputLines = [{ id: ++lineCounter, productId: "", qty: 1 }];
+  renderProdLines("input");
+  renderProdLines("output");
+
+  document.getElementById("prod-from-wh").addEventListener("change", () => renderProdLines("input"));
+  document.getElementById("prod-to-wh").addEventListener("change", () => renderProdLines("output"));
+  document.getElementById("prod-add-input-btn").addEventListener("click", () => {
+    prodInputLines.push({ id: ++lineCounter, productId: "", qty: 1 });
+    renderProdLines("input");
+  });
+  document.getElementById("prod-add-output-btn").addEventListener("click", () => {
+    prodOutputLines.push({ id: ++lineCounter, productId: "", qty: 1 });
+    renderProdLines("output");
+  });
+
+  const form = document.getElementById("production-form");
+  const submitBtn = document.getElementById("production-submit-btn");
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const fromWhId = document.getElementById("prod-from-wh").value;
+    const toWhId = document.getElementById("prod-to-wh").value;
+    const note = document.getElementById("prod-note").value.trim();
+    if (!fromWhId || !toWhId) { showToast("اختر مخزن المصدر والهدف", true); return; }
+    if (fromWhId === toWhId) { showToast("يجب أن يكون المخزنان مختلفين", true); return; }
+    const validInputs = prodInputLines.filter(l => l.productId && l.qty > 0);
+    const validOutputs = prodOutputLines.filter(l => l.productId && l.qty > 0);
+    if (validInputs.length === 0) { showToast("أضف مادة مستهلكة واحدة على الأقل", true); return; }
+    if (validOutputs.length === 0) { showToast("أضف منتجاً ناتجاً واحداً على الأقل", true); return; }
+    submitBtn.disabled = true; submitBtn.innerHTML = '<span class="spinner"></span>';
+    try {
+      const batch = writeBatch(db);
+      const opId = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+      const fromWh = warehouses.find(w => w.id === fromWhId);
+      const toWh = warehouses.find(w => w.id === toWhId);
+      const inputDetails = [];
+      const outputDetails = [];
+      // deduct inputs from source
+      validInputs.forEach(line => {
+        const prod = products.find(p => p.id === line.productId);
+        if (!prod) return;
+        const newQty = (prod.quantity || 0) - line.qty;
+        batch.update(docRef(db, "products", prod.id), { quantity: newQty, updatedAt: serverTimestamp() });
+        inputDetails.push({ productId: prod.id, productName: prod.name, qty: line.qty, unit: prod.quantityType || "" });
+      });
+      // add outputs to destination
+      validOutputs.forEach(line => {
+        const prod = products.find(p => p.id === line.productId);
+        if (!prod) return;
+        const newQty = (prod.quantity || 0) + line.qty;
+        batch.update(docRef(db, "products", prod.id), { quantity: newQty, updatedAt: serverTimestamp() });
+        outputDetails.push({ productId: prod.id, productName: prod.name, qty: line.qty, unit: prod.quantityType || "" });
+      });
+      // log operation
+      const opRef = docRef(collection(db, "warehouseOperations"));
+      batch.set(opRef, {
+        type: "production", opId,
+        fromWarehouseId: fromWhId, fromWarehouseName: fromWh?.name ?? "",
+        toWarehouseId: toWhId, toWarehouseName: toWh?.name ?? "",
+        inputs: inputDetails, outputs: outputDetails,
+        note, performedBy: currentUser?.email ?? "—",
+        createdAt: serverTimestamp(),
+      });
+      // activity log
+      const logRef = docRef(collection(db, "activityLog"));
+      batch.set(logRef, {
+        type: "production",
+        summary: `إنتاج: ${fromWh?.name ?? ""} ← ${toWh?.name ?? ""}`,
+        details: `مدخلات: ${validInputs.length} | مخرجات: ${validOutputs.length}`,
+        opId, note,
+        performedBy: currentUser?.email ?? "—",
+        createdAt: serverTimestamp(),
+      });
+      await batch.commit();
+      showInvoice({
+        type: "production", opId,
+        fromWarehouseName: fromWh?.name ?? "",
+        toWarehouseName: toWh?.name ?? "",
+        inputs: inputDetails, outputs: outputDetails,
+        note, performedBy: currentUser?.email ?? "—",
+      });
+      form.reset();
+      prodInputLines = [{ id: ++lineCounter, productId: "", qty: 1 }];
+      prodOutputLines = [{ id: ++lineCounter, productId: "", qty: 1 }];
+      renderProdLines("input");
+      renderProdLines("output");
+      showToast("تمت عملية الإنتاج بنجاح");
+    } catch (err) { console.error(err); showToast("حدث خطأ أثناء التنفيذ", true); }
+    finally { submitBtn.disabled = false; submitBtn.textContent = "تنفيذ عملية الإنتاج"; }
+  });
+}
+
+function renderProdLines(direction) {
+  const isInput = direction === "input";
+  const linesArr = isInput ? prodInputLines : prodOutputLines;
+  const containerId = isInput ? "prod-input-lines" : "prod-output-lines";
+  const whSelId = isInput ? "prod-from-wh" : "prod-to-wh";
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  const whId = document.getElementById(whSelId)?.value;
+  const whProducts = whId ? products.filter(p => p.warehouseId === whId) : [];
+  container.innerHTML = "";
+  linesArr.forEach(line => {
+    const row = document.createElement("div");
+    row.className = "prod-line-row";
+    const opts = whProducts.map(p =>
+      `<option value="${p.id}" ${p.id === line.productId ? "selected" : ""}>${esc(p.name)} (${fmtNum(p.quantity || 0)} ${esc(p.quantityType || "")})</option>`
+    ).join("");
+    row.innerHTML = `
+      <select class="pline-prod"><option value="">اختر منتجاً</option>${opts}</select>
+      <input type="number" class="pline-qty" min="0.01" step="0.01" value="${line.qty}" />
+      <button type="button" class="remove-line" ${linesArr.length === 1 ? "disabled" : ""}>حذف</button>
+      <div class="line-hint"></div>`;
+    const selProd = row.querySelector(".pline-prod");
+    const inpQty = row.querySelector(".pline-qty");
+    const btnRem = row.querySelector(".remove-line");
+    const hint = row.querySelector(".line-hint");
+    function upHint() {
+      const p = products.find(x => x.id === selProd.value);
+      hint.textContent = p ? `متوفر: ${fmtNum(p.quantity || 0)} ${p.quantityType || ""}` : "";
+    }
+    selProd.addEventListener("change", () => { line.productId = selProd.value; upHint(); });
+    inpQty.addEventListener("input", () => { line.qty = Number(inpQty.value) || 1; });
+    btnRem.addEventListener("click", () => {
+      if (isInput) prodInputLines = prodInputLines.filter(l => l.id !== line.id);
+      else prodOutputLines = prodOutputLines.filter(l => l.id !== line.id);
+      renderProdLines(direction);
+    });
+    upHint();
+    container.appendChild(row);
+  });
+}
+
+/* ══════════════════════════════════════
+   TRANSFER FORM
+══════════════════════════════════════ */
+function initTransferForm() {
+  const selFrom = document.getElementById("trans-from-wh");
+  const selProd = document.getElementById("trans-product");
+  const selDestProd = document.getElementById("trans-dest-product");
+  const selTo = document.getElementById("trans-to-wh");
+
+  selFrom.addEventListener("change", () => {
+    const whId = selFrom.value;
+    const whProducts = whId ? products.filter(p => p.warehouseId === whId) : [];
+    const prevVal = selProd.value;
+    selProd.innerHTML = '<option value="">اختر صنفاً من المخزن المصدر</option>';
+    whProducts.forEach(p => {
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = `${p.name} (${fmtNum(p.quantity || 0)} ${p.quantityType || ""})`;
+      selProd.appendChild(opt);
+    });
+    selProd.value = prevVal;
+  });
+
+  selTo.addEventListener("change", () => {
+    const whId = selTo.value;
+    const whProducts = whId ? products.filter(p => p.warehouseId === whId) : [];
+    const prevVal = selDestProd.value;
+    selDestProd.innerHTML = '<option value="">إنشاء صنف جديد تلقائياً</option>';
+    whProducts.forEach(p => {
+      const opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = `${p.name} (${fmtNum(p.quantity || 0)} ${p.quantityType || ""})`;
+      selDestProd.appendChild(opt);
+    });
+    selDestProd.value = prevVal;
+  });
+
+  const form = document.getElementById("transfer-form");
+  const submitBtn = document.getElementById("transfer-submit-btn");
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const fromWhId = document.getElementById("trans-from-wh").value;
+    const toWhId = document.getElementById("trans-to-wh").value;
+    const srcProdId = document.getElementById("trans-product").value;
+    const destProdId = document.getElementById("trans-dest-product").value;
+    const qty = Number(document.getElementById("trans-qty").value) || 0;
+    const note = document.getElementById("trans-note").value.trim();
+    if (!fromWhId || !toWhId) { showToast("اختر المخزنين", true); return; }
+    if (fromWhId === toWhId) { showToast("يجب أن يكون المخزنان مختلفين", true); return; }
+    if (!srcProdId) { showToast("اختر الصنف المراد تحويله", true); return; }
+    if (qty <= 0) { showToast("أدخل كمية صحيحة", true); return; }
+    const srcProd = products.find(p => p.id === srcProdId);
+    if (!srcProd) return;
+    if ((srcProd.quantity || 0) < qty) { showToast(`الكمية المتوفرة (${fmtNum(srcProd.quantity)}) أقل من المطلوب`, true); return; }
+    submitBtn.disabled = true; submitBtn.innerHTML = '<span class="spinner"></span>';
+    try {
+      const batch = writeBatch(db);
+      const opId = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+      const fromWh = warehouses.find(w => w.id === fromWhId);
+      const toWh = warehouses.find(w => w.id === toWhId);
+      // deduct from source
+      batch.update(docRef(db, "products", srcProdId), { quantity: (srcProd.quantity || 0) - qty, updatedAt: serverTimestamp() });
+      let destProdName = srcProd.name;
+      let destProductIdFinal = destProdId || "";
+      // add to destination
+      if (destProdId) {
+        const destProd = products.find(p => p.id === destProdId);
+        if (destProd) {
+          destProdName = destProd.name;
+          batch.update(docRef(db, "products", destProdId), { quantity: (destProd.quantity || 0) + qty, updatedAt: serverTimestamp() });
         }
-        #invoice-modal .modal-box{
-          box-shadow:none!important;max-height:none!important;
-          border:none!important;padding:0!important;
-          overflow:visible!important;
-        }
-        #invoice-modal .modal-box-header,
-        #receipt-print-btn-outer{display:none!important}
-        #invoice-content{display:block!important}
-        body{background:#fff!important}
-        @page{margin:15mm}
+      } else {
+        // الصنف غير موجود في مخزن الوجهة: لا يُنشأ له رقم تسلسلي جديد،
+        // بل يُضاف كصنف "زائر" يحمل نفس معرّف المنتج الأصلي (نفس serialId) تبعًا لمخزنه الأصلي،
+        // لتجنّب تكرار نفس المنتج بمعرّفين مختلفين.
+        const newRef = docRef(collection(db, "products"));
+        destProductIdFinal = newRef.id;
+        batch.set(newRef, {
+          name: srcProd.name, serialId: srcProd.serialId || "", description: srcProd.description || "",
+          quantity: qty, quantityType: srcProd.quantityType || "قطعة",
+          price: srcProd.price || 0, imageUrl: srcProd.imageUrl || null,
+          warehouseId: toWhId, warehouseName: toWh?.name ?? "",
+          isVisiting: true, sourceProductId: srcProdId, sourceWarehouseId: fromWhId,
+          createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
+        });
       }
-    </style>
-  </head>
-  <body>
-    <div id="app">
-      <header id="topbar" class="topbar"></header>
-      <main class="page">
-        <div class="page-header">
-          <div>
-            <h2>المنتجات والمخازن</h2>
-            <p>الحركات بين المخازن، التحميل للتجار، وإدارة البضائع</p>
-          </div>
+      // log operation
+      const opRef = docRef(collection(db, "warehouseOperations"));
+      batch.set(opRef, {
+        type: "transfer", opId,
+        fromWarehouseId: fromWhId, fromWarehouseName: fromWh?.name ?? "",
+        toWarehouseId: toWhId, toWarehouseName: toWh?.name ?? "",
+        productId: srcProdId, productName: srcProd.name,
+        destProductId: destProductIdFinal,
+        quantity: qty, unit: srcProd.quantityType || "",
+        note, performedBy: currentUser?.email ?? "—",
+        createdAt: serverTimestamp(),
+      });
+      const logRef = docRef(collection(db, "activityLog"));
+      batch.set(logRef, {
+        type: "transfer",
+        summary: `تحويل: ${esc(srcProd.name)} من ${fromWh?.name ?? ""} إلى ${toWh?.name ?? ""}`,
+        details: `${fmtNum(qty)} ${srcProd.quantityType || ""}`,
+        opId, note,
+        performedBy: currentUser?.email ?? "—",
+        createdAt: serverTimestamp(),
+      });
+      await batch.commit();
+      showInvoice({
+        type: "transfer", opId,
+        fromWarehouseName: fromWh?.name ?? "",
+        toWarehouseName: toWh?.name ?? "",
+        productName: srcProd.name,
+        quantity: qty, unit: srcProd.quantityType || "",
+        note, performedBy: currentUser?.email ?? "—",
+      });
+      form.reset();
+      showToast("تم التحويل بنجاح");
+    } catch (err) { console.error(err); showToast("حدث خطأ أثناء التنفيذ", true); }
+    finally { submitBtn.disabled = false; submitBtn.textContent = "تنفيذ التحويل"; }
+  });
+}
+
+/* ══════════════════════════════════════
+   LOADING FORM (warehouse → merchant)
+══════════════════════════════════════ */
+function initLoadingForm() {
+  loadLines = [{ id: ++loadLineCounter, productId: "", qty: 1, price: 0 }];
+  renderLoadLines();
+
+  document.getElementById("load-warehouse").addEventListener("change", () => renderLoadLines());
+  document.getElementById("load-add-line-btn").addEventListener("click", () => {
+    loadLines.push({ id: ++loadLineCounter, productId: "", qty: 1, price: 0 });
+    renderLoadLines();
+  });
+
+  const form = document.getElementById("loading-form");
+  const submitBtn = document.getElementById("loading-submit-btn");
+  form.addEventListener("submit", async e => {
+    e.preventDefault();
+    const whId = document.getElementById("load-warehouse").value;
+    const merchantId = document.getElementById("load-merchant").value;
+    const note = document.getElementById("load-note").value.trim();
+    if (!whId) { showToast("اختر المخزن", true); return; }
+    if (!merchantId) { showToast("اختر التاجر", true); return; }
+    const validLines = loadLines.filter(l => l.productId && l.qty > 0);
+    if (validLines.length === 0) { showToast("أضف صنفاً واحداً على الأقل", true); return; }
+    submitBtn.disabled = true; submitBtn.innerHTML = '<span class="spinner"></span>';
+    try {
+      const batch = writeBatch(db);
+      const opId = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+      const wh = warehouses.find(w => w.id === whId);
+      const merchant = merchants.find(m => m.id === merchantId);
+      const lineDetails = [];
+      let totalAmount = 0;
+      // deduct quantities & build details
+      for (const line of validLines) {
+        const prod = products.find(p => p.id === line.productId);
+        if (!prod) continue;
+        const lineTotal = line.qty * line.price;
+        totalAmount += lineTotal;
+        batch.update(docRef(db, "products", prod.id), {
+          quantity: Math.max(0, (prod.quantity || 0) - line.qty),
+          updatedAt: serverTimestamp(),
+        });
+        lineDetails.push({ productId: prod.id, productName: prod.name, qty: line.qty, unit: prod.quantityType || "", price: line.price, total: lineTotal });
+      }
+      // loading operation record
+      const opRef = docRef(collection(db, "loadingOperations"));
+      batch.set(opRef, {
+        type: "loading", opId,
+        warehouseId: whId, warehouseName: wh?.name ?? "",
+        merchantId, merchantName: merchant?.name ?? "",
+        lines: lineDetails, totalAmount, note,
+        performedBy: currentUser?.email ?? "—",
+        createdAt: serverTimestamp(),
+      });
+      // write to merchantTransactions so it appears in the merchant account page
+      const today = new Date().toISOString().slice(0, 10);
+      const txId = `TL-${Date.now().toString(36).toUpperCase().slice(-6)}`;
+      const txRef = docRef(collection(db, "merchantTransactions"));
+      batch.set(txRef, {
+        merchantId,
+        merchantName: merchant?.name ?? "",
+        amount: totalAmount,
+        type: "in",   // merchant owes us money (we expect to collect)
+        note: `تحميل من مخزن ${wh?.name ?? ""}${note ? " — " + note : ""}`,
+        date: today,
+        txId,
+        opId,
+        source: "loading",
+        createdAt: serverTimestamp(),
+      });
+      // activity log
+      const logRef = docRef(collection(db, "activityLog"));
+      batch.set(logRef, {
+        type: "loading",
+        summary: `تحميل: ${wh?.name ?? ""} → ${merchant?.name ?? ""}`,
+        details: `${lineDetails.length} صنف — إجمالي: ${fmtMoney(totalAmount)}`,
+        opId, note,
+        performedBy: currentUser?.email ?? "—",
+        createdAt: serverTimestamp(),
+      });
+      await batch.commit();
+      showInvoice({
+        type: "loading", opId,
+        warehouseName: wh?.name ?? "",
+        merchantName: merchant?.name ?? "",
+        lines: lineDetails, totalAmount, note,
+        performedBy: currentUser?.email ?? "—",
+      });
+      form.reset();
+      loadLines = [{ id: ++loadLineCounter, productId: "", qty: 1, price: 0 }];
+      renderLoadLines();
+      showToast("تمت عملية التحميل بنجاح");
+    } catch (err) { console.error(err); showToast("حدث خطأ أثناء التنفيذ", true); }
+    finally { submitBtn.disabled = false; submitBtn.textContent = "تنفيذ عملية التحميل"; }
+  });
+}
+
+function renderLoadLines() {
+  const container = document.getElementById("load-lines");
+  if (!container) return;
+  const whId = document.getElementById("load-warehouse")?.value;
+  const whProducts = whId ? products.filter(p => p.warehouseId === whId) : [];
+  container.innerHTML = "";
+  loadLines.forEach(line => {
+    const row = document.createElement("div");
+    row.className = "prod-line-row";
+    row.style.gridTemplateColumns = "2fr 1fr 1fr auto";
+    const opts = whProducts.map(p =>
+      `<option value="${p.id}" ${p.id === line.productId ? "selected" : ""}>${esc(p.name)} (${fmtNum(p.quantity || 0)} ${esc(p.quantityType || "")})</option>`
+    ).join("");
+    row.innerHTML = `
+      <select class="lline-prod"><option value="">اختر صنفاً</option>${opts}</select>
+      <input type="number" class="lline-qty" min="0.01" step="0.01" value="${line.qty}" placeholder="الكمية" />
+      <input type="number" class="lline-price" min="0" step="0.01" value="${line.price}" placeholder="السعر" />
+      <button type="button" class="remove-line" ${loadLines.length === 1 ? "disabled" : ""}>حذف</button>
+      <div class="line-hint" style="grid-column:1/-1"></div>`;
+    const selProd = row.querySelector(".lline-prod");
+    const inpQty = row.querySelector(".lline-qty");
+    const inpPrice = row.querySelector(".lline-price");
+    const btnRem = row.querySelector(".remove-line");
+    const hint = row.querySelector(".line-hint");
+    function upHint() {
+      const p = products.find(x => x.id === selProd.value);
+      if (p) {
+        hint.textContent = `متوفر: ${fmtNum(p.quantity || 0)} ${p.quantityType || ""} — الإجمالي: ${fmtMoney(line.qty * line.price)}`;
+        if (!line.price && p.price) { inpPrice.value = p.price; line.price = p.price; }
+      } else hint.textContent = "";
+    }
+    selProd.addEventListener("change", () => { line.productId = selProd.value; upHint(); });
+    inpQty.addEventListener("input", () => { line.qty = Number(inpQty.value) || 1; upHint(); });
+    inpPrice.addEventListener("input", () => { line.price = Number(inpPrice.value) || 0; upHint(); });
+    btnRem.addEventListener("click", () => {
+      loadLines = loadLines.filter(l => l.id !== line.id);
+      renderLoadLines();
+    });
+    upHint();
+    container.appendChild(row);
+  });
+}
+
+/* ══════════════════════════════════════
+   RECORDS LISTS
+══════════════════════════════════════ */
+function loadMovementsRecords() {
+  const container = document.getElementById("movements-records-list");
+  const q = query(collection(db, "warehouseOperations"), orderBy("createdAt", "desc"));
+  onSnapshot(q, snap => {
+    if (snap.empty) { container.innerHTML = '<div class="empty-state">لا توجد حركات بين المخازن بعد</div>'; return; }
+    container.innerHTML = "";
+    movementsRecordsCache = {};
+    snap.forEach(docSnap => {
+      const d = docSnap.data();
+      if (d.opId) movementsRecordsCache[d.opId] = { id: docSnap.id, ...d };
+      const row = document.createElement("div");
+      row.className = "record-row";
+      const badgeCls = d.type === "production" ? "production" : "transfer";
+      const badgeLabel = d.type === "production" ? "إنتاج" : "تحويل";
+      const detail = d.type === "transfer"
+        ? `${esc(d.productName)} × ${fmtNum(d.quantity)} ${esc(d.unit || "")}`
+        : `${d.inputs?.length ?? 0} مدخل → ${d.outputs?.length ?? 0} مخرج`;
+      const serialHtml = d.opId
+        ? `<span class="op-serial-link" data-op-id="${esc(d.opId)}" data-op-kind="movement" title="عرض تفاصيل الحركة"># ${esc(d.opId.slice(0, 8).toUpperCase())}</span>`
+        : "";
+      row.innerHTML = `
+        <span class="record-badge ${badgeCls}">${badgeLabel}</span>
+        <div class="record-main">
+          <div class="title">${esc(d.fromWarehouseName)} ← ${esc(d.toWarehouseName)} ${serialHtml}</div>
+          <div class="meta">${detail} · ${d.createdAt ? fmtDateTime(d.createdAt) : "الآن"}</div>
         </div>
+        <button class="delete-btn" data-col="warehouseOperations" data-id="${docSnap.id}" title="حذف">✕</button>`;
+      container.appendChild(row);
+    });
+    bindDeleteBtns(container, "warehouseOperations");
+    bindSerialLinks(container);
+  }, err => { console.error(err); container.innerHTML = '<div class="empty-state">حدث خطأ</div>'; });
+}
 
-        <div class="section-tabs">
-          <button type="button" class="active" id="tab-movements">الحركات</button>
-          <button type="button" id="tab-loading">عمليات التحميل</button>
-          <button type="button" id="tab-warehouses">المخازن والبضائع</button>
-          <button type="button" id="tab-log">سجل العمليات</button>
+function loadLoadingRecords() {
+  const container = document.getElementById("loading-records-list");
+  const q = query(collection(db, "loadingOperations"), orderBy("createdAt", "desc"));
+  onSnapshot(q, snap => {
+    if (snap.empty) { container.innerHTML = '<div class="empty-state">لا توجد عمليات تحميل بعد</div>'; return; }
+    container.innerHTML = "";
+    loadingRecordsCache = {};
+    snap.forEach(docSnap => {
+      const d = docSnap.data();
+      if (d.opId) loadingRecordsCache[d.opId] = { id: docSnap.id, ...d };
+      const row = document.createElement("div");
+      row.className = "record-row";
+      const serialHtml = d.opId
+        ? `<span class="op-serial-link" data-op-id="${esc(d.opId)}" data-op-kind="loading" title="عرض تفاصيل الحركة"># ${esc(d.opId.slice(0, 8).toUpperCase())}</span>`
+        : "";
+      row.innerHTML = `
+        <span class="record-badge loading">تحميل</span>
+        <div class="record-main">
+          <div class="title">${esc(d.warehouseName)} → ${esc(d.merchantName)} ${serialHtml}</div>
+          <div class="meta">${d.lines?.length ?? 0} صنف · الإجمالي: ${fmtMoney(d.totalAmount)} · ${d.createdAt ? fmtDateTime(d.createdAt) : "الآن"}</div>
         </div>
+        <div class="record-amount out">${fmtMoney(d.totalAmount)}</div>
+        <button class="delete-btn" data-col="loadingOperations" data-id="${docSnap.id}" title="حذف">✕</button>`;
+      container.appendChild(row);
+    });
+    bindDeleteBtns(container, "loadingOperations");
+    bindSerialLinks(container);
+  }, err => { console.error(err); container.innerHTML = '<div class="empty-state">حدث خطأ</div>'; });
+}
 
-        <!-- ══════════ TAB 1: MOVEMENTS (production + transfer) ══════════ -->
-        <div class="section-view active" id="view-movements">
-          <div class="panel">
-            <h3>نوع العملية</h3>
-            <div class="op-type-group">
-              <button type="button" class="op-type-btn active" id="op-btn-production" data-op="production">
-                🏭 إنتاج<br><small style="font-weight:400">استهلاك مواد وإنتاج بضائع</small>
-              </button>
-              <button type="button" class="op-type-btn" id="op-btn-transfer" data-op="transfer">
-                🔄 تحويل بين مخازن<br><small style="font-weight:400">نقل صنف من مخزن لآخر</small>
-              </button>
-            </div>
+/* clicking a serial/op number anywhere replays that operation's exact invoice */
+function bindSerialLinks(container) {
+  container.querySelectorAll(".op-serial-link[data-op-id]").forEach(el => {
+    el.addEventListener("click", e => {
+      e.stopPropagation();
+      openOperationPreview(el.dataset.opId, el.dataset.opKind, el.dataset.seqLabel);
+    });
+  });
+}
 
-            <!-- PRODUCTION form -->
-            <div class="op-form-section active" id="form-production">
-              <form id="production-form">
-                <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
-                  <div class="field" style="margin-bottom:0">
-                    <label for="prod-from-wh">مخزن المواد الخام (المصدر)</label>
-                    <select id="prod-from-wh" required><option value="">اختر مخزناً</option></select>
-                  </div>
-                  <div class="field" style="margin-bottom:0">
-                    <label for="prod-to-wh">مخزن الإنتاج (الهدف)</label>
-                    <select id="prod-to-wh" required><option value="">اختر مخزناً</option></select>
-                  </div>
-                </div>
-                <!-- Input items (deducted from source) -->
-                <div class="items-lines-block">
-                  <h4>⬇ المواد المستهلكة (تُخصم من مخزن المصدر)</h4>
-                  <div id="prod-input-lines"></div>
-                  <button type="button" class="btn small ghost" id="prod-add-input-btn">+ إضافة مادة</button>
-                </div>
-                <!-- Output items (added to destination) -->
-                <div class="items-lines-block">
-                  <h4>⬆ المنتجات الناتجة (تُضاف لمخزن الإنتاج)</h4>
-                  <div id="prod-output-lines"></div>
-                  <button type="button" class="btn small ghost" id="prod-add-output-btn">+ إضافة منتج ناتج</button>
-                </div>
-                <div class="field">
-                  <label for="prod-note">ملاحظات (اختياري)</label>
-                  <input type="text" id="prod-note" placeholder="مثال: دفعة إنتاج رقم 5" />
-                </div>
-                <button type="submit" class="btn" id="production-submit-btn">تنفيذ عملية الإنتاج</button>
-              </form>
-            </div>
+function openOperationPreview(opId, kind, seqLabel) {
+  if (!opId) { showDeletedOperationNotice(); return; }
+  const record = kind === "loading" ? loadingRecordsCache[opId] : movementsRecordsCache[opId];
+  const finalRecord = record || movementsRecordsCache[opId] || loadingRecordsCache[opId];
+  if (!finalRecord) { showDeletedOperationNotice(); return; }
+  // استخدم الرقم التسلسلي (OP-00006) نفسه المعروض في سجل العمليات بدلاً من جزء من opId
+  showInvoice({ ...finalRecord, seqLabel: seqLabel || finalRecord.seqLabel });
+}
 
-            <!-- TRANSFER form -->
-            <div class="op-form-section" id="form-transfer">
-              <form id="transfer-form">
-                <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
-                  <div class="field" style="margin-bottom:0">
-                    <label for="trans-from-wh">من مخزن</label>
-                    <select id="trans-from-wh" required><option value="">اختر مخزناً</option></select>
-                  </div>
-                  <div class="field" style="margin-bottom:0">
-                    <label for="trans-to-wh">إلى مخزن</label>
-                    <select id="trans-to-wh" required><option value="">اختر مخزناً</option></select>
-                  </div>
-                </div>
-                <div class="field">
-                  <label for="trans-product">الصنف المحوّل</label>
-                  <select id="trans-product" required><option value="">اختر صنفاً من المخزن المصدر</option></select>
-                </div>
-                <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:14px">
-                  <div class="field" style="margin-bottom:0">
-                    <label for="trans-qty">الكمية</label>
-                    <input type="number" id="trans-qty" min="0.01" step="0.01" value="1" required />
-                  </div>
-                  <div class="field" style="margin-bottom:0">
-                    <label for="trans-dest-product">الصنف في المخزن الهدف (اختياري)</label>
-                    <select id="trans-dest-product"><option value="">إنشاء صنف جديد تلقائياً</option></select>
-                  </div>
-                </div>
-                <div class="field" style="margin-top:14px">
-                  <label for="trans-note">ملاحظات (اختياري)</label>
-                  <input type="text" id="trans-note" placeholder="سبب التحويل..." />
-                </div>
-                <button type="submit" class="btn" id="transfer-submit-btn">تنفيذ التحويل</button>
-              </form>
-            </div>
-          </div>
+/* تُعرض عند محاولة معاينة حركة تم حذفها بدلاً من إشعار عابر */
+function showDeletedOperationNotice() {
+  const modal = document.getElementById("op-deleted-modal");
+  if (modal) modal.classList.add("open");
+}
 
-          <!-- سجل سريع مكرر — تم إخفاؤه، السجل الكامل موجود فقط في تبويب "سجل العمليات" -->
-          <div class="panel" style="display:none">
-            <h3>سجل الحركات بين المخازن</h3>
-            <div class="records-list" id="movements-records-list">
-              <div class="empty-state">جارِ التحميل...</div>
-            </div>
-          </div>
-        </div>
+function initOpDeletedModal() {
+  const modal = document.getElementById("op-deleted-modal");
+  if (!modal) return;
+  const close = () => modal.classList.remove("open");
+  document.getElementById("op-deleted-modal-close")?.addEventListener("click", close);
+  document.getElementById("op-deleted-close-btn2")?.addEventListener("click", close);
+  modal.addEventListener("click", e => { if (e.target === modal) close(); });
+}
 
-        <!-- ══════════ TAB 2: LOADING (warehouse → merchant) ══════════ -->
-        <div class="section-view" id="view-loading">
-          <div class="panel">
-            <h3>إرسال بضائع إلى تاجر</h3>
-            <p style="color:var(--muted);font-size:.87rem;margin:-8px 0 16px">تُخصم الكميات من المخزن وتُسجَّل كأموال مطلوبة من التاجر</p>
-            <form id="loading-form">
-              <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
-                <div class="field" style="margin-bottom:0">
-                  <label for="load-warehouse">المخزن المصدر</label>
-                  <select id="load-warehouse" required><option value="">اختر مخزناً</option></select>
-                </div>
-                <div class="field" style="margin-bottom:0">
-                  <label for="load-merchant">التاجر</label>
-                  <select id="load-merchant" required><option value="">اختر تاجراً</option></select>
-                </div>
-              </div>
-              <div class="items-lines-block">
-                <h4>البضائع المرسلة</h4>
-                <div id="load-lines"></div>
-                <button type="button" class="btn small ghost" id="load-add-line-btn">+ إضافة صنف</button>
-              </div>
-              <div class="field">
-                <label for="load-note">ملاحظات (اختياري)</label>
-                <input type="text" id="load-note" placeholder="مثال: دفعة يوليو..." />
-              </div>
-              <button type="submit" class="btn" id="loading-submit-btn">تنفيذ عملية التحميل</button>
-            </form>
-          </div>
+function bindDeleteBtns(container, colName) {
+  container.querySelectorAll(".delete-btn[data-col]").forEach(btn => {
+    btn.addEventListener("click", async () => {
+      if (!confirm("هل تريد حذف هذا السجل؟")) return;
+      try {
+        await deleteDoc(docRef(db, btn.dataset.col, btn.dataset.id));
+        showToast("تم الحذف");
+      } catch (err) { console.error(err); showToast("حدث خطأ", true); }
+    });
+  });
+}
 
-          <!-- سجل سريع مكرر — تم إخفاؤه، السجل الكامل موجود فقط في تبويب "سجل العمليات" -->
-          <div class="panel" style="display:none">
-            <h3>سجل عمليات التحميل</h3>
-            <div class="records-list" id="loading-records-list">
-              <div class="empty-state">جارِ التحميل...</div>
-            </div>
-          </div>
-        </div>
+/* ══════════════════════════════════════
+   ACTIVITY LOG
+══════════════════════════════════════ */
+function loadActivityLog() {
+  const tbody = document.getElementById("log-table-body");
+  const countEl = document.getElementById("log-count");
+  const q = query(collection(db, "activityLog"), orderBy("createdAt", "desc"));
+  onSnapshot(q, snap => {
+    if (countEl) countEl.textContent = `${snap.size} عملية`;
+    if (snap.empty) {
+      tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">لا توجد عمليات مسجلة بعد</div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = "";
+    let rowNum = snap.size; // newest = highest number
+    snap.forEach(docSnap => {
+      const d = docSnap.data();
+      const badgeMap = { production: ["log-prod","إنتاج"], transfer: ["log-transfer","تحويل"], loading: ["log-load","تحميل"] };
+      const [cls, label] = badgeMap[d.type] ?? ["log-prod", d.type];
+      const seqLabel = `OP-${String(rowNum).padStart(5, "0")}`;
+      rowNum--;
+      const kind = d.type === "loading" ? "loading" : "movement";
+      const canPreview = !!d.opId;
+      // خزّن الرقم التسلسلي على السجل المخزّن مؤقتاً لاستخدامه لاحقاً في المعاينة
+      if (canPreview) {
+        const cache = kind === "loading" ? loadingRecordsCache : movementsRecordsCache;
+        if (cache[d.opId]) cache[d.opId].seqLabel = seqLabel;
+      }
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>
+          <span class="${canPreview ? "log-serial-link" : ""}" ${canPreview ? `data-op-id="${esc(d.opId)}" data-op-kind="${kind}" data-seq-label="${esc(seqLabel)}" title="عرض تفاصيل الحركة كما تمت"` : ""}
+            style="font-family:monospace;font-size:11px;font-weight:700;color:${canPreview ? "var(--primary-dark)" : "var(--muted)"};
+            background:var(--bg);border-radius:5px;padding:3px 6px;border:1px solid var(--border);
+            white-space:nowrap;${canPreview ? "cursor:pointer;text-decoration:underline;" : ""}">${seqLabel}</span>
+        </td>
+        <td><span class="log-badge ${cls}">${label}</span></td>
+        <td>
+          <div style="font-weight:700;font-size:13px">${esc(d.summary || "")}</div>
+          <div style="font-size:12px;color:var(--muted)">${esc(d.details || "")}${d.note ? ` — <em>${esc(d.note)}</em>` : ""}</div>
+        </td>
+        <td style="font-size:12.5px">${esc(d.performedBy || "—")}</td>
+        <td class="log-time">${d.createdAt ? fmtDateTime(d.createdAt) : "—"}</td>`;
+      tbody.appendChild(tr);
+    });
+    /* حذف سجلات النشاط أصبح متاحاً فقط من صفحة DeepLog، لذلك لا يوجد زر حذف هنا */
+    tbody.querySelectorAll(".log-serial-link[data-op-id]").forEach(el => {
+      el.addEventListener("click", () => openOperationPreview(el.dataset.opId, el.dataset.opKind, el.dataset.seqLabel));
+    });
+  }, err => { console.error(err); tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">حدث خطأ</div></td></tr>'; });
+}
 
-        <!-- ══════════ TAB 3: WAREHOUSES & PRODUCTS ══════════ -->
-        <div class="section-view" id="view-warehouses">
-          <div class="panel">
-            <div class="panel-header">
-              <h3>المخازن</h3>
-              <button type="button" class="btn small" id="add-warehouse-btn">+ إضافة مخزن</button>
-            </div>
-            <div id="warehouses-container">
-              <div class="empty-state">جارِ التحميل...</div>
-            </div>
-          </div>
-        </div>
+/* ══════════════════════════════════════
+   INVOICE MODAL
+══════════════════════════════════════ */
+function initInvoiceModal() {
+  const modal = document.getElementById("invoice-modal");
+  document.getElementById("invoice-modal-close").addEventListener("click", () => modal.classList.remove("open"));
+  document.getElementById("invoice-close-btn2").addEventListener("click", () => modal.classList.remove("open"));
+  modal.addEventListener("click", e => { if (e.target === modal) modal.classList.remove("open"); });
+  document.getElementById("invoice-print-btn").addEventListener("click", () => window.print());
+}
 
-        <!-- ══════════ TAB 4: ACTIVITY LOG ══════════ -->
-        <div class="section-view" id="view-log">
-          <div class="panel">
-            <div class="panel-header">
-              <h3>سجل جميع العمليات</h3>
-              <span id="log-count" style="color:var(--muted);font-size:.85rem"></span>
-            </div>
-            <div class="table-wrap">
-              <table class="log-table">
-                <thead>
-                  <tr>
-                    <th style="width:60px">#</th>
-                    <th>النوع</th>
-                    <th>التفاصيل</th>
-                    <th>من قِبَل</th>
-                    <th>التاريخ والوقت</th>
-                  </tr>
-                </thead>
-                <tbody id="log-table-body">
-                  <tr><td colspan="5"><div class="empty-state">جارِ التحميل...</div></td></tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
+function showInvoice(data) {
+  const modal = document.getElementById("invoice-modal");
+  const content = document.getElementById("invoice-content");
+  // when replaying a past operation, show the moment it actually happened;
+  // when showing the invoice right after submitting a new one, show now.
+  const now = data.createdAt
+    ? fmtDateTimeLong(data.createdAt)
+    : new Date().toLocaleString("ar-EG", { year:"numeric", month:"long", day:"numeric", hour:"2-digit", minute:"2-digit" });
+  const isReplay = !!data.createdAt;
+  // اعرض الرقم التسلسلي نفسه من سجل العمليات (OP-00006) بدل جزء من opId
+  const shortId = data.seqLabel || (data.opId ? data.opId.slice(0, 8).toUpperCase() : "—");
 
-      </main>
-    </div>
+  let typeLabel = "", typeCls = "", bodyHtml = "", totalHtml = "";
 
-    <!-- ══════════ PRODUCT MODAL ══════════ -->
-    <div class="modal-overlay" id="product-modal">
-      <div class="modal-box">
-        <div class="modal-box-header">
-          <h3 id="product-modal-title">إضافة منتج</h3>
-          <button type="button" class="modal-close" id="product-modal-close">&times;</button>
-        </div>
-        <form id="product-form">
-          <input type="hidden" id="product-id" />
-          <input type="hidden" id="product-warehouse-id" />
-          <div class="field">
-            <label for="product-name">اسم المنتج <span style="color:#dc2626">*</span></label>
-            <input type="text" id="product-name" required placeholder="مثال: أرز بسمتي" />
-          </div>
-          <div class="field">
-            <label for="product-serial">رقم التعريف التسلسلي</label>
-            <input type="text" id="product-serial" placeholder="يُولَّد تلقائياً" readonly
-              style="background:var(--bg);color:var(--muted);cursor:not-allowed;font-family:monospace;font-weight:700" />
-          </div>
-          <div class="field">
-            <label>صورة المنتج (اختياري)</label>
-            <label class="file-drop" id="file-drop-label">
-              <span id="file-drop-text">اضغط لاختيار صورة</span>
-              <img id="image-preview" style="display:none;max-height:110px;object-fit:contain;margin-top:8px" />
-            </label>
-            <input type="file" id="product-image" accept="image/*" style="display:none" />
-          </div>
-          <div class="field">
-            <label for="product-desc">الوصف</label>
-            <input type="text" id="product-desc" placeholder="وصف مختصر للمنتج" />
-          </div>
-          <div class="form-grid" style="grid-template-columns:1fr 1fr;gap:12px">
-            <div class="field" style="margin-bottom:0">
-              <label for="product-quantity">الكمية المتوفرة <span style="font-weight:400;color:var(--muted)">(للعرض فقط — تُعدَّل من DeepLog)</span></label>
-              <input type="number" id="product-quantity" min="0" step="0.01" placeholder="0" readonly
-                style="background:var(--bg);color:var(--muted);cursor:not-allowed" />
-            </div>
-            <div class="field" style="margin-bottom:0">
-              <label for="product-qty-type">نوع الكمية</label>
-              <select id="product-qty-type">
-                <option value="قطعة">قطعة</option>
-                <option value="حبة">حبة</option>
-                <option value="كيلوغرام">كيلوغرام</option>
-                <option value="جرام">جرام</option>
-                <option value="طن">طن</option>
-                <option value="لتر">لتر</option>
-                <option value="متر">متر</option>
-                <option value="صندوق">صندوق</option>
-                <option value="كرتون">كرتون</option>
-                <option value="باكيت">باكيت</option>
-                <option value="رول">رول</option>
-                <option value="عنصر">عنصر</option>
-                <option value="وحدة">وحدة</option>
-                <option value="زجاجة">زجاجة</option>
-                <option value="علبة">علبة</option>
-              </select>
-            </div>
-          </div>
-          <div class="field" style="margin-top:12px">
-            <label for="product-price">السعر (ج.م)</label>
-            <input type="number" id="product-price" min="0" step="0.01" placeholder="0.00" />
-          </div>
-          <button type="submit" class="btn" id="product-submit-btn">حفظ المنتج</button>
-        </form>
+  if (data.type === "production") {
+    typeLabel = "عملية إنتاج"; typeCls = "inv-prod";
+    const inputRows = (data.inputs || []).map(i =>
+      `<tr><td>${esc(i.productName)}</td><td>${fmtNum(i.qty)} ${esc(i.unit)}</td><td style="color:var(--danger)">استهلاك ←</td></tr>`).join("");
+    const outputRows = (data.outputs || []).map(o =>
+      `<tr><td>${esc(o.productName)}</td><td>${fmtNum(o.qty)} ${esc(o.unit)}</td><td style="color:var(--primary-dark)">إنتاج ←</td></tr>`).join("");
+    bodyHtml = `
+      <div style="margin-bottom:10px">
+        <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px">📦 من مخزن: <strong style="color:var(--ink)">${esc(data.fromWarehouseName)}</strong></div>
+        <div style="font-size:12px;font-weight:700;color:var(--muted)">🏭 إلى مخزن: <strong style="color:var(--ink)">${esc(data.toWarehouseName)}</strong></div>
       </div>
-    </div>
-
-    <!-- ══════════ WAREHOUSE MODAL ══════════ -->
-    <div class="modal-overlay" id="warehouse-modal">
-      <div class="modal-box">
-        <div class="modal-box-header">
-          <h3>إضافة مخزن</h3>
-          <button type="button" class="modal-close" id="warehouse-modal-close">&times;</button>
-        </div>
-        <form id="warehouse-form">
-          <div class="field">
-            <label for="warehouse-name">اسم المخزن</label>
-            <input type="text" id="warehouse-name" required placeholder="مثال: مخزن المواد الخام" />
-          </div>
-          <button type="submit" class="btn" id="warehouse-submit-btn">حفظ المخزن</button>
-        </form>
+      <table class="invoice-table">
+        <thead><tr><th>الصنف</th><th>الكمية</th><th>الحركة</th></tr></thead>
+        <tbody>${inputRows}${outputRows}</tbody>
+      </table>`;
+  } else if (data.type === "transfer") {
+    typeLabel = "تحويل بين مخازن"; typeCls = "inv-transfer";
+    bodyHtml = `
+      <div style="margin-bottom:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px">من مخزن: <strong style="color:var(--ink)">${esc(data.fromWarehouseName)}</strong></div>
+        <div style="font-size:12px;font-weight:700;color:var(--muted)">إلى مخزن: <strong style="color:var(--ink)">${esc(data.toWarehouseName)}</strong></div>
       </div>
-    </div>
-
-    <!-- ══════════ DELETED OPERATION NOTICE MODAL ══════════ -->
-    <div class="modal-overlay" id="op-deleted-modal">
-      <div class="modal-box">
-        <div class="modal-box-header">
-          <h3>حركة محذوفة</h3>
-          <button type="button" class="modal-close" id="op-deleted-modal-close">&times;</button>
-        </div>
-        <div style="text-align:center;padding:18px 6px">
-          <div style="font-size:38px;margin-bottom:10px">🗑️</div>
-          <div style="font-size:15px;font-weight:700;color:var(--ink);margin-bottom:6px">تم حذف هذه الحركة</div>
-          <div style="font-size:13px;color:var(--muted)">تفاصيل هذه العملية غير متوفرة حالياً لأنها حُذفت من السجل، لذلك لا يمكن معاينتها.</div>
-        </div>
-        <div style="display:flex;gap:10px;margin-top:6px">
-          <button type="button" class="btn secondary" id="op-deleted-close-btn2" style="width:100%">إغلاق</button>
-        </div>
+      <table class="invoice-table">
+        <thead><tr><th>الصنف</th><th>الكمية المحوّلة</th></tr></thead>
+        <tbody><tr><td>${esc(data.productName)}</td><td>${fmtNum(data.quantity)} ${esc(data.unit)}</td></tr></tbody>
+      </table>`;
+  } else if (data.type === "loading") {
+    typeLabel = "عملية تحميل للتاجر"; typeCls = "inv-load";
+    const lineRows = (data.lines || []).map(l =>
+      `<tr><td>${esc(l.productName)}</td><td>${fmtNum(l.qty)} ${esc(l.unit)}</td><td>${fmtMoney(l.price)}</td><td style="font-weight:700">${fmtMoney(l.total)}</td></tr>`
+    ).join("");
+    totalHtml = `<div class="invoice-total-row"><span>الإجمالي المطلوب من التاجر</span><span>${fmtMoney(data.totalAmount)}</span></div>`;
+    bodyHtml = `
+      <div style="margin-bottom:14px">
+        <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px">من مخزن: <strong style="color:var(--ink)">${esc(data.warehouseName)}</strong></div>
+        <div style="font-size:12px;font-weight:700;color:var(--muted)">إلى التاجر: <strong style="color:var(--ink)">${esc(data.merchantName)}</strong></div>
       </div>
-    </div>
+      <table class="invoice-table">
+        <thead><tr><th>الصنف</th><th>الكمية</th><th>سعر الوحدة</th><th>الإجمالي</th></tr></thead>
+        <tbody>${lineRows}</tbody>
+      </table>`;
+  }
 
-    <!-- ══════════ INVOICE MODAL ══════════ -->
-    <div class="modal-overlay" id="invoice-modal">
-      <div class="modal-box wide">
-        <div class="modal-box-header">
-          <h3 id="invoice-modal-title">فاتورة العملية</h3>
-          <button type="button" class="modal-close" id="invoice-modal-close">&times;</button>
-        </div>
-        <div id="invoice-content" class="invoice-box"></div>
-        <div style="display:flex;gap:10px;margin-top:18px" id="receipt-print-btn-outer">
-          <button type="button" class="btn" id="invoice-print-btn">🖨 طباعة</button>
-          <button type="button" class="btn secondary" id="invoice-close-btn2">إغلاق</button>
-        </div>
+  const printNow = new Date().toLocaleString("ar-EG", { year:"numeric", month:"long", day:"numeric", hour:"2-digit", minute:"2-digit" });
+  const modalTitle = document.getElementById("invoice-modal-title") || document.querySelector("#invoice-modal .modal-box-header h3");
+  if (modalTitle) modalTitle.textContent = isReplay ? "معاينة الحركة" : "فاتورة العملية";
+
+  content.innerHTML = `
+    <div class="invoice-header">
+      <div class="invoice-mark">أ</div>
+      <div class="invoice-company">أحمد وحمدي</div>
+      <div class="invoice-sub">نظام المحاسبة الداخلي${isReplay ? " — معاينة حركة سابقة" : ""}</div>
+    </div>
+    <div style="text-align:center;margin-bottom:14px">
+      <span class="invoice-type-badge ${typeCls}">${typeLabel}</span>
+    </div>
+    <div class="invoice-meta-row">
+      <div><span>رقم العملية: </span><strong>${data.seqLabel ? shortId : "#" + shortId}</strong></div>
+      <div><span>${isReplay ? "تمت الحركة في: " : "التاريخ: "}</span><strong>${now}</strong></div>
+      <div><span>نفّذها: </span><strong>${esc(data.performedBy || "—")}</strong></div>
+    </div>
+    ${bodyHtml}
+    ${totalHtml}
+    ${data.note ? `<div style="margin-top:12px;font-size:13px;color:var(--muted)">ملاحظة: <em>${esc(data.note)}</em></div>` : ""}
+    <div class="invoice-footer">
+      <div>${isReplay ? "تمت معاينتها بتاريخ: " : "طُبع بتاريخ: "}${printNow}</div>
+      <div class="invoice-sig">
+        <div class="invoice-sig-line"></div>
+        <div>التوقيع والختم</div>
       </div>
-    </div>
+    </div>`;
 
-  </body>
-</html>
+  modal.classList.add("open");
+}
