@@ -332,8 +332,8 @@
         </select>
         <select class="filter-select" id="filter-dir">
           <option value="">كل الاتجاهات</option>
-          <option value="in">داخل ←</option>
-          <option value="out">خارج ←</option>
+          <option value="in">إيداع ←</option>
+          <option value="out">سحب ←</option>
         </select>
         <select class="filter-select" id="filter-month"><option value="">كل الفترات</option></select>
         <input class="search-input" type="text" id="filter-search" placeholder="ابحث بالاسم أو الوصف..." />
@@ -692,7 +692,7 @@ function amountInWords(n){
 function openTxDetail(t){
   if(!t) return;
   const cfg=TYPE_CFG[t.type]??{label:t.type,badge:"tb-other"};
-  const dirLabel=t.dir==="in"?"← داخل (إضافة للصندوق)":"← خارج (خصم من الصندوق)";
+  const dirLabel=t.dir==="in"?"← إيداع في الصندوق":"← سحب من الصندوق";
   const dirClass=t.dir==="in"?"dir-in":"dir-out";
   const party=t.type==="advance"?(t.employeeName||"—")
     :t.type==="merchant"?(t.merchantName||t.partyName||"—")
@@ -719,7 +719,7 @@ function openTxDetail(t){
   infoRows.push(`<tr><td class="lbl">رقم الحركة</td><td class="val" style="font-family:monospace;font-weight:800;font-size:13px">${esc(t.finId||"—")}</td></tr>`);
   infoRows.push(`<tr><td class="lbl">التاريخ</td><td class="val">${esc(fmtDate(t.date))}</td></tr>`);
   infoRows.push(`<tr><td class="lbl">نوع العملية</td><td class="val">${esc(cfg.label)}</td></tr>`);
-  infoRows.push(`<tr><td class="lbl">اتجاه العملية</td><td class="val ${dirClass}">${t.dir==="in"?"صادر إلى الصندوق ↓":"خارج من الصندوق ↑"}</td></tr>`);
+  infoRows.push(`<tr><td class="lbl">اتجاه العملية</td><td class="val ${dirClass}">${t.dir==="in"?"إيداع في الصندوق ↓":"سحب من الصندوق ↑"}</td></tr>`);
   if(t.type==="advance"){
     infoRows.push(`<tr><td class="lbl">الموظف</td><td class="val">${esc(party)}</td></tr>`);
     if(t.deductMonth) infoRows.push(`<tr><td class="lbl">شهر الخصم</td><td class="val">${esc(fmtMonth(t.deductMonth))}</td></tr>`);
@@ -786,7 +786,7 @@ function openTxDetail(t){
           <div class="doc-type-ribbon">
             <span class="doc-type-icon">${icon}</span>
             <span class="doc-type-name">${esc(cfg.label)}</span>
-            <span class="doc-type-dir ${t.dir==="in"?"in":"out"}">${t.dir==="in"?"إيداع / تحصيل ↓":"سحب / صرف ↑"}</span>
+            <span class="doc-type-dir ${t.dir==="in"?"in":"out"}">${t.dir==="in"?"إيداع في الصندوق ↓":"سحب من الصندوق ↑"}</span>
           </div>
 
           <!-- جدول المعلومات -->
@@ -1002,7 +1002,7 @@ function renderTable(){
       <td><span class="rec-id" data-tx-id="${t.id}" title="انقر لعرض التفاصيل">${esc(t.finId||"—")}</span></td>
       <td style="white-space:nowrap;font-size:13px">${esc(fmtDate(t.date))}</td>
       <td><span class="type-badge ${cfg.badge}">${esc(cfg.label)}</span></td>
-      <td class="${t.dir==="in"?"dir-in":"dir-out"}">${t.dir==="in"?"← داخل":"← خارج"}</td>
+      <td class="${t.dir==="in"?"dir-in":"dir-out"}">${t.dir==="in"?"← إيداع":"← سحب"}</td>
       <td style="font-weight:700;white-space:nowrap">${fmt(t.amount)}</td>
       <td style="font-size:13px;color:var(--muted)">${partyCell}</td>
       <td style="font-size:13px;color:var(--muted);max-width:200px">${esc(t.description||"—")}</td>
