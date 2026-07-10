@@ -311,8 +311,9 @@
       <button class="qa-btn t-adv" data-type="advance">👤 سلفة موظف</button>
       <button class="qa-btn t-out" data-type="withdrawal">📤 سحب من الصندوق</button>
       <button class="qa-btn t-in"  data-type="deposit">📥 إيداع في الصندوق</button>
-      <button class="qa-btn t-mer" data-type="merchant">🤝 دفعة تاجر</button>
       <button class="qa-btn t-oth" data-type="other">📝 عملية أخرى</button>
+      <!-- دفعات التجار أصبحت تُسجَّل فقط من صفحة التاجر (صندوق المستحقات/المنتجات) -->
+      <a class="qa-btn t-mer" href="/merchants.html" style="text-decoration:none">🤝 دفعات التجار ← صفحة التجار</a>
     </div>
 
     <!-- جدول الحركات -->
@@ -327,7 +328,6 @@
           <option value="advance">سلفة موظف</option>
           <option value="withdrawal">سحب من الصندوق</option>
           <option value="deposit">إيداع في الصندوق</option>
-          <option value="merchant">دفعة تاجر</option>
           <option value="other">عملية أخرى</option>
         </select>
         <select class="filter-select" id="filter-dir">
@@ -409,10 +409,6 @@
           <div class="type-opt" data-type="deposit">
             <span class="ico">📥</span><span class="lbl">إيداع</span>
             <span class="sub">داخل إلى الصندوق</span>
-          </div>
-          <div class="type-opt" data-type="merchant">
-            <span class="ico">🤝</span><span class="lbl">دفعة تاجر</span>
-            <span class="sub">داخل أو خارج</span>
           </div>
           <div class="type-opt" data-type="other">
             <span class="ico">📝</span><span class="lbl">أخرى</span>
@@ -948,18 +944,20 @@ function buildMonthFilter(){
 
 /* ── الإحصائيات ── */
 function updateStats(){
-  const totalIn =allTx.filter(t=>t.dir==="in") .reduce((s,t)=>s+(t.amount||0),0);
-  const totalOut=allTx.filter(t=>t.dir==="out").reduce((s,t)=>s+(t.amount||0),0);
-  const totalAdv=allTx.filter(t=>t.type==="advance").reduce((s,t)=>s+(t.amount||0),0);
+  // صندوق الكاش: فقط الحركات النقدية المباشرة (سلفة/سحب/إيداع/أخرى) — بدون دفعات التجار
+  const cashTx=allTx.filter(t=>t.type!=="merchant");
+  const totalIn =cashTx.filter(t=>t.dir==="in") .reduce((s,t)=>s+(t.amount||0),0);
+  const totalOut=cashTx.filter(t=>t.dir==="out").reduce((s,t)=>s+(t.amount||0),0);
+  const totalAdv=cashTx.filter(t=>t.type==="advance").reduce((s,t)=>s+(t.amount||0),0);
   const balance =openingBal+totalIn-totalOut;
   document.getElementById("stat-balance").textContent=fmt(balance);
   document.getElementById("stat-balance-sub").textContent=`رصيد افتتاحي: ${fmt(openingBal)}`;
   document.getElementById("stat-in").textContent =fmt(totalIn);
-  document.getElementById("stat-in-sub").textContent =`${allTx.filter(t=>t.dir==="in").length} عملية`;
+  document.getElementById("stat-in-sub").textContent =`${cashTx.filter(t=>t.dir==="in").length} عملية`;
   document.getElementById("stat-out").textContent=fmt(totalOut);
-  document.getElementById("stat-out-sub").textContent=`${allTx.filter(t=>t.dir==="out").length} عملية`;
+  document.getElementById("stat-out-sub").textContent=`${cashTx.filter(t=>t.dir==="out").length} عملية`;
   document.getElementById("stat-adv").textContent=fmt(totalAdv);
-  document.getElementById("stat-adv-sub").textContent=`${allTx.filter(t=>t.type==="advance").length} سلفة`;
+  document.getElementById("stat-adv-sub").textContent=`${cashTx.filter(t=>t.type==="advance").length} سلفة`;
 }
 
 /* ── الجدول ── */
@@ -969,7 +967,8 @@ function renderTable(){
   const monthF =document.getElementById("filter-month").value;
   const searchF=document.getElementById("filter-search").value.toLowerCase().trim();
 
-  let rows=allTx.filter(t=>{
+  // صندوق الكاش لا يعرض دفعات التجار (تُعرض وتُدار من صفحة التاجر فقط)
+  let rows=allTx.filter(t=>t.type!=="merchant").filter(t=>{
     if(typeF  &&t.type!==typeF)  return false;
     if(dirF   &&t.dir!==dirF)   return false;
     if(monthF &&!(t.date??"").startsWith(monthF)) return false;
