@@ -50,6 +50,10 @@
       border:1px solid var(--border);border-radius:6px;padding:2px 7px;white-space:nowrap;
       font-family:monospace,Cairo,sans-serif}
 
+    /* ── روابط الأسماء القابلة للنقر ── */
+    .link-cell{cursor:pointer;color:var(--primary-dark,#2a5bbf);font-weight:700}
+    .link-cell:hover{text-decoration:underline}
+
     /* ── فلتر بار ── */
     .filter-bar{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-bottom:14px}
     .filter-bar .field{margin:0}
@@ -336,7 +340,8 @@ function calcBalance(merId){
   return directBal+finBal;
 }
 
-/* ── تهيئة ── */
+/* ── تn�يئة ── */
+let pendingOpenId=new URLSearchParams(window.location.search).get("id");
 function init(){
   setupMerchantModal();
   setupDetail();
@@ -396,6 +401,10 @@ function loadMerchants(){
     merchants=snap.docs.map(d=>({id:d.id,...d.data()}));
     renderList();
     if(currentMerId) fillHeader();
+    if(pendingOpenId){
+      const id=pendingOpenId; pendingOpenId=null;
+      if(merchants.some(m=>m.id===id)) openDetail(id);
+    }
   },err=>{ console.error(err); });
 }
 
@@ -710,7 +719,7 @@ function renderUnifiedList(){
       ?`<span style="font-size:10px;background:#fdf4e3;color:#7a4f10;border-radius:5px;padding:2px 7px;font-weight:700;white-space:nowrap">مالية</span>`
       :t._src==="loading"
         ?`<span style="font-size:10px;background:#edf7ed;color:#2e7d32;border-radius:5px;padding:2px 7px;font-weight:700;white-space:nowrap">📦 تحميل</span>`
-        :`<span style="font-size:10px;background:#f0f4fb;color:#2a5bbf;border-radius:5px;padding:2px 7px;font-weight:700;white-space:nowrap">مباشرة</span>`;
+        :`<span style="font-size:10px;background:#f0f4fb;color:#2a5bbf;border-radius:5px;padding:2px 7px;font-weight:700;white-space:n�wrap">مباشرة</span>`;
     const dateDisp=t.dateStr
       ? new Date(t.dateStr+"T00:00:00").toLocaleDateString("ar-EG",{year:"numeric",month:"short",day:"numeric"})
       : "—";
