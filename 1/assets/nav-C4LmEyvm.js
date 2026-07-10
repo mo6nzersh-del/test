@@ -1,4 +1,4 @@
-import{l as n}from"./auth-guard-DMMO1gWE.js";const r="/",l=[{href:"dashboard.html",label:"الرئيسية"},{href:"products.html",label:"المنتجات"},{href:"merchants.html",label:"التجار"},{href:"finance.html",label:"المالية"},{href:"employees.html",label:"الموظفين"}];function i(a,e){const t=document.getElementById("topbar");if(!t)return;const o=l.map(s=>`<a href="${r}${s.href}" class="${s.href===a?"active":""}">${s.label}</a>`).join(""),c=l.map(s=>`<a href="${r}${s.href}" class="${s.href===a?"active":""}">${s.label}</a>`).join("");t.innerHTML=`
+import{l as n}from"./auth-guard-DMMO1gWE.js";const r="/",l=[{href:"dashboard.html",label:"الرئيسية"},{href:"products.html",label:"المنتجات"},{href:"merchants.html",label:"التجار"},{href:"employees.html",label:"الموظفين"}];function i(a,e){const t=document.getElementById("topbar");if(!t)return;const o=l.map(s=>`<a href="${r}${s.href}" class="${s.href===a?"active":""}">${s.label}</a>`).join("");t.innerHTML=`
     <div class="topbar-inner">
       <div class="brand">
         <span class="mark">أ</span>
@@ -9,13 +9,5 @@ import{l as n}from"./auth-guard-DMMO1gWE.js";const r="/",l=[{href:"dashboard.htm
         <span>${e?.email??""}</span>
         <button class="icon-btn" id="logout-btn">خروج</button>
       </div>
-      <button type="button" class="nav-toggle" id="nav-toggle" aria-label="القائمة">☰</button>
     </div>
-    <nav class="mobile-nav" id="mobile-nav">
-      ${c}
-      <div class="mobile-user">
-        <span>${e?.email??""}</span>
-        <button class="icon-btn" id="logout-btn-mobile">خروج</button>
-      </div>
-    </nav>
-  `,n("logout-btn"),n("logout-btn-mobile");const g=document.getElementById("nav-toggle"),d=document.getElementById("mobile-nav");g&&d&&(g.addEventListener("click",()=>{const s=d.classList.toggle("open");g.textContent=s?"✕":"☰"}),d.querySelectorAll("a").forEach(s=>{s.addEventListener("click",()=>{d.classList.remove("open"),g.textContent="☰"})}))}function m(a,e=!1){let t=document.getElementById("toast");t||(t=document.createElement("div"),t.id="toast",t.className="toast",document.body.appendChild(t)),t.textContent=a,t.className=`toast show${e?" error-toast":""}`,clearTimeout(t._t),t._t=setTimeout(()=>{t.className="toast"},2600)}function d(a){return(a instanceof Date?a:a?.toDate?a.toDate():new Date(a)).toLocaleDateString("ar-EG",{year:"numeric",month:"short",day:"numeric"})}export{d as f,i as r,m as s};
+  `,n("logout-btn")}function m(a,e=!1){let t=document.getElementById("toast");t||(t=document.createElement("div"),t.id="toast",t.className="toast",document.body.appendChild(t)),t.textContent=a,t.className=`toast show${e?" error-toast":""}`,clearTimeout(t._t),t._t=setTimeout(()=>{t.className="toast"},2600)}function d(a){return(a instanceof Date?a:a?.toDate?a.toDate():new Date(a)).toLocaleDateString("ar-EG",{year:"numeric",month:"short",day:"numeric"})}export{d as f,i as r,m as s};
