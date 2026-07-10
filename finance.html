@@ -35,6 +35,15 @@
     .stat-pf-dues  .sc-val{color:#7a4f10}
     .stat-pf-total{border-top:3px solid #4caf7d}
     .stat-pf-total .sc-val{color:#1a6b3a}
+    .stat-pf-wh   {border-top:3px solid #7c3aed}
+    .stat-pf-wh    .sc-val{color:#5b21b6}
+
+    /* ── قائمة اختيار المخزن داخل بطاقة الإحصاء ── */
+    .wh-inline-select{border:1.5px solid var(--border);border-radius:7px;padding:4px 9px;
+      background:var(--surface);font-family:inherit;font-size:12px;color:var(--ink);
+      cursor:pointer;outline:none;transition:border-color .15s;margin-top:6px;width:100%}
+    .wh-inline-select:focus{border-color:#7c3aed}
+    .wh-inline-select:disabled{opacity:.5;cursor:not-allowed}
 
     /* ── أزرار الإجراء السريع ── */
     .quick-actions{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}
@@ -332,6 +341,14 @@
         <div class="sc-label">📦 إجمالي صندوق المنتجات</div>
         <div class="sc-val" id="stat-pf-total">—</div>
         <div class="sc-sub">قيمة المخزون + مستحقات التجار</div>
+      </div>
+      <div class="stat-card stat-pf-wh">
+        <div class="sc-label">🏪 قيمة مخزن محدد (بدون بناء)</div>
+        <div class="sc-val" id="stat-pf-wh-value">—</div>
+        <div class="sc-sub" id="stat-pf-wh-count">كمية × سعر لمنتجات المخزن</div>
+        <select class="wh-inline-select" id="wh-finance-select" disabled>
+          <option value="">جارِ التحميل...</option>
+        </select>
       </div>
     </div>
 
@@ -1258,6 +1275,84 @@ async function saveTx(e){
   }catch(err){ console.error(err); toast("خطأ أثناء الحفظ",true); }
   finally{ btn.disabled=false; btn.textContent="حفظ العملية"; }
 }
+</script>
+
+<!-- ═══════ قيمة مخزن محدد في صفحة المالية ═══════ -->
+<script type="module">
+  import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  let finWhApp;
+  try { finWhApp = getApp("fin-wh-value-app"); }
+  catch {
+    finWhApp = initializeApp({
+      apiKey:            "AIzaSyDQsaNVskKiV2cwPVlJDixpTD1S-Dhp7gs",
+      authDomain:        "reta-and-hamd.firebaseapp.com",
+      projectId:         "reta-and-hamd",
+      storageBucket:     "reta-and-hamd.firebasestorage.app",
+      messagingSenderId: "220767743863",
+      appId:             "1:220767743863:web:2ecd37bd5830a39ec1bb72"
+    }, "fin-wh-value-app");
+  }
+
+  const finWhAuth = getAuth(finWhApp);
+  const finWhDb   = getFirestore(finWhApp);
+  const finFmt    = n => new Intl.NumberFormat("ar-EG",{maximumFractionDigits:2}).format(n||0)+" ج.م";
+
+  let _whs  = [];
+  let _prods = [];
+  let _selWhId = null;
+
+  const selEl  = document.getElementById("wh-finance-select");
+  const valEl  = document.getElementById("stat-pf-wh-value");
+  const cntEl  = document.getElementById("stat-pf-wh-count");
+
+  onAuthStateChanged(finWhAuth, user => { if (user) initFinWhValue(); });
+
+  async function initFinWhValue() {
+    try {
+      const [whSnap, prodSnap] = await Promise.all([
+        getDocs(query(collection(finWhDb,"warehouses"), orderBy("createdAt","asc"))),
+        getDocs(collection(finWhDb,"products")),
+      ]);
+
+      _whs   = whSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+      _prods = prodSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+
+      if (_whs.length === 0) {
+        selEl.innerHTML = '<option value="">لا توجد مخازن</option>';
+        valEl.textContent = "—";
+        return;
+      }
+
+      selEl.innerHTML = _whs.map(w => `<option value="${w.id}">${w.name}</option>`).join("");
+      selEl.disabled  = false;
+
+      // المخزن الثاني افتراضياً، وإلا الأول
+      const defWh = _whs[1] || _whs[0];
+      _selWhId    = defWh.id;
+      selEl.value = _selWhId;
+
+      renderFinWhValue();
+
+      selEl.addEventListener("change", () => {
+        _selWhId = selEl.value;
+        renderFinWhValue();
+      });
+    } catch(err) {
+      console.error(err);
+      valEl.textContent = "خطأ";
+    }
+  }
+
+  function renderFinWhValue() {
+    const whProds = _prods.filter(p => p.warehouseId === _selWhId);
+    const total   = whProds.reduce((s,p) => s + (Number(p.quantity)||0)*(Number(p.price)||0), 0);
+    valEl.textContent = finFmt(total);
+    const wh = _whs.find(w => w.id === _selWhId);
+    cntEl.textContent = `${whProds.length} منتج — ${wh?.name ?? ""}`;
+  }
 </script>
 </body>
 </html>
