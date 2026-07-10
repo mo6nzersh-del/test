@@ -945,17 +945,10 @@ function loadActivityLog() {
           <div style="font-size:12px;color:var(--muted)">${esc(d.details || "")}${d.note ? ` — <em>${esc(d.note)}</em>` : ""}</div>
         </td>
         <td style="font-size:12.5px">${esc(d.performedBy || "—")}</td>
-        <td class="log-time">${d.createdAt ? fmtDateTime(d.createdAt) : "—"}</td>
-        <td><button class="delete-btn" data-col="activityLog" data-id="${docSnap.id}" title="حذف السجل">✕</button></td>`;
+        <td class="log-time">${d.createdAt ? fmtDateTime(d.createdAt) : "—"}</td>`;
       tbody.appendChild(tr);
     });
-    tbody.querySelectorAll(".delete-btn[data-col]").forEach(btn => {
-      btn.addEventListener("click", async () => {
-        if (!confirm("حذف هذا السجل نهائياً؟")) return;
-        try { await deleteDoc(docRef(db, btn.dataset.col, btn.dataset.id)); showToast("تم حذف السجل"); }
-        catch (err) { console.error(err); showToast("حدث خطأ", true); }
-      });
-    });
+    /* حذف سجلات النشاط أصبح متاحاً فقط من صفحة DeepLog، لذلك لا يوجد زر حذف هنا */
     tbody.querySelectorAll(".log-serial-link[data-op-id]").forEach(el => {
       el.addEventListener("click", () => openOperationPreview(el.dataset.opId, el.dataset.opKind));
     });
