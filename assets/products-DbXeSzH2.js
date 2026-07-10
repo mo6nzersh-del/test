@@ -224,6 +224,11 @@ function initWarehouseModal() {
     submitBtn.disabled = true; submitBtn.innerHTML = '<span class="spinner"></span>';
     try {
       await addDoc(collection(db, "warehouses"), { name, createdAt: serverTimestamp() });
+      await addDoc(collection(db, "auditLog"), {
+        action: "إضافة", entity: "مخزن", page: "المنتجات", details: name,
+        userEmail: currentUser?.email ?? "—",
+        createdAt: serverTimestamp(),
+      }).catch(err => console.error("auditLog write failed", err));
       showToast("تمت إضافة المخزن");
       modal.classList.remove("open");
     } catch (err) { console.error(err); showToast("حدث خطأ", true); }
@@ -319,10 +324,20 @@ async function saveProduct() {
       warehouseId, warehouseName: wh?.name ?? "", updatedAt: serverTimestamp() };
     if (editingProductId) {
       await updateDoc(docRef(db, "products", editingProductId), data);
+      await addDoc(collection(db, "auditLog"), {
+        action: "تعديل", entity: "منتج", page: "المنتجات", details: `${name} — ${serialId}`,
+        userEmail: currentUser?.email ?? "—",
+        createdAt: serverTimestamp(),
+      }).catch(err => console.error("auditLog write failed", err));
       showToast("تم تحديث المنتج");
     } else {
       data.createdAt = serverTimestamp();
       await addDoc(collection(db, "products"), data);
+      await addDoc(collection(db, "auditLog"), {
+        action: "إضافة", entity: "منتج", page: "المنتجات", details: `${name} — ${serialId}`,
+        userEmail: currentUser?.email ?? "—",
+        createdAt: serverTimestamp(),
+      }).catch(err => console.error("auditLog write failed", err));
       showToast("تمت إضافة المنتج");
     }
     closeProductModal();
@@ -334,7 +349,7 @@ async function saveProduct() {
 
 /* ══════════════════════════════════════
    SELECTS REFRESH
-══════════════════════════════════════ */
+══════════════════════════════  �═══════ */
 function refreshAllWarehouseSelects() {
   ["prod-from-wh","prod-to-wh","trans-from-wh","trans-to-wh","load-warehouse"].forEach(id => {
     const sel = document.getElementById(id);
@@ -453,6 +468,14 @@ function initProductionForm() {
         details: `مدخلات: ${validInputs.length} | مخرجات: ${validOutputs.length}`,
         opId, note,
         performedBy: currentUser?.email ?? "—",
+        createdAt: serverTimestamp(),
+      });
+      // سجل المراقبة الشامل (تظهر في صفحة السجل الشامل)
+      const auditRef = docRef(collection(db, "auditLog"));
+      batch.set(auditRef, {
+        action: "إضافة", entity: "عملية إنتاج", page: "المنتجات",
+        details: `إنتاج: ${fromWh?.name ?? ""} ← ${toWh?.name ?? ""} — مدخلات: ${validInputs.length} | مخرجات: ${validOutputs.length}`,
+        userEmail: currentUser?.email ?? "—",
         createdAt: serverTimestamp(),
       });
       await batch.commit();
@@ -622,6 +645,14 @@ function initTransferForm() {
         performedBy: currentUser?.email ?? "—",
         createdAt: serverTimestamp(),
       });
+      // سجل المراقبة الشامل (تظهر في صفحة السجل الشامل)
+      const auditRef = docRef(collection(db, "auditLog"));
+      batch.set(auditRef, {
+        action: "إضافة", entity: "عملية تحويل", page: "المنتجات",
+        details: `تحويل: ${esc(srcProd.name)} من ${fromWh?.name ?? ""} إلى ${toWh?.name ?? ""} — ${fmtNum(qty)} ${srcProd.quantityType || ""}`,
+        userEmail: currentUser?.email ?? "—",
+        createdAt: serverTimestamp(),
+      });
       await batch.commit();
       showInvoice({
         type: "transfer", opId,
@@ -639,7 +670,7 @@ function initTransferForm() {
 }
 
 /* ══════════════════════════════════════
-   LOADING FORM (warehouse → merchant)
+   �OADING FORM (warehouse → merchant)
 ══════════════════════════════════════ */
 function initLoadingForm() {
   loadLines = [{ id: ++loadLineCounter, productId: "", qty: 1, price: 0 }];
@@ -716,6 +747,14 @@ function initLoadingForm() {
         details: `${lineDetails.length} صنف — إجمالي: ${fmtMoney(totalAmount)}`,
         opId, note,
         performedBy: currentUser?.email ?? "—",
+        createdAt: serverTimestamp(),
+      });
+      // سجل المراقبة الشامل (تظهر في صفحة السجل الشامل)
+      const auditRef = docRef(collection(db, "auditLog"));
+      batch.set(auditRef, {
+        action: "إضافة", entity: "عملية تحميل", page: "المنتجات",
+        details: `تحميل: ${wh?.name ?? ""} → ${merchant?.name ?? ""} — ${lineDetails.length} صنف — إجمالي: ${fmtMoney(totalAmount)}`,
+        userEmail: currentUser?.email ?? "—",
         createdAt: serverTimestamp(),
       });
       await batch.commit();
