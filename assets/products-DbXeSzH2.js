@@ -878,22 +878,18 @@ function bindSerialLinks(container) {
   container.querySelectorAll(".op-serial-link[data-op-id]").forEach(el => {
     el.addEventListener("click", e => {
       e.stopPropagation();
-      openOperationPreview(el.dataset.opId, el.dataset.opKind);
+      openOperationPreview(el.dataset.opId, el.dataset.opKind, el.dataset.seqLabel);
     });
   });
 }
 
-function openOperationPreview(opId, kind) {
+function openOperationPreview(opId, kind, seqLabel) {
   if (!opId) { showToast("لا يوجد رقم عملية لهذه الحركة", true); return; }
   const record = kind === "loading" ? loadingRecordsCache[opId] : movementsRecordsCache[opId];
-  if (!record) {
-    // fall back to searching the other cache, in case kind wasn't provided/known
-    const fallback = movementsRecordsCache[opId] || loadingRecordsCache[opId];
-    if (!fallback) { showToast("تعذر العثور على تفاصيل هذه الحركة", true); return; }
-    showInvoice(fallback);
-    return;
-  }
-  showInvoice(record);
+  const finalRecord = record || movementsRecordsCache[opId] || loadingRecordsCache[opId];
+  if (!finalRecord) { showToast("تعذر العثور على تفاصيل هذه الحركة", true); return; }
+  // استخدم الرقم التسلسلي (OP-00006) نفسه المعروض في سجل العمليات بدلاً من جزء من opId
+  showInvoice({ ...finalRecord, seqLabel: seqLabel || finalRecord.seqLabel });
 }
 
 function bindDeleteBtns(container, colName) {
@@ -931,10 +927,15 @@ function loadActivityLog() {
       rowNum--;
       const kind = d.type === "loading" ? "loading" : "movement";
       const canPreview = !!d.opId;
+      // خزّن الرقم التسلسلي على السجل المخزّن مؤقتاً لاستخدامه لاحقاً في المعاينة
+      if (canPreview) {
+        const cache = kind === "loading" ? loadingRecordsCache : movementsRecordsCache;
+        if (cache[d.opId]) cache[d.opId].seqLabel = seqLabel;
+      }
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>
-          <span class="${canPreview ? "log-serial-link" : ""}" ${canPreview ? `data-op-id="${esc(d.opId)}" data-op-kind="${kind}" title="عرض تفاصيل الحركة كما تمت"` : ""}
+          <span class="${canPreview ? "log-serial-link" : ""}" ${canPreview ? `data-op-id="${esc(d.opId)}" data-op-kind="${kind}" data-seq-label="${esc(seqLabel)}" title="عرض تفاصيل الحركة كما تمت"` : ""}
             style="font-family:monospace;font-size:11px;font-weight:700;color:${canPreview ? "var(--primary-dark)" : "var(--muted)"};
             background:var(--bg);border-radius:5px;padding:3px 6px;border:1px solid var(--border);
             white-space:nowrap;${canPreview ? "cursor:pointer;text-decoration:underline;" : ""}">${seqLabel}</span>
@@ -950,9 +951,9 @@ function loadActivityLog() {
     });
     /* حذف سجلات النشاط أصبح متاحاً فقط من صفحة DeepLog، لذلك لا يوجد زر حذف هنا */
     tbody.querySelectorAll(".log-serial-link[data-op-id]").forEach(el => {
-      el.addEventListener("click", () => openOperationPreview(el.dataset.opId, el.dataset.opKind));
+      el.addEventListener("click", () => openOperationPreview(el.dataset.opId, el.dataset.opKind, el.dataset.seqLabel));
     });
-  }, err => { console.error(err); tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">حدث خطأ</div></td></tr>'; });
+  }, err => { console.error(err); tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">حدث خطأ</div></td></tr>'; });
 }
 
 /* ══════════════════════════════════════
@@ -975,7 +976,8 @@ function showInvoice(data) {
     ? fmtDateTimeLong(data.createdAt)
     : new Date().toLocaleString("ar-EG", { year:"numeric", month:"long", day:"numeric", hour:"2-digit", minute:"2-digit" });
   const isReplay = !!data.createdAt;
-  const shortId = data.opId ? data.opId.slice(0, 8).toUpperCase() : "—";
+  // اعرض الرقم التسلسلي نفسه من سجل العمليات (OP-00006) بدل جزء من opId
+  const shortId = data.seqLabel || (data.opId ? data.opId.slice(0, 8).toUpperCase() : "—");
 
   let typeLabel = "", typeCls = "", bodyHtml = "", totalHtml = "";
 
@@ -1036,7 +1038,7 @@ function showInvoice(data) {
       <span class="invoice-type-badge ${typeCls}">${typeLabel}</span>
     </div>
     <div class="invoice-meta-row">
-      <div><span>رقم العملية: </span><strong>#${shortId}</strong></div>
+      <div><span>رقم العملية: </span><strong>${data.seqLabel ? shortId : "#" + shortId}</strong></div>
       <div><span>${isReplay ? "تمت الحركة في: " : "التاريخ: "}</span><strong>${now}</strong></div>
       <div><span>نفّذها: </span><strong>${esc(data.performedBy || "—")}</strong></div>
     </div>
