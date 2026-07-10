@@ -92,10 +92,151 @@
     .tx-detail-desc-box strong{color:var(--ink);display:block;margin-bottom:4px;font-size:12px}
     .tx-detail-footer{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);
       border-top:1px dashed var(--border);padding-top:12px;margin-top:16px}
+    /* ── إخفاء نسخة الطباعة في الشاشة وإخفاء نسخة الشاشة عند الطباعة ── */
+    .print-only{display:none!important}
+    @media print{ .print-only{display:block!important} .screen-only{display:none!important} }
+
+    /* ── طباعة احترافية للوثيقة الرسمية ── */
     @media print{
-      #tx-detail-modal .modal-box-header,#tx-detail-print-footer{display:none!important}
-      #tx-detail-modal{position:static!important;background:none!important;padding:0!important}
-      #tx-detail-modal .modal-box{box-shadow:none!important;border:none!important;max-height:none!important}
+      /* إخفاء كل شيء عدا نافذة التفاصيل */
+      body > *{display:none!important}
+      #tx-detail-modal{
+        display:block!important;
+        position:fixed!important;top:0;left:0;right:0;bottom:0;
+        background:#fff!important;padding:0!important;
+        overflow:visible!important;
+      }
+      #tx-detail-modal .modal-box{
+        box-shadow:none!important;border:none!important;
+        max-height:none!important;overflow:visible!important;
+        padding:0!important;border-radius:0!important;
+        background:#fff!important;width:100%!important;
+        max-width:100%!important;
+      }
+      #tx-detail-modal .modal-box-header,
+      #tx-detail-print-footer{display:none!important}
+      #tx-detail-content{display:block!important}
+
+      /* ── تخطيط صفحة الطباعة ── */
+      @page{
+        size:A4 portrait;
+        margin:18mm 20mm 22mm 20mm;
+      }
+
+      /* ── أنماط الوثيقة الرسمية عند الطباعة ── */
+      .doc-page{
+        font-family:Cairo,"Segoe UI",sans-serif;
+        direction:rtl;width:100%;
+        -webkit-print-color-adjust:exact;
+        print-color-adjust:exact;
+      }
+      .doc-watermark{
+        position:fixed;top:50%;left:50%;
+        transform:translate(-50%,-50%) rotate(-35deg);
+        font-size:90px;font-weight:900;
+        color:rgba(42,91,191,0.04);
+        pointer-events:none;white-space:nowrap;
+        z-index:0;letter-spacing:8px;
+      }
+      .doc-outer-border{
+        border:3px double #1a3a6b;
+        border-radius:4px;
+        padding:0;
+        position:relative;
+        overflow:hidden;
+      }
+      .doc-inner-border{
+        border:1px solid #b8c8e8;
+        margin:6px;
+        padding:0;
+        border-radius:2px;
+      }
+      .doc-top-bar{
+        background:#1a3a6b;
+        padding:14px 22px;
+        display:flex;align-items:center;justify-content:space-between;
+        color:#fff;
+      }
+      .doc-top-bar-left{text-align:left}
+      .doc-top-bar-center{text-align:center;flex:1;padding:0 16px}
+      .doc-company-name{font-size:20px;font-weight:900;letter-spacing:1px;margin-bottom:2px}
+      .doc-company-sub{font-size:10px;opacity:.8;letter-spacing:.5px}
+      .doc-doc-title{
+        font-size:12px;font-weight:700;
+        border:1.5px solid rgba(255,255,255,0.5);
+        border-radius:4px;padding:4px 12px;
+        white-space:nowrap;letter-spacing:.5px;
+        opacity:.92;
+      }
+      .doc-serial-badge{
+        font-size:15px;font-weight:900;font-family:monospace;
+        background:rgba(255,255,255,.15);
+        border:1.5px solid rgba(255,255,255,.4);
+        border-radius:5px;padding:4px 12px;letter-spacing:1px;
+      }
+      .doc-body{padding:18px 22px}
+      .doc-type-ribbon{
+        display:flex;align-items:center;justify-content:center;
+        gap:10px;margin-bottom:18px;
+        padding:10px;
+        background:#f4f7ff;
+        border:1px solid #c8d8f4;
+        border-radius:4px;
+      }
+      .doc-type-icon{font-size:22px}
+      .doc-type-name{font-size:14px;font-weight:800;color:#1a3a6b;letter-spacing:.5px}
+      .doc-type-dir{font-size:12px;font-weight:700;border-radius:99px;padding:2px 12px}
+      .doc-type-dir.in{background:#e1f5e8;color:#1a6b3a;border:1px solid #a3d8b5}
+      .doc-type-dir.out{background:#fde8e5;color:#8b2010;border:1px solid #f0b8b0}
+
+      .doc-info-table{width:100%;border-collapse:collapse;margin-bottom:16px}
+      .doc-info-table td{padding:7px 12px;font-size:12px;border:1px solid #d4ddf0;vertical-align:top}
+      .doc-info-table .lbl{
+        background:#f0f4fa;color:#3a5080;font-weight:700;
+        width:30%;white-space:nowrap;
+      }
+      .doc-info-table .val{color:#111;font-weight:600}
+
+      .doc-amount-section{
+        background:#f4f7ff;
+        border:2px solid #1a3a6b;
+        border-radius:4px;
+        padding:14px 18px;
+        margin-bottom:18px;
+        display:flex;align-items:center;justify-content:space-between;
+      }
+      .doc-amount-label{font-size:12px;font-weight:800;color:#1a3a6b;letter-spacing:.3px}
+      .doc-amount-number{font-size:26px;font-weight:900;letter-spacing:.5px}
+      .doc-amount-number.in{color:#1a6b3a}
+      .doc-amount-number.out{color:#8b2010}
+      .doc-amount-words{font-size:11px;color:#555;margin-top:3px;font-style:italic}
+
+      .doc-desc-section{
+        border:1px solid #d4ddf0;border-radius:3px;
+        padding:10px 14px;margin-bottom:18px;
+        background:#fafbff;
+      }
+      .doc-desc-section .doc-desc-lbl{font-size:10.5px;font-weight:700;color:#5a6a8a;margin-bottom:4px}
+      .doc-desc-section .doc-desc-val{font-size:12.5px;color:#222;line-height:1.6}
+
+      .doc-sigs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:20px}
+      .doc-sig-box{text-align:center}
+      .doc-sig-box .sig-label{font-size:10px;font-weight:700;color:#3a5080;margin-bottom:28px}
+      .doc-sig-box .sig-line{border-top:1.5px solid #1a3a6b;margin:0 8px;margin-bottom:4px}
+      .doc-sig-box .sig-name{font-size:9.5px;color:#888}
+
+      .doc-bottom-bar{
+        background:#f0f4fa;
+        border-top:2px solid #1a3a6b;
+        padding:8px 22px;
+        display:flex;justify-content:space-between;align-items:center;
+        font-size:9.5px;color:#5a6a8a;
+      }
+      .doc-bottom-barcode{
+        font-family:monospace;font-size:9px;
+        background:#e4eaf6;border-radius:3px;padding:2px 8px;
+        border:1px solid #c8d0e4;letter-spacing:1px;
+      }
     }
 
     /* ── نموذج النافذة ── */
@@ -512,6 +653,42 @@ function setupDetailModal(){
 
 const TYPE_ICONS={advance:"👤",withdrawal:"📤",deposit:"📥",merchant:"🤝",other:"📝"};
 
+/* ── تحويل الرقم إلى كلمات عربية (للمبالغ المالية) ── */
+function amountInWords(n){
+  if(!n||isNaN(n)) return "صفر";
+  const whole=Math.floor(n);
+  const cents=Math.round((n-whole)*100);
+  const ones=["","واحد","اثنان","ثلاثة","أربعة","خمسة","ستة","سبعة","ثمانية","تسعة","عشرة","أحد عشر","اثنا عشر","ثلاثة عشر","أربعة عشر","خمسة عشر","ستة عشر","سبعة عشر","ثمانية عشر","تسعة عشر"];
+  const tens=["","","عشرون","ثلاثون","أربعون","خمسون","ستون","سبعون","ثمانون","تسعون"];
+  function belowHundred(v){
+    if(v<20) return ones[v];
+    const t=tens[Math.floor(v/10)], o=ones[v%10];
+    return o?o+" و"+t:t;
+  }
+  function belowThousand(v){
+    if(v<100) return belowHundred(v);
+    const h=Math.floor(v/100);
+    const r=v%100;
+    const hW=h===1?"مئة":h===2?"مئتان":ones[h]+" مئة";
+    return r?hW+" و"+belowHundred(r):hW;
+  }
+  function convert(v){
+    if(v===0) return "صفر";
+    if(v<1000) return belowThousand(v);
+    if(v<1000000){
+      const th=Math.floor(v/1000), r=v%1000;
+      const thW=th===1?"ألف":th===2?"ألفان":th<11?belowThousand(th)+" آلاف":belowThousand(th)+" ألف";
+      return r?thW+" و"+belowThousand(r):thW;
+    }
+    const m=Math.floor(v/1000000), r=v%1000000;
+    const mW=m===1?"مليون":m===2?"مليونان":belowThousand(m)+" مليون";
+    return r?mW+" و"+convert(r):mW;
+  }
+  let result=convert(whole)+" جنيه";
+  if(cents>0) result+=" و"+belowHundred(cents)+" قرش";
+  return result;
+}
+
 function openTxDetail(t){
   if(!t) return;
   const cfg=TYPE_CFG[t.type]??{label:t.type,badge:"tb-other"};
@@ -537,7 +714,26 @@ function openTxDetail(t){
     ?`<div class="tx-detail-desc-box"><strong>📝 الوصف / الملاحظات</strong>${esc(t.description)}</div>`
     :"";
 
+  /* ── بناء صفوف جدول المعلومات ── */
+  const infoRows=[];
+  infoRows.push(`<tr><td class="lbl">رقم الحركة</td><td class="val" style="font-family:monospace;font-weight:800;font-size:13px">${esc(t.finId||"—")}</td></tr>`);
+  infoRows.push(`<tr><td class="lbl">التاريخ</td><td class="val">${esc(fmtDate(t.date))}</td></tr>`);
+  infoRows.push(`<tr><td class="lbl">نوع العملية</td><td class="val">${esc(cfg.label)}</td></tr>`);
+  infoRows.push(`<tr><td class="lbl">اتجاه العملية</td><td class="val ${dirClass}">${t.dir==="in"?"صادر إلى الصندوق ↓":"خارج من الصندوق ↑"}</td></tr>`);
+  if(t.type==="advance"){
+    infoRows.push(`<tr><td class="lbl">الموظف</td><td class="val">${esc(party)}</td></tr>`);
+    if(t.deductMonth) infoRows.push(`<tr><td class="lbl">شهر الخصم</td><td class="val">${esc(fmtMonth(t.deductMonth))}</td></tr>`);
+  } else if(t.type==="merchant"){
+    infoRows.push(`<tr><td class="lbl">التاجر</td><td class="val">${esc(party)}</td></tr>`);
+  } else if(t.partyName){
+    infoRows.push(`<tr><td class="lbl">الجهة</td><td class="val">${esc(party)}</td></tr>`);
+  }
+
+  const printDate=new Date().toLocaleDateString("ar-EG",{year:"numeric",month:"long",day:"numeric",hour:"2-digit",minute:"2-digit"});
+
   document.getElementById("tx-detail-content").innerHTML=`
+  <!-- ══ عرض الشاشة ══ -->
+  <div class="screen-only" style="display:block">
     <div class="tx-detail-header">
       <div class="tx-detail-mark">${icon}</div>
       <div class="tx-detail-company">أحمد وحمدي</div>
@@ -545,34 +741,107 @@ function openTxDetail(t){
       <div class="tx-detail-id-row">
         <span class="tx-detail-id-badge">${esc(t.finId||"—")}</span>
       </div>
-      <div style="margin-top:8px">
-        <span class="type-badge ${cfg.badge}">${esc(cfg.label)}</span>
-      </div>
+      <div style="margin-top:8px"><span class="type-badge ${cfg.badge}">${esc(cfg.label)}</span></div>
     </div>
-
     <div class="tx-detail-meta-grid">
-      <div class="dm-item">
-        <div class="dm-label">التاريخ</div>
-        <div class="dm-val">${esc(fmtDate(t.date))}</div>
-      </div>
-      <div class="dm-item">
-        <div class="dm-label">الاتجاه</div>
-        <div class="dm-val ${dirClass}">${dirLabel}</div>
-      </div>
+      <div class="dm-item"><div class="dm-label">التاريخ</div><div class="dm-val">${esc(fmtDate(t.date))}</div></div>
+      <div class="dm-item"><div class="dm-label">الاتجاه</div><div class="dm-val ${dirClass}">${dirLabel}</div></div>
       ${partyRow}
     </div>
-
     <div class="tx-detail-amount-row">
-      <div class="tx-detail-amount-label">المبلغ</div>
+      <div class="tx-detail-amount-label">المبلغ الإجمالي</div>
       <div class="tx-detail-amount-val ${t.dir==="in"?"in":"out"}">${fmt(t.amount)}</div>
     </div>
-
-    ${descBlock}
-
+    ${t.description?`<div class="tx-detail-desc-box"><strong>📝 الوصف / الملاحظات</strong>${esc(t.description)}</div>`:""}
     <div class="tx-detail-footer">
       <span>رقم الحركة: ${esc(t.finId||"—")}</span>
       <span>نظام أحمد وحمدي © ${new Date().getFullYear()}</span>
-    </div>`;
+    </div>
+  </div>
+
+  <!-- ══ نسخة الطباعة الرسمية (تظهر فقط عند الطباعة) ══ -->
+  <div class="doc-page print-only" style="display:none">
+    <div class="doc-watermark">أحمد وحمدي</div>
+    <div class="doc-outer-border">
+      <div class="doc-inner-border">
+
+        <!-- رأس الوثيقة -->
+        <div class="doc-top-bar">
+          <div class="doc-top-bar-left">
+            <div class="doc-doc-title">سند ${t.dir==="in"?"قبض":"صرف"}</div>
+          </div>
+          <div class="doc-top-bar-center">
+            <div class="doc-company-name">أحمد وحمدي</div>
+            <div class="doc-company-sub">نظام المحاسبة الداخلي</div>
+          </div>
+          <div>
+            <div class="doc-serial-badge">${esc(t.finId||"—")}</div>
+          </div>
+        </div>
+
+        <!-- جسم الوثيقة -->
+        <div class="doc-body">
+
+          <!-- شريط نوع العملية -->
+          <div class="doc-type-ribbon">
+            <span class="doc-type-icon">${icon}</span>
+            <span class="doc-type-name">${esc(cfg.label)}</span>
+            <span class="doc-type-dir ${t.dir==="in"?"in":"out"}">${t.dir==="in"?"إيداع / تحصيل ↓":"سحب / صرف ↑"}</span>
+          </div>
+
+          <!-- جدول المعلومات -->
+          <table class="doc-info-table">
+            ${infoRows.join("")}
+          </table>
+
+          <!-- قسم المبلغ -->
+          <div class="doc-amount-section">
+            <div>
+              <div class="doc-amount-label">إجمالي مبلغ ${t.dir==="in"?"القبض":"الصرف"}</div>
+              <div class="doc-amount-words">فقط ${amountInWords(t.amount)} لا غير</div>
+            </div>
+            <div class="doc-amount-number ${t.dir==="in"?"in":"out"}">${fmt(t.amount)}</div>
+          </div>
+
+          <!-- الوصف -->
+          ${t.description?`
+          <div class="doc-desc-section">
+            <div class="doc-desc-lbl">البيان / الملاحظات</div>
+            <div class="doc-desc-val">${esc(t.description)}</div>
+          </div>`:""}
+
+          <!-- خانات التوقيع -->
+          <div class="doc-sigs">
+            <div class="doc-sig-box">
+              <div class="sig-label">المحاسب / المُعِدّ</div>
+              <div class="sig-line"></div>
+              <div class="sig-name">الاسم والتوقيع</div>
+            </div>
+            <div class="doc-sig-box">
+              <div class="sig-label">${t.type==="advance"?"الموظف / المستلم":t.type==="merchant"?"التاجر / المستلم":"الجهة المعنية"}</div>
+              <div class="sig-line"></div>
+              <div class="sig-name">${esc(party!=="—"?party:"الاسم والتوقيع")}</div>
+            </div>
+            <div class="doc-sig-box">
+              <div class="sig-label">المدير المفوّض</div>
+              <div class="sig-line"></div>
+              <div class="sig-name">الاسم والتوقيع والختم</div>
+            </div>
+          </div>
+
+        </div><!-- /doc-body -->
+
+        <!-- ذيل الوثيقة -->
+        <div class="doc-bottom-bar">
+          <div>تاريخ الطباعة: ${printDate}</div>
+          <div class="doc-bottom-barcode">${esc(t.finId||"—")} — أحمد وحمدي</div>
+          <div>هذا المستند صادر من نظام المحاسبة الداخلي</div>
+        </div>
+
+      </div><!-- /doc-inner-border -->
+    </div><!-- /doc-outer-border -->
+  </div><!-- /doc-page -->
+  `;
 
   document.getElementById("tx-detail-modal").classList.add("open");
 }
