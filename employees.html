@@ -329,6 +329,10 @@
       .id-card-photo-col{background:linear-gradient(180deg,#1a4a2e,#2f6f4f)!important}
       .id-card-ftr-bar{background:#2f6f4f!important}
     }
+
+    /* ── روابط الأسماء القابلة للنقر ── */
+    .link-cell{cursor:pointer;color:var(--primary-dark,#2a5bbf);font-weight:700}
+    .link-cell:hover{text-decoration:underline}
   </style>
 </head>
 <body>
@@ -840,6 +844,7 @@ const ADV_TYPE_TO_FIN = {
 /* ─────────────────────────────────
    تهيئة
 ───────────────────────────────── */
+let pendingOpenId=new URLSearchParams(window.location.search).get("id");
 function init(){
   setupEmpModal();
   setupAttModal();
@@ -1095,6 +1100,10 @@ function loadEmployees(){
     employees=snap.docs.map(d=>({id:d.id,...d.data()}));
     renderList();
     if(currentEmpId) fillHeader();
+    if(pendingOpenId){
+      const id=pendingOpenId; pendingOpenId=null;
+      if(employees.some(e=>e.id===id)) openDetail(id);
+    }
   },err=>{
     console.error(err);
     document.getElementById("employees-tbody").innerHTML=
