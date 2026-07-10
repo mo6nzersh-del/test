@@ -187,7 +187,6 @@ function buildProductCardHTML(p) {
         </div>
         <div class="wh-product-actions">
           <button type="button" class="edit-btn edit-prod-btn" data-prod-id="${p.id}">تعديل</button>
-          <button type="button" class="del-btn del-prod-btn" data-prod-id="${p.id}">حذف</button>
         </div>
       </div>
     </div>`;
@@ -201,13 +200,9 @@ function initWarehouseContainerDelegation() {
     const btn = e.target.closest("[data-wh-add],[data-prod-id]");
     if (!btn) return;
     if (btn.dataset.whAdd) { openProductModal(null, btn.dataset.whAdd); return; }
-    if (btn.dataset.prodId) {
-      if (btn.classList.contains("edit-prod-btn")) {
-        const prod = products.find(p => p.id === btn.dataset.prodId);
-        if (prod) openProductModal(prod, prod.warehouseId);
-      } else if (btn.classList.contains("del-prod-btn")) {
-        deleteProduct(btn.dataset.prodId);
-      }
+    if (btn.dataset.prodId && btn.classList.contains("edit-prod-btn")) {
+      const prod = products.find(p => p.id === btn.dataset.prodId);
+      if (prod) openProductModal(prod, prod.warehouseId);
     }
   });
 }
@@ -308,7 +303,10 @@ async function saveProduct() {
   const warehouseId = document.getElementById("product-warehouse-id").value;
   const serialId = document.getElementById("product-serial").value.trim();
   const description = document.getElementById("product-desc").value.trim();
-  const quantity = Number(document.getElementById("product-quantity").value) || 0;
+  // الكمية للعرض فقط في هذه الصفحة ولا يمكن تعديلها هنا — تُدار حصراً من DeepLog
+  const quantity = editingProductId
+    ? (products.find(p => p.id === editingProductId)?.quantity ?? 0)
+    : 0;
   const quantityType = document.getElementById("product-qty-type").value;
   const price = Number(document.getElementById("product-price").value) || 0;
   const submitBtn = document.getElementById("product-submit-btn");
@@ -332,15 +330,7 @@ async function saveProduct() {
   finally { submitBtn.disabled = false; submitBtn.textContent = "حفظ المنتج"; }
 }
 
-async function deleteProduct(productId) {
-  const prod = products.find(p => p.id === productId);
-  if (!prod) return;
-  if (!confirm(`هل تريد حذف المنتج "${prod.name}"؟`)) return;
-  try {
-    await deleteDoc(docRef(db, "products", productId));
-    showToast("تم حذف المنتج");
-  } catch (err) { console.error(err); showToast("حدث خطأ", true); }
-}
+/* حذف المنتجات أصبح متاحاً فقط من صفحة DeepLog */
 
 /* ══════════════════════════════════════
    SELECTS REFRESH
@@ -373,7 +363,7 @@ function refreshMerchantSelects() {
   sel.value = prev;
 }
 
-/* ══════════════════════════════════════
+/* ═cR�════════════════════════════════════
    OP TYPE SWITCHER (production / transfer)
 ══════════════════════════════════════ */
 function initOpTypeSwitcher() {
@@ -686,7 +676,7 @@ function initLoadingForm() {
         if (!prod) continue;
         const lineTotal = line.qty * line.price;
         totalAmount += lineTotal;
-        batch.update(docRef(db, "products", prod.id), {
+        batch.update(docR�f(db, "products", prod.id), {
           quantity: Math.max(0, (prod.quantity || 0) - line.qty),
           updatedAt: serverTimestamp(),
         });
