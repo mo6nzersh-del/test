@@ -231,7 +231,7 @@
       </div>
     </div>
 
-    <!-- ══════════ TAB 3: UNIFIED STATEMENT ════════ng�═ -->
+    <!-- ══════════ TAB 3: UNIFIED STATEMENT ══════════ -->
     <div class="section-view" id="view-statement">
       <div class="panel">
         <h3>كشف حساب موحّد</h3>
@@ -504,7 +504,7 @@ const esc = t => { const d = document.createElement("div"); d.textContent = t ??
 const fmt = n => new Intl.NumberFormat("ar-EG", { maximumFractionDigits: 2 }).format(n || 0) + " ج.م";
 const fmtNum = n => new Intl.NumberFormat("ar-EG", { maximumFractionDigits: 3 }).format(n || 0);
 const today = () => new Date().toISOString().slice(0, 10);
-const fmtDate = s => s ? new Date(s + "T00:00:00").toLocaleDateString�"ar-EG", { year: "numeric", month: "long", day: "numeric" }) : "—";
+const fmtDate = s => s ? new Date(s + "T00:00:00").toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" }) : "—";
 const fmtDateTime = ts => {
   if (!ts) return "—";
   const d = ts?.toDate ? ts.toDate() : (ts instanceof Date ? ts : new Date(ts));
