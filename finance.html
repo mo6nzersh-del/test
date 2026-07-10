@@ -27,6 +27,14 @@
     .stat-out   .sc-val{color:#b3432f}
     .stat-adv  {border-top:3px solid #7aa0e0}
     .stat-adv   .sc-val{color:#2a5bbf}
+    .fund-title{font-size:14px;font-weight:800;color:var(--muted);margin:22px 0 10px}
+    .fund-title:first-of-type{margin-top:0}
+    .stat-pf-inv  {border-top:3px solid #2a3f8f}
+    .stat-pf-inv   .sc-val{color:#2a3f8f}
+    .stat-pf-dues {border-top:3px solid #d4a854}
+    .stat-pf-dues  .sc-val{color:#7a4f10}
+    .stat-pf-total{border-top:3px solid #4caf7d}
+    .stat-pf-total .sc-val{color:#1a6b3a}
 
     /* ── أزرار الإجراء السريع ── */
     .quick-actions{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}
@@ -282,7 +290,8 @@
       <button type="button" class="btn outline" onclick="window.print()">🖨️ طباعة التقرير</button>
     </div>
 
-    <!-- إحصائيات -->
+    <!-- ═══════ صندوق الكاش ═══════ -->
+    <h3 class="fund-title">💰 صندوق الكاش</h3>
     <div class="stats-grid">
       <div class="stat-card stat-balance">
         <div class="sc-label">💰 رصيد الصندوق الحالي</div>
@@ -303,6 +312,26 @@
         <div class="sc-label">👤 إجمالي السلف</div>
         <div class="sc-val" id="stat-adv">—</div>
         <div class="sc-sub" id="stat-adv-sub">—</div>
+      </div>
+    </div>
+
+    <!-- ═══════ صندوق المنتجات ═══════ -->
+    <h3 class="fund-title">📦 صندوق المنتجات</h3>
+    <div class="stats-grid">
+      <div class="stat-card stat-pf-inv">
+        <div class="sc-label">🏬 قيمة المخزون بالمخازن</div>
+        <div class="sc-val" id="stat-pf-inventory">—</div>
+        <div class="sc-sub">كمية × سعر لكل منتج</div>
+      </div>
+      <div class="stat-card stat-pf-dues">
+        <div class="sc-label">🤝 مستحقات التجار</div>
+        <div class="sc-val" id="stat-pf-dues">—</div>
+        <div class="sc-sub" id="stat-pf-dues-sub">بضاعة أُرسلت ولم تُدفع بعد</div>
+      </div>
+      <div class="stat-card stat-pf-total">
+        <div class="sc-label">📦 إجمالي صندوق المنتجات</div>
+        <div class="sc-val" id="stat-pf-total">—</div>
+        <div class="sc-sub">قيمة المخزون + مستحقات التجار</div>
       </div>
     </div>
 
@@ -352,20 +381,6 @@
       </div>
     </div>
 
-    <!-- إعدادات الصندوق -->
-    <div class="panel">
-      <div class="panel-header"><h3>⚙️ إعدادات الصندوق</h3></div>
-      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding-top:4px">
-        <div class="field" style="margin:0;flex:1;min-width:200px">
-          <label for="opening-balance" style="font-size:13px">الرصيد الافتتاحي (ج.م)</label>
-          <input type="number" id="opening-balance" min="0" step="0.01" placeholder="0.00" style="margin-top:4px" />
-        </div>
-        <button class="btn small" id="save-opening" style="margin-top:20px">حفظ الرصيد</button>
-        <p style="font-size:12px;color:var(--muted);margin:20px 0 0;flex:100%">
-          الرصيد الافتتاحي هو المبلغ الموجود في الصندوق قبل تسجيل أي حركة في هذا النظام.
-        </p>
-      </div>
-    </div>
   </main>
 </div>
 
@@ -499,7 +514,7 @@ import { getAuth, onAuthStateChanged, signOut }
                             from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, collection, doc,
-  addDoc, updateDoc, deleteDoc, setDoc, getDoc,
+  addDoc, updateDoc, deleteDoc, getDoc,
   query, where, onSnapshot,
   serverTimestamp, runTransaction
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -635,7 +650,37 @@ function init(){
   loadEmployees();
   loadMerchants();
   loadTransactions();
-  document.getElementById("save-opening").addEventListener("click",saveOpeningBalance);
+  loadProductsFund();
+}
+
+/* ── صندوق المنتجات: قيمة المخزون + مستحقات التجار ── */
+let allProducts=[], allMerchantTxs=[];
+function loadProductsFund(){
+  onSnapshot(collection(db,"products"),snap=>{
+    allProducts=snap.docs.map(d=>d.data());
+    renderProductsFund();
+  });
+  onSnapshot(collection(db,"merchantTransactions"),snap=>{
+    allMerchantTxs=snap.docs.map(d=>d.data());
+    renderProductsFund();
+  });
+}
+function renderProductsFund(){
+  const inventoryValue=allProducts.reduce((s,p)=>s+(Number(p.quantity)||0)*(Number(p.price)||0),0);
+
+  const byMerchant={};
+  allMerchantTxs.forEach(t=>{
+    if(!t.merchantId) return;
+    byMerchant[t.merchantId]=(byMerchant[t.merchantId]||0)+(t.type==="out"?-1:1)*(Number(t.amount)||0);
+  });
+  allTx.filter(t=>t.type==="merchant"&&t.merchantId).forEach(t=>{
+    byMerchant[t.merchantId]=(byMerchant[t.merchantId]||0)+(t.dir==="in"?1:-1)*(Number(t.amount)||0);
+  });
+  const merchantDues=Object.values(byMerchant).reduce((s,bal)=>s+Math.max(0,bal),0);
+
+  document.getElementById("stat-pf-inventory").textContent=fmt(inventoryValue);
+  document.getElementById("stat-pf-dues").textContent=fmt(merchantDues);
+  document.getElementById("stat-pf-total").textContent=fmt(inventoryValue+merchantDues);
 }
 
 /* ── نافذة تفاصيل الحركة ── */
@@ -842,22 +887,15 @@ function openTxDetail(t){
   document.getElementById("tx-detail-modal").classList.add("open");
 }
 
-/* ── الرصيد الافتتاحي ── */
+/* ── الرصيد الافتتاحي (للقراءة فقط — يُضبط الآن فقط من صفحة deeplog.html) ── */
 async function loadOpeningBalance(){
   try{
     const snap=await getDoc(doc(db,"finance_settings","main"));
     if(snap.exists()){
       openingBal=snap.data().openingBalance??0;
-      document.getElementById("opening-balance").value=openingBal;
+      updateStats();
     }
   }catch(e){ console.error(e); }
-}
-async function saveOpeningBalance(){
-  const val=Number(document.getElementById("opening-balance").value)||0;
-  try{
-    await setDoc(doc(db,"finance_settings","main"),{openingBalance:val},{merge:true});
-    openingBal=val; updateStats(); toast("تم حفظ الرصيد الافتتاحي");
-  }catch(e){ console.error(e); toast("خطأ",true); }
 }
 
 /* ── تحميل الموظفين ── */
@@ -925,6 +963,7 @@ function loadTransactions(){
     buildMonthFilter();
     renderTable();
     updateStats();
+    renderProductsFund();
   });
 }
 
