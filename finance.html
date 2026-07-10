@@ -1279,42 +1279,36 @@ async function saveTx(e){
 
 <!-- ═══════ قيمة مخزن محدد في صفحة المالية ═══════ -->
 <script type="module">
-  import { initializeApp, getApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  // نستخدم التطبيق الافتراضي الذي أنشأه السكريبت الرئيسي في الأعلى
+  import { getApp }     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged }
+                        from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, collection, getDocs, query, orderBy }
+                        from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  let finWhApp;
-  try { finWhApp = getApp("fin-wh-value-app"); }
-  catch {
-    finWhApp = initializeApp({
-      apiKey:            "AIzaSyDQsaNVskKiV2cwPVlJDixpTD1S-Dhp7gs",
-      authDomain:        "reta-and-hamd.firebaseapp.com",
-      projectId:         "reta-and-hamd",
-      storageBucket:     "reta-and-hamd.firebasestorage.app",
-      messagingSenderId: "220767743863",
-      appId:             "1:220767743863:web:2ecd37bd5830a39ec1bb72"
-    }, "fin-wh-value-app");
-  }
+  // التطبيق الافتراضي مُنشأ بالفعل من السكريبت الرئيسي أعلاه
+  const _app  = getApp();
+  const _auth = getAuth(_app);
+  const _db   = getFirestore(_app);
 
-  const finWhAuth = getAuth(finWhApp);
-  const finWhDb   = getFirestore(finWhApp);
-  const finFmt    = n => new Intl.NumberFormat("ar-EG",{maximumFractionDigits:2}).format(n||0)+" ج.م";
+  const finFmt = n => new Intl.NumberFormat("ar-EG",{maximumFractionDigits:2}).format(n||0)+" ج.م";
 
-  let _whs  = [];
-  let _prods = [];
+  let _whs     = [];
+  let _prods   = [];
   let _selWhId = null;
 
-  const selEl  = document.getElementById("wh-finance-select");
-  const valEl  = document.getElementById("stat-pf-wh-value");
-  const cntEl  = document.getElementById("stat-pf-wh-count");
+  const selEl = document.getElementById("wh-finance-select");
+  const valEl = document.getElementById("stat-pf-wh-value");
+  const cntEl = document.getElementById("stat-pf-wh-count");
 
-  onAuthStateChanged(finWhAuth, user => { if (user) initFinWhValue(); });
+  // onAuthStateChanged على نفس auth instance — يُطلَق فوراً إذا كان المستخدم مسجلاً
+  onAuthStateChanged(_auth, user => { if (user) initFinWhValue(); });
 
   async function initFinWhValue() {
     try {
       const [whSnap, prodSnap] = await Promise.all([
-        getDocs(query(collection(finWhDb,"warehouses"), orderBy("createdAt","asc"))),
-        getDocs(collection(finWhDb,"products")),
+        getDocs(query(collection(_db,"warehouses"), orderBy("createdAt","asc"))),
+        getDocs(collection(_db,"products")),
       ]);
 
       _whs   = whSnap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -1341,8 +1335,9 @@ async function saveTx(e){
         renderFinWhValue();
       });
     } catch(err) {
-      console.error(err);
+      console.error("wh-value error:", err);
       valEl.textContent = "خطأ";
+      cntEl.textContent = err.message ?? "";
     }
   }
 
