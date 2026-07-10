@@ -23,6 +23,10 @@ let lineCounter = 0;
 let loadLines = [];
 let loadLineCounter = 0;
 
+// caches of full operation records, keyed by opId, for detail replay
+let movementsRecordsCache = {};
+let loadingRecordsCache = {};
+
 /* ─── helpers ─── */
 function esc(v) {
   const d = document.createElement("div");
@@ -38,6 +42,10 @@ function fmtNum(v) {
 function fmtDateTime(ts) {
   const d = ts?.toDate ? ts.toDate() : (ts instanceof Date ? ts : new Date(ts));
   return d.toLocaleString("ar-EG", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+}
+function fmtDateTimeLong(ts) {
+  const d = ts?.toDate ? ts.toDate() : (ts instanceof Date ? ts : new Date(ts));
+  return d.toLocaleString("ar-EG", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
 /* serial ID: W{warehouseIndex}-{5-digit sequence} — always auto-generated */
@@ -807,8 +815,10 @@ function loadMovementsRecords() {
   onSnapshot(q, snap => {
     if (snap.empty) { container.innerHTML = '<div class="empty-state">لا توجد حركات بين المخازن بعد</div>'; return; }
     container.innerHTML = "";
+    movementsRecordsCache = {};
     snap.forEach(docSnap => {
       const d = docSnap.data();
+      if (d.opId) movementsRecordsCache[d.opId] = { id: docSnap.id, ...d };
       const row = document.createElement("div");
       row.className = "record-row";
       const badgeCls = d.type === "production" ? "production" : "transfer";
@@ -816,16 +826,20 @@ function loadMovementsRecords() {
       const detail = d.type === "transfer"
         ? `${esc(d.productName)} × ${fmtNum(d.quantity)} ${esc(d.unit || "")}`
         : `${d.inputs?.length ?? 0} مدخل → ${d.outputs?.length ?? 0} مخرج`;
+      const serialHtml = d.opId
+        ? `<span class="op-serial-link" data-op-id="${esc(d.opId)}" data-op-kind="movement" title="عرض تفاصيل الحركة"># ${esc(d.opId.slice(0, 8).toUpperCase())}</span>`
+        : "";
       row.innerHTML = `
         <span class="record-badge ${badgeCls}">${badgeLabel}</span>
         <div class="record-main">
-          <div class="title">${esc(d.fromWarehouseName)} ← ${esc(d.toWarehouseName)}</div>
+          <div class="title">${esc(d.fromWarehouseName)} ← ${esc(d.toWarehouseName)} ${serialHtml}</div>
           <div class="meta">${detail} · ${d.createdAt ? fmtDateTime(d.createdAt) : "الآن"}</div>
         </div>
         <button class="delete-btn" data-col="warehouseOperations" data-id="${docSnap.id}" title="حذف">✕</button>`;
       container.appendChild(row);
     });
     bindDeleteBtns(container, "warehouseOperations");
+    bindSerialLinks(container);
   }, err => { console.error(err); container.innerHTML = '<div class="empty-state">حدث خطأ</div>'; });
 }
 
@@ -835,14 +849,19 @@ function loadLoadingRecords() {
   onSnapshot(q, snap => {
     if (snap.empty) { container.innerHTML = '<div class="empty-state">لا توجد عمليات تحميل بعد</div>'; return; }
     container.innerHTML = "";
+    loadingRecordsCache = {};
     snap.forEach(docSnap => {
       const d = docSnap.data();
+      if (d.opId) loadingRecordsCache[d.opId] = { id: docSnap.id, ...d };
       const row = document.createElement("div");
       row.className = "record-row";
+      const serialHtml = d.opId
+        ? `<span class="op-serial-link" data-op-id="${esc(d.opId)}" data-op-kind="loading" title="عرض تفاصيل الحركة"># ${esc(d.opId.slice(0, 8).toUpperCase())}</span>`
+        : "";
       row.innerHTML = `
         <span class="record-badge loading">تحميل</span>
         <div class="record-main">
-          <div class="title">${esc(d.warehouseName)} → ${esc(d.merchantName)}</div>
+          <div class="title">${esc(d.warehouseName)} → ${esc(d.merchantName)} ${serialHtml}</div>
           <div class="meta">${d.lines?.length ?? 0} صنف · الإجمالي: ${fmtMoney(d.totalAmount)} · ${d.createdAt ? fmtDateTime(d.createdAt) : "الآن"}</div>
         </div>
         <div class="record-amount out">${fmtMoney(d.totalAmount)}</div>
@@ -850,7 +869,31 @@ function loadLoadingRecords() {
       container.appendChild(row);
     });
     bindDeleteBtns(container, "loadingOperations");
+    bindSerialLinks(container);
   }, err => { console.error(err); container.innerHTML = '<div class="empty-state">حدث خطأ</div>'; });
+}
+
+/* clicking a serial/op number anywhere replays that operation's exact invoice */
+function bindSerialLinks(container) {
+  container.querySelectorAll(".op-serial-link[data-op-id]").forEach(el => {
+    el.addEventListener("click", e => {
+      e.stopPropagation();
+      openOperationPreview(el.dataset.opId, el.dataset.opKind);
+    });
+  });
+}
+
+function openOperationPreview(opId, kind) {
+  if (!opId) { showToast("لا يوجد رقم عملية لهذه الحركة", true); return; }
+  const record = kind === "loading" ? loadingRecordsCache[opId] : movementsRecordsCache[opId];
+  if (!record) {
+    // fall back to searching the other cache, in case kind wasn't provided/known
+    const fallback = movementsRecordsCache[opId] || loadingRecordsCache[opId];
+    if (!fallback) { showToast("تعذر العثور على تفاصيل هذه الحركة", true); return; }
+    showInvoice(fallback);
+    return;
+  }
+  showInvoice(record);
 }
 
 function bindDeleteBtns(container, colName) {
@@ -886,12 +929,15 @@ function loadActivityLog() {
       const [cls, label] = badgeMap[d.type] ?? ["log-prod", d.type];
       const seqLabel = `OP-${String(rowNum).padStart(5, "0")}`;
       rowNum--;
+      const kind = d.type === "loading" ? "loading" : "movement";
+      const canPreview = !!d.opId;
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>
-          <span style="font-family:monospace;font-size:11px;font-weight:700;color:var(--muted);
+          <span class="${canPreview ? "log-serial-link" : ""}" ${canPreview ? `data-op-id="${esc(d.opId)}" data-op-kind="${kind}" title="عرض تفاصيل الحركة كما تمت"` : ""}
+            style="font-family:monospace;font-size:11px;font-weight:700;color:${canPreview ? "var(--primary-dark)" : "var(--muted)"};
             background:var(--bg);border-radius:5px;padding:3px 6px;border:1px solid var(--border);
-            white-space:nowrap">${seqLabel}</span>
+            white-space:nowrap;${canPreview ? "cursor:pointer;text-decoration:underline;" : ""}">${seqLabel}</span>
         </td>
         <td><span class="log-badge ${cls}">${label}</span></td>
         <td>
@@ -910,6 +956,9 @@ function loadActivityLog() {
         catch (err) { console.error(err); showToast("حدث خطأ", true); }
       });
     });
+    tbody.querySelectorAll(".log-serial-link[data-op-id]").forEach(el => {
+      el.addEventListener("click", () => openOperationPreview(el.dataset.opId, el.dataset.opKind));
+    });
   }, err => { console.error(err); tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">حدث خطأ</div></td></tr>'; });
 }
 
@@ -927,7 +976,12 @@ function initInvoiceModal() {
 function showInvoice(data) {
   const modal = document.getElementById("invoice-modal");
   const content = document.getElementById("invoice-content");
-  const now = new Date().toLocaleString("ar-EG", { year:"numeric", month:"long", day:"numeric", hour:"2-digit", minute:"2-digit" });
+  // when replaying a past operation, show the moment it actually happened;
+  // when showing the invoice right after submitting a new one, show now.
+  const now = data.createdAt
+    ? fmtDateTimeLong(data.createdAt)
+    : new Date().toLocaleString("ar-EG", { year:"numeric", month:"long", day:"numeric", hour:"2-digit", minute:"2-digit" });
+  const isReplay = !!data.createdAt;
   const shortId = data.opId ? data.opId.slice(0, 8).toUpperCase() : "—";
 
   let typeLabel = "", typeCls = "", bodyHtml = "", totalHtml = "";
@@ -975,25 +1029,29 @@ function showInvoice(data) {
       </table>`;
   }
 
+  const printNow = new Date().toLocaleString("ar-EG", { year:"numeric", month:"long", day:"numeric", hour:"2-digit", minute:"2-digit" });
+  const modalTitle = document.getElementById("invoice-modal-title") || document.querySelector("#invoice-modal .modal-box-header h3");
+  if (modalTitle) modalTitle.textContent = isReplay ? "معاينة الحركة" : "فاتورة العملية";
+
   content.innerHTML = `
     <div class="invoice-header">
       <div class="invoice-mark">أ</div>
       <div class="invoice-company">أحمد وحمدي</div>
-      <div class="invoice-sub">نظام المحاسبة الداخلي</div>
+      <div class="invoice-sub">نظام المحاسبة الداخلي${isReplay ? " — معاينة حركة سابقة" : ""}</div>
     </div>
     <div style="text-align:center;margin-bottom:14px">
       <span class="invoice-type-badge ${typeCls}">${typeLabel}</span>
     </div>
     <div class="invoice-meta-row">
       <div><span>رقم العملية: </span><strong>#${shortId}</strong></div>
-      <div><span>التاريخ: </span><strong>${now}</strong></div>
+      <div><span>${isReplay ? "تمت الحركة في: " : "التاريخ: "}</span><strong>${now}</strong></div>
       <div><span>نفّذها: </span><strong>${esc(data.performedBy || "—")}</strong></div>
     </div>
     ${bodyHtml}
     ${totalHtml}
     ${data.note ? `<div style="margin-top:12px;font-size:13px;color:var(--muted)">ملاحظة: <em>${esc(data.note)}</em></div>` : ""}
     <div class="invoice-footer">
-      <div>طُبع بتاريخ: ${now}</div>
+      <div>${isReplay ? "تمت معاينتها بتاريخ: " : "طُبع بتاريخ: "}${printNow}</div>
       <div class="invoice-sig">
         <div class="invoice-sig-line"></div>
         <div>التوقيع والختم</div>
