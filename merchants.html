@@ -249,21 +249,30 @@
     </div>
     <form id="fin-tx-form">
       <div class="field">
-        <label>اتجاه الدفعة *</label>
+        <label>نوع الحركة *</label>
         <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer;
             background:#e8f8ee;border:2px solid #a8dbb7;border-radius:8px;padding:10px 14px;
             font-size:14px;font-weight:700;color:#1a6b3a;transition:border-color .12s">
             <input type="radio" name="fin_dir" value="out" id="fin-dir-in" checked />
-            💳 دفعة من التاجر — تسديد مستحقات
+            💳 التاجر دفع نقداً — تسديد مستحقات (يُقلّل دينه)
           </label>
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer;
             background:#fdf0ee;border:2px solid #f0b8b0;border-radius:8px;padding:10px 14px;
             font-size:14px;font-weight:700;color:#b3432f;transition:border-color .12s">
             <input type="radio" name="fin_dir" value="in" id="fin-dir-out" />
-            ➕ إضافة مبلغ على هذا التاجر
+            ➕ إضافة مبلغ على حساب التاجر (يزيد دينه)
           </label>
         </div>
+      </div>
+      <div class="field" style="margin-top:2px">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:700;font-size:13.5px">
+          <input type="checkbox" id="fin-affect-cash" checked />
+          💰 هذه الحركة نقدية فعلياً (دخلت/خرجت من صندوق الكاش)
+        </label>
+        <p style="font-size:11.5px;color:var(--muted);margin:4px 0 0">
+          فعّلها إذا استلمت أو دفعت نقداً حقيقياً. عطّلها إذا كانت تسوية دين فقط بدون نقد (مثل خصم أو تنازل).
+        </p>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
         <div class="field">
@@ -342,7 +351,7 @@ import {
   getFirestore, collection, doc,
   addDoc, updateDoc, deleteDoc,
   query, where, orderBy, onSnapshot,
-  serverTimestamp, runTransaction
+  serverTimestamp, runTransaction, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app = initializeApp({
@@ -478,7 +487,9 @@ function openTxDetail(t){
     `<tr><td class="lbl">رقم الحركة</td><td class="val" style="font-family:monospace;font-weight:800;font-size:13px">${eS(t.finId||"—")}</td></tr>`,
     `<tr><td class="lbl">التاريخ</td><td class="val">${eS(fD(t.date))}</td></tr>`,
     `<tr><td class="lbl">نوع العملية</td><td class="val">${eS(cfg.label)}</td></tr>`,
-    `<tr><td class="lbl">اتجاه العملية</td><td class="val ${dirClass}">${t.dir==="in"?"إيداع في الصندوق ↓":"سحب من الصندوق ↑"}</td></tr>`,
+    t.type==="merchant"
+      ? `<tr><td class="lbl">نوع الحركة</td><td class="val ${dirClass}">${t.dir==="out"?"تسديد مستحقات (تقليل الدين) ↓":"زيادة دين على التاجر ↑"}</td></tr>`
+      : `<tr><td class="lbl">اتجاه العملية</td><td class="val ${dirClass}">${t.dir==="in"?"إيداع في الصندوق ↓":"سحب من الصندوق ↑"}</td></tr>`,
     t.type==="merchant"?`<tr><td class="lbl">التاجر</td><td class="val">${eS(party)}</td></tr>`:
     t.type==="advance"?`<tr><td class="lbl">الموظف</td><td class="val">${eS(party)}</td></tr>${t.deductMonth?`<tr><td class="lbl">شهر الخصم</td><td class="val">${eS(fM(t.deductMonth))}</td></tr>`:""}`:
     t.partyName?`<tr><td class="lbl">الجهة</td><td class="val">${eS(party)}</td></tr>`:""
@@ -499,7 +510,7 @@ function openTxDetail(t){
     </div>
     <div class="tx-detail-meta-grid">
       <div class="dm-item"><div class="dm-label">التاريخ</div><div class="dm-val">${eS(fD(t.date))}</div></div>
-      <div class="dm-item"><div class="dm-label">الاتجاه</div><div class="dm-val ${dirClass}">${t.dir==="in"?"← إيداع":"← سحب"}</div></div>
+      <div class="dm-item"><div class="dm-label">${t.type==="merchant"?"نوع الحركة":"الاتجاه"}</div><div class="dm-val ${dirClass}">${t.type==="merchant"?(t.dir==="out"?"← تسديد مستحقات":"← زيادة دين"):(t.dir==="in"?"← إيداع":"← سحب")}</div></div>
       ${partyRow}
     </div>
     <div class="tx-detail-amount-row">
@@ -763,9 +774,13 @@ async function saveFinTx(e){
   e.preventDefault();
   const amount=Number(document.getElementById("fin-tx-amount").value);
   if(!amount||amount<=0){ toast("أدخل مبلغاً صحيحاً",true); return; }
+  // dir هنا يخص دفتر مستحقات التاجر فقط: out=تسديد (يقلل دينه) / in=زيادة دين
   const dir=document.querySelector('input[name="fin_dir"]:checked')?.value;
-  if(!dir){ toast("حدد اتجاه الدفعة",true); return; }
+  if(!dir){ toast("حدد نوع الحركة",true); return; }
+  const affectsCash=document.getElementById("fin-affect-cash").checked;
   const mer=merchants.find(m=>m.id===currentMerId);
+  const date=document.getElementById("fin-tx-date").value;
+  const desc=document.getElementById("fin-tx-desc").value.trim();
   const btn=document.getElementById("fin-tx-save-btn");
   btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
   try{
@@ -777,15 +792,36 @@ async function saveFinTx(e){
       tx.set(cRef,{seq:seqNum},{merge:true});
     });
     const finId="F-"+String(seqNum).padStart(4,"0");
-    await addDoc(collection(db,"finance_transactions"),{
-      type:"merchant", dir, amount,
-      date:document.getElementById("fin-tx-date").value,
-      description:document.getElementById("fin-tx-desc").value.trim(),
+    const batch=writeBatch(db);
+
+    // 1) حركة على دفتر مستحقات التاجر (صندوق المنتجات) — دائماً
+    const merRef=doc(collection(db,"finance_transactions"));
+    batch.set(merRef,{
+      type:"merchant", dir, amount, date,
+      description:desc,
       merchantId:currentMerId, merchantName:mer?.name??"",
       partyName:"", employeeId:"", employeeName:"",
       finId, _active:true,
       createdAt:serverTimestamp(), updatedAt:serverTimestamp(),
     });
+
+    // 2) مرآة على صندوق الكاش فقط إذا الحركة نقدية فعلياً
+    //    out (تسديد من التاجر) = فلوس دخلت الصندوق = deposit/in
+    //    in  (زيادة دين على التاجر) = فلوس خرجت من الصندوق = withdrawal/out
+    if(affectsCash){
+      const cashRef=doc(collection(db,"finance_transactions"));
+      batch.set(cashRef,{
+        type: dir==="out" ? "deposit" : "withdrawal",
+        dir:  dir==="out" ? "in" : "out",
+        amount, date,
+        description:`دفعة تاجر (${mer?.name??""}) — ${desc||(dir==="out"?"تسديد مستحقات":"زيادة على الحساب")}`,
+        partyName: mer?.name??"", merchantId:"", merchantName:"",
+        employeeId:"", employeeName:"", finId, _active:true,
+        createdAt:serverTimestamp(), updatedAt:serverTimestamp(),
+      });
+    }
+
+    await batch.commit();
     toast("تمت إضافة الدفعة — "+finId);
     closeFinTxModal();
   }catch(err){ console.error(err); toast("خطأ أثناء الحفظ",true); }
