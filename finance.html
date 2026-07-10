@@ -60,9 +60,43 @@
     .tb-other     {background:#f2f2f2;color:#666}
     .dir-in {color:#1a6b3a;font-weight:700}
     .dir-out{color:#b3432f;font-weight:700}
-    .rec-id{font-size:11px;color:var(--muted);font-weight:700;background:var(--bg);
-      border:1px solid var(--border);border-radius:6px;padding:2px 7px;white-space:nowrap;
-      font-family:monospace,Cairo,sans-serif}
+    .rec-id{font-size:11px;color:var(--primary-dark);font-weight:700;background:var(--primary-soft,#eef2fb);
+      border:1px solid var(--primary,#4a7dd4);border-radius:6px;padding:2px 7px;white-space:nowrap;
+      font-family:monospace,Cairo,sans-serif;cursor:pointer;text-decoration:underline;transition:opacity .15s}
+    .rec-id:hover{opacity:.7}
+
+    /* ── نافذة تفاصيل الحركة ── */
+    .tx-detail-box{direction:rtl;font-family:Cairo,sans-serif}
+    .tx-detail-header{text-align:center;border-bottom:3px solid var(--primary);padding-bottom:16px;margin-bottom:18px}
+    .tx-detail-mark{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--primary,#4a7dd4),var(--primary-dark,#2a5bbf));
+      color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+    .tx-detail-company{font-size:17px;font-weight:800;margin-bottom:2px}
+    .tx-detail-subtitle{font-size:12px;color:var(--muted)}
+    .tx-detail-id-row{display:flex;justify-content:center;align-items:center;gap:8px;margin:12px 0 0}
+    .tx-detail-id-badge{font-size:15px;font-weight:800;font-family:monospace;
+      background:var(--primary-soft,#eef2fb);color:var(--primary-dark,#2a5bbf);
+      border:1.5px solid var(--primary,#4a7dd4);border-radius:8px;padding:4px 14px}
+    .tx-detail-meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;
+      background:var(--bg);border-radius:10px;padding:14px 16px;margin-bottom:16px}
+    .tx-detail-meta-grid .dm-item{display:flex;flex-direction:column;gap:3px}
+    .tx-detail-meta-grid .dm-label{font-size:11px;color:var(--muted);font-weight:700}
+    .tx-detail-meta-grid .dm-val{font-size:14px;font-weight:700;color:var(--ink)}
+    .tx-detail-amount-row{display:flex;justify-content:space-between;align-items:center;
+      border-top:2px solid var(--primary);padding-top:14px;margin-top:4px}
+    .tx-detail-amount-label{font-size:14px;font-weight:800;color:var(--ink)}
+    .tx-detail-amount-val{font-size:22px;font-weight:900}
+    .tx-detail-amount-val.in{color:#1a6b3a}
+    .tx-detail-amount-val.out{color:#b3432f}
+    .tx-detail-desc-box{background:var(--bg);border-radius:8px;padding:10px 14px;
+      margin-top:14px;font-size:13px;color:var(--muted)}
+    .tx-detail-desc-box strong{color:var(--ink);display:block;margin-bottom:4px;font-size:12px}
+    .tx-detail-footer{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);
+      border-top:1px dashed var(--border);padding-top:12px;margin-top:16px}
+    @media print{
+      #tx-detail-modal .modal-box-header,#tx-detail-print-footer{display:none!important}
+      #tx-detail-modal{position:static!important;background:none!important;padding:0!important}
+      #tx-detail-modal .modal-box{box-shadow:none!important;border:none!important;max-height:none!important}
+    }
 
     /* ── نموذج النافذة ── */
     .type-selector{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
@@ -192,6 +226,21 @@
       </div>
     </div>
   </main>
+</div>
+
+<!-- ═══════ نافذة تفاصيل الحركة المالية ═══════ -->
+<div class="modal-overlay" id="tx-detail-modal">
+  <div class="modal-box" style="max-width:500px">
+    <div class="modal-box-header">
+      <h3>تفاصيل الحركة المالية</h3>
+      <button type="button" class="modal-close" id="tx-detail-close">&times;</button>
+    </div>
+    <div id="tx-detail-content" class="tx-detail-box"></div>
+    <div style="display:flex;gap:10px;margin-top:16px" id="tx-detail-print-footer">
+      <button type="button" class="btn" id="tx-detail-print-btn">🖨️ طباعة</button>
+      <button type="button" class="btn outline" id="tx-detail-close2">إغلاق</button>
+    </div>
+  </div>
 </div>
 
 <!-- ═══════ نافذة إضافة / تعديل حركة مالية ═══════ -->
@@ -443,12 +492,89 @@ async function nextFinId(){
 /* ── تهيئة ── */
 function init(){
   setupModal();
+  setupDetailModal();
   setupFilters();
   loadOpeningBalance();
   loadEmployees();
   loadMerchants();
   loadTransactions();
   document.getElementById("save-opening").addEventListener("click",saveOpeningBalance);
+}
+
+/* ── نافذة تفاصيل الحركة ── */
+function setupDetailModal(){
+  const modal=document.getElementById("tx-detail-modal");
+  document.getElementById("tx-detail-close").addEventListener("click",()=>modal.classList.remove("open"));
+  document.getElementById("tx-detail-close2").addEventListener("click",()=>modal.classList.remove("open"));
+  document.getElementById("tx-detail-print-btn").addEventListener("click",()=>window.print());
+  modal.addEventListener("click",e=>{ if(e.target===modal) modal.classList.remove("open"); });
+}
+
+const TYPE_ICONS={advance:"👤",withdrawal:"📤",deposit:"📥",merchant:"🤝",other:"📝"};
+
+function openTxDetail(t){
+  if(!t) return;
+  const cfg=TYPE_CFG[t.type]??{label:t.type,badge:"tb-other"};
+  const dirLabel=t.dir==="in"?"← داخل (إضافة للصندوق)":"← خارج (خصم من الصندوق)";
+  const dirClass=t.dir==="in"?"dir-in":"dir-out";
+  const party=t.type==="advance"?(t.employeeName||"—")
+    :t.type==="merchant"?(t.merchantName||t.partyName||"—")
+    :(t.partyName||"—");
+  const icon=TYPE_ICONS[t.type]??"📝";
+
+  // بناء تفاصيل الجهة حسب نوع العملية
+  let partyRow="";
+  if(t.type==="advance"){
+    partyRow=`<div class="dm-item"><div class="dm-label">الموظف</div><div class="dm-val">${esc(party)}</div></div>
+              <div class="dm-item"><div class="dm-label">شهر الخصم من الراتب</div><div class="dm-val">${esc(fmtMonth(t.deductMonth)||"—")}</div></div>`;
+  } else if(t.type==="merchant"){
+    partyRow=`<div class="dm-item"><div class="dm-label">التاجر</div><div class="dm-val">${esc(party)}</div></div>`;
+  } else if(t.partyName){
+    partyRow=`<div class="dm-item"><div class="dm-label">الجهة</div><div class="dm-val">${esc(party)}</div></div>`;
+  }
+
+  const descBlock=t.description
+    ?`<div class="tx-detail-desc-box"><strong>📝 الوصف / الملاحظات</strong>${esc(t.description)}</div>`
+    :"";
+
+  document.getElementById("tx-detail-content").innerHTML=`
+    <div class="tx-detail-header">
+      <div class="tx-detail-mark">${icon}</div>
+      <div class="tx-detail-company">أحمد وحمدي</div>
+      <div class="tx-detail-subtitle">نظام المحاسبة الداخلي</div>
+      <div class="tx-detail-id-row">
+        <span class="tx-detail-id-badge">${esc(t.finId||"—")}</span>
+      </div>
+      <div style="margin-top:8px">
+        <span class="type-badge ${cfg.badge}">${esc(cfg.label)}</span>
+      </div>
+    </div>
+
+    <div class="tx-detail-meta-grid">
+      <div class="dm-item">
+        <div class="dm-label">التاريخ</div>
+        <div class="dm-val">${esc(fmtDate(t.date))}</div>
+      </div>
+      <div class="dm-item">
+        <div class="dm-label">الاتجاه</div>
+        <div class="dm-val ${dirClass}">${dirLabel}</div>
+      </div>
+      ${partyRow}
+    </div>
+
+    <div class="tx-detail-amount-row">
+      <div class="tx-detail-amount-label">المبلغ</div>
+      <div class="tx-detail-amount-val ${t.dir==="in"?"in":"out"}">${fmt(t.amount)}</div>
+    </div>
+
+    ${descBlock}
+
+    <div class="tx-detail-footer">
+      <span>رقم الحركة: ${esc(t.finId||"—")}</span>
+      <span>نظام أحمد وحمدي © ${new Date().getFullYear()}</span>
+    </div>`;
+
+  document.getElementById("tx-detail-modal").classList.add("open");
 }
 
 /* ── الرصيد الافتتاحي ── */
@@ -604,7 +730,7 @@ function renderTable(){
         :esc(party));
     const tr=document.createElement("tr");
     tr.innerHTML=`
-      <td><span class="rec-id">${esc(t.finId||"—")}</span></td>
+      <td><span class="rec-id" data-tx-id="${t.id}" title="انقر لعرض التفاصيل">${esc(t.finId||"—")}</span></td>
       <td style="white-space:nowrap;font-size:13px">${esc(fmtDate(t.date))}</td>
       <td><span class="type-badge ${cfg.badge}">${esc(cfg.label)}</span></td>
       <td class="${t.dir==="in"?"dir-in":"dir-out"}">${t.dir==="in"?"← داخل":"← خارج"}</td>
@@ -625,6 +751,9 @@ function renderTable(){
     btn.addEventListener("click",()=>openModal(allTx.find(t=>t.id===btn.dataset.id))));
   tbody.querySelectorAll(".del").forEach(btn=>
     btn.addEventListener("click",()=>deleteTx(btn.dataset.id)));
+  // ── النقر على رقم الحركة → عرض التفاصيل ──
+  tbody.querySelectorAll(".rec-id[data-tx-id]").forEach(el=>
+    el.addEventListener("click",()=>openTxDetail(allTx.find(t=>t.id===el.dataset.txId))));
 }
 
 /* ── فلاتر ── */
