@@ -1183,12 +1183,25 @@ function setupFilters(){
   });
 }
 
+/* ── سجل المراقبة الشامل ── */
+async function writeAuditLog(action, entity, details) {
+  try {
+    await addDoc(collection(db,"auditLog"),{
+      action, entity, page:"المالية", details,
+      userEmail: auth.currentUser?.email || "—",
+      createdAt: serverTimestamp(),
+    });
+  } catch(err){ console.error("auditLog write failed",err); }
+}
+
 /* ── حذف ── */
 async function deleteTx(id){
   if(!confirm("هل تريد حذف هذه العملية؟")) return;
   try{
+    const tx = allTx.find(t=>t.id===id);
     await updateDoc(doc(db,"finance_transactions",id),{_active:false,deletedAt:serverTimestamp()});
     toast("تم حذف العملية");
+    writeAuditLog("حذف","حركة مالية", tx ? `${tx.finId||"—"} — ${tx.type} — ${tx.amount||0} ج.م` : id);
   }catch(e){ console.error(e); toast("خطأ",true); }
 }
 
@@ -1407,6 +1420,8 @@ async function saveMerchantPay(){
     } else {
       toast("تم حفظ الدفعة");
     }
+    const typeLabel = payType==="out" ? "تسديد مستحقات" : "زيادة دين";
+    writeAuditLog("إضافة","دفعة تاجر",`${merchant.name} — ${typeLabel} — ${amount} ج.م${isCash?" (نقدي)":""}`);
     closeMpModal();
   }catch(err){
     console.error(err); toast("خطأ أثناء الحفظ",true);
@@ -1466,11 +1481,13 @@ async function saveTx(e){
     if(editTxId){
       await updateDoc(doc(db,"finance_transactions",editTxId),{...data,updatedAt:serverTimestamp()});
       toast("تم تحديث العملية");
+      writeAuditLog("تعديل","حركة مالية",`${data.type} — ${data.amount} ج.م${data.employeeName?" — "+data.employeeName:""}${data.merchantName?" — "+data.merchantName:""}`);
     } else {
       const finId=await nextFinId();
       await addDoc(collection(db,"finance_transactions"),
         {...data,finId,createdAt:serverTimestamp(),updatedAt:serverTimestamp()});
       toast("تمت الإضافة — المعرف: "+finId);
+      writeAuditLog("إضافة","حركة مالية",`${finId} — ${data.type} — ${data.amount} ج.م${data.employeeName?" — "+data.employeeName:""}${data.merchantName?" — "+data.merchantName:""}`);
     }
     closeModal();
   }catch(err){ console.error(err); toast("خطأ أثناء الحفظ",true); }
