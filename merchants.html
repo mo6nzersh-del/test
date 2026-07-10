@@ -584,6 +584,17 @@ function openMerModal(mer){
 }
 function closeMerModal(){ document.getElementById("merchant-modal").classList.remove("open"); editMerId=null; }
 
+/* ── سجل المراقبة الشامل ── */
+async function writeAuditLog(action, entity, details) {
+  try {
+    await addDoc(collection(db,"auditLog"),{
+      action, entity, page:"التجار", details,
+      userEmail: auth.currentUser?.email || "—",
+      createdAt: serverTimestamp(),
+    });
+  } catch(err){ console.error("auditLog write failed",err); }
+}
+
 async function saveMerchant(e){
   e.preventDefault();
   const name=document.getElementById("merchant-name").value.trim(); if(!name) return;
@@ -596,8 +607,13 @@ async function saveMerchant(e){
       phone:  document.getElementById("merchant-phone").value.trim(),
       email:  document.getElementById("merchant-email").value.trim(),
     };
-    if(editMerId){ await updateDoc(doc(db,"merchants",editMerId),data); toast("تم تحديث التاجر"); }
-    else { await addDoc(collection(db,"merchants"),{...data,createdAt:serverTimestamp()}); toast("تمت إضافة التاجر"); }
+    if(editMerId){
+      await updateDoc(doc(db,"merchants",editMerId),data); toast("تم تحديث التاجر");
+      writeAuditLog("تعديل","تاجر",`${name}${data.phone?" — "+data.phone:""}`);
+    } else {
+      await addDoc(collection(db,"merchants"),{...data,createdAt:serverTimestamp()}); toast("تمت إضافة التاجر");
+      writeAuditLog("إضافة","تاجر",`${name}${data.phone?" — "+data.phone:""}`);
+    }
     closeMerModal();
   }catch(err){ console.error(err); toast("خطأ أثناء الحفظ",true); }
   finally{ btn.disabled=false; btn.textContent="حفظ التاجر"; }
@@ -822,7 +838,9 @@ async function saveFinTx(e){
     }
 
     await batch.commit();
+    const typeLabel=dir==="out"?"تسديد مستحقات":"زيادة دين";
     toast("تمت إضافة الدفعة — "+finId);
+    writeAuditLog("إضافة","دفعة تاجر",`${mer?.name||"—"} — ${typeLabel} — ${amount} ج.م${affectsCash?" (يؤثر على الصندوق)":""}`);
     closeFinTxModal();
   }catch(err){ console.error(err); toast("خطأ أثناء الحفظ",true); }
   finally{ btn.disabled=false; btn.textContent="حفظ الدفعة"; }
@@ -983,10 +1001,13 @@ function renderUnifiedList(){
       :"هل تريد حذف هذه الحركة؟";
     if(!confirm(msg)) return;
     try{
+      const mer=merchants.find(m=>m.id===currentMerId);
       if(src==="direct"||src==="loading"){
         await deleteDoc(doc(db,"merchantTransactions",btn.dataset.id));
+        writeAuditLog("حذف","حركة تاجر",`${mer?.name||"—"} — ${src==="loading"?"تحميل":"مباشرة"}`);
       } else {
         await updateDoc(doc(db,"finance_transactions",btn.dataset.id),{_active:false,deletedAt:serverTimestamp()});
+        writeAuditLog("حذف","حركة مالية للتاجر",`${mer?.name||"—"}`);
       }
       toast("تم الحذف");
     }catch(err){ console.error(err); toast("خطأ",true); }
