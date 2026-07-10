@@ -6,7 +6,21 @@
   <title>المالية - أحمد وحمدي</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="stylesheet" href="/assets/auth-guard-C6CJ8_8i.css" />
+  <link rel="stylesheet" href="/assets/auth-guard-C6CJ8_8i-r2.css" />
+    <!-- mobile-nav-critical-marker -->
+      <style>
+        .nav-toggle{display:none!important}
+        .mobile-nav{display:none!important}
+        @media(max-width:760px){
+          .nav-tabs{display:none!important}
+          .user-chip{display:none!important}
+          .nav-toggle{display:flex!important;background:transparent;border:1.5px solid var(--border,#e2e6df);border-radius:9px;width:38px;height:38px;align-items:center;justify-content:center;font-size:18px;color:var(--ink,#1c2521);flex-shrink:0}
+        }
+        .mobile-nav.open{display:flex!important;flex-direction:column;gap:6px;padding:12px 16px 18px;border-top:1px solid var(--border,#e2e6df);background:var(--surface,#fff)}
+        .mobile-nav a{padding:13px 16px;border-radius:10px;font-size:15px;font-weight:700;color:var(--ink,#1c2521);background:var(--bg,#f4f6f3);text-decoration:none}
+        .mobile-nav a.active{background:var(--primary,#2f6f4f);color:#fff}
+        .mobile-nav .mobile-user{display:flex;align-items:center;justify-content:space-between;padding:12px 16px 0;margin-top:6px;border-top:1px solid var(--border,#e2e6df);padding-top:14px;font-size:13px;color:var(--muted,#6b7570)}
+      </style>
   <style>
     /* ── بطاقات الإحصائيات ── */
     .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:20px}
@@ -336,9 +350,10 @@ function renderNav(user){
     {href:"dashboard.html",label:"الرئيسية"},
     {href:"products.html", label:"المنتجات"},
     {href:"merchants.html",label:"التجار"},
-    {href:"employees.html",label:"الموظفين"},
     {href:"finance.html",  label:"المالية"},
+    {href:"employees.html",label:"الموظفين"},
   ];
+  const navLinks = pages.map(p=>`<a href="/${p.href}" class="${p.href==="finance.html"?"active":""}">${p.label}</a>`).join("");
   document.getElementById("topbar").innerHTML=`
     <div class="topbar-inner">
       <div class="brand">
@@ -347,13 +362,34 @@ function renderNav(user){
           onerror="this.style.display='none'" />
         <span>أحمد وحمدي</span>
       </div>
-      <nav class="nav-tabs">${pages.map(p=>`<a href="/${p.href}" class="${p.href==="finance.html"?"active":""}">${p.label}</a>`).join("")}</nav>
+      <nav class="nav-tabs">${navLinks}</nav>
       <div class="user-chip">
         <span>${user.email??""}</span>
         <button class="icon-btn" id="logout-btn">خروج</button>
       </div>
-    </div>`;
+      <button type="button" class="nav-toggle" id="nav-toggle" aria-label="القائمة">☰</button>
+    </div>
+    <nav class="mobile-nav" id="mobile-nav">
+      ${navLinks}
+      <div class="mobile-user">
+        <span>${user.email??""}</span>
+        <button class="icon-btn" id="logout-btn-mobile">خروج</button>
+      </div>
+    </nav>`;
   document.getElementById("logout-btn").addEventListener("click",()=>signOut(auth).then(()=>location.href="/"));
+  document.getElementById("logout-btn-mobile").addEventListener("click",()=>signOut(auth).then(()=>location.href="/"));
+  const navToggle = document.getElementById("nav-toggle");
+  const mobileNav = document.getElementById("mobile-nav");
+  if (navToggle && mobileNav) {
+    navToggle.addEventListener("click", () => {
+      const open = mobileNav.classList.toggle("open");
+      navToggle.textContent = open ? "✕" : "☰";
+    });
+    mobileNav.querySelectorAll("a").forEach(a => a.addEventListener("click", () => {
+      mobileNav.classList.remove("open");
+      navToggle.textContent = "☰";
+    }));
+  }
 }
 
 /* ── حالة ── */
