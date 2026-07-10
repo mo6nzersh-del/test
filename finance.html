@@ -1030,8 +1030,14 @@ function renderTable(){
     const party=t.type==="advance"?(t.employeeName||"—")
       :t.type==="merchant"?(t.merchantName||t.partyName||"—")
       :(t.partyName||"—");
-    const partyCell=(t.type==="merchant"&&t.merchantId)
-      ?`<span class="link-cell" data-merchant-id="${t.merchantId}">${esc(party)}</span>`
+    // للحركات المرآة على صندوق الكاش (إيداع/سحب) الناتجة عن دفعة تاجر، لا يوجد merchantId مباشر
+    // على السطر نفسه — نبحث عن الحركة الأصل بنفس finId لمعرفة التاجر المرتبط
+    const linkedMerchantId=t.merchantId
+      ||((t.type==="deposit"||t.type==="withdrawal")&&t.finId
+           ?allTx.find(o=>o.finId===t.finId&&o.type==="merchant"&&o.merchantId)?.merchantId
+           :null);
+    const partyCell=linkedMerchantId
+      ?`<span class="link-cell" data-merchant-id="${linkedMerchantId}">${esc(party)}</span>`
       :(t.employeeId
         ?`<span class="link-cell" data-employee-id="${t.employeeId}">${esc(party)}</span>`
         :esc(party));
