@@ -363,7 +363,7 @@ function refreshMerchantSelects() {
   sel.value = prev;
 }
 
-/* ═cR�════════════════════════════════════
+/* ══════════════════════════════════════
    OP TYPE SWITCHER (production / transfer)
 ══════════════════════════════════════ */
 function initOpTypeSwitcher() {
@@ -676,7 +676,7 @@ function initLoadingForm() {
         if (!prod) continue;
         const lineTotal = line.qty * line.price;
         totalAmount += lineTotal;
-        batch.update(docR�f(db, "products", prod.id), {
+        batch.update(docRef(db, "products", prod.id), {
           quantity: Math.max(0, (prod.quantity || 0) - line.qty),
           updatedAt: serverTimestamp(),
         });
