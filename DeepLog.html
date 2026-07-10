@@ -146,6 +146,7 @@
       <button type="button" id="tab-statement">كشف الحساب الموحّد</button>
       <button type="button" id="tab-inventory">المخازن والمنتجات</button>
       <button type="button" id="tab-dlactivity">سجل حركات هذه الصفحة</button>
+      <button type="button" id="tab-auditlog" style="background:linear-gradient(135deg,#1a3a6b,#2a5bbf);color:#fff;border-color:#1a3a6b;font-weight:800">🔍 سجل المراقبة الشامل</button>
     </div>
 
     <!-- ══════════ TAB 1: FINANCE ══════════ -->
@@ -299,6 +300,53 @@
           <table class="data-table">
             <thead><tr><th>الإجراء</th><th>التفاصيل</th><th>نفّذه</th><th>التاريخ</th></tr></thead>
             <tbody id="dl-activity-tbody"><tr><td colspan="4"><div class="empty-state">جارِ التحميل...</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══════════ TAB 6: COMPREHENSIVE AUDIT LOG ══════════ -->
+    <div class="section-view" id="view-auditlog">
+      <div class="panel">
+        <div class="panel-header">
+          <h3>🔍 سجل المراقبة الشامل</h3>
+          <span id="audit-count" style="font-size:13px;color:var(--muted)"></span>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin:-4px 0 12px">
+          يسجَّل هنا كل إجراء (إضافة / تعديل / حذف) من <strong>جميع الصفحات</strong> — المالية، التجار، الموظفين، السجل الشامل — مع اسم المنفِّذ والتوقيت الدقيق.
+        </p>
+        <!-- فلاتر -->
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
+          <select id="audit-filter-page" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--surface)">
+            <option value="">كل الصفحات</option>
+            <option value="المالية">📊 المالية</option>
+            <option value="التجار">🤝 التجار</option>
+            <option value="الموظفين">👤 الموظفين</option>
+            <option value="السجل الشامل">📒 السجل الشامل</option>
+          </select>
+          <select id="audit-filter-action" style="padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--surface)">
+            <option value="">كل الإجراءات</option>
+            <option value="إضافة">➕ إضافة</option>
+            <option value="تعديل">✏️ تعديل</option>
+            <option value="حذف">🗑️ حذف</option>
+          </select>
+          <input type="text" id="audit-filter-search" placeholder="بحث في التفاصيل أو البريد..." style="padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;flex:1;min-width:160px;background:var(--surface)" />
+          <button type="button" id="audit-reset-btn" class="btn outline small">إعادة ضبط</button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width:36px">#</th>
+                <th>الصفحة</th>
+                <th>الإجراء</th>
+                <th>الكيان</th>
+                <th>التفاصيل</th>
+                <th>نفّذه</th>
+                <th>التاريخ والوقت</th>
+              </tr>
+            </thead>
+            <tbody id="audit-tbody"><tr><td colspan="7"><div class="empty-state">جارِ التحميل...</div></td></tr></tbody>
           </table>
         </div>
       </div>
@@ -527,8 +575,13 @@ function switchTab(key) {
     statement:   { btn: document.getElementById("tab-statement"),   view: document.getElementById("view-statement") },
     inventory:   { btn: document.getElementById("tab-inventory"),   view: document.getElementById("view-inventory") },
     dlactivity:  { btn: document.getElementById("tab-dlactivity"),  view: document.getElementById("view-dlactivity") },
+    auditlog:    { btn: document.getElementById("tab-auditlog"),    view: document.getElementById("view-auditlog") },
   };
   Object.values(tabs).forEach(({ btn, view }) => { btn.classList.remove("active"); view.classList.remove("active"); });
+  if (key === "auditlog") {
+    tabs[key].btn.style.background = "linear-gradient(135deg,#1a3a6b,#2a5bbf)";
+    tabs[key].btn.style.color = "#fff";
+  }
   tabs[key].btn.classList.add("active"); tabs[key].view.classList.add("active");
 }
 
@@ -563,6 +616,97 @@ async function logDlAction(action, details) {
       createdAt: serverTimestamp(),
     });
   } catch (err) { console.error("logDlAction failed", err); }
+  /* أيضاً: تسجيل في سجل المراقبة الشامل */
+  try {
+    await addDoc(collection(db, "auditLog"), {
+      action, entity: "—", page: "السجل الشامل",
+      details: details || "",
+      userEmail: currentUser?.email || "—",
+      createdAt: serverTimestamp(),
+    });
+  } catch (err) { console.error("auditLog write failed", err); }
+}
+
+/* ── سجل المراقبة الشامل (كل الصفحات) ── */
+let allAuditLogs = [];
+
+function loadAuditLog() {
+  const q = query(collection(db, "auditLog"), orderBy("createdAt", "desc"));
+  onSnapshot(q, snap => {
+    allAuditLogs = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderAuditLog();
+  }, err => {
+    console.error("auditLog load error:", err);
+    const tbody = document.getElementById("audit-tbody");
+    if (tbody) tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state">خطأ في تحميل السجل</div></td></tr>';
+  });
+}
+
+function renderAuditLog() {
+  const tbody = document.getElementById("audit-tbody");
+  const countEl = document.getElementById("audit-count");
+  if (!tbody) return;
+
+  const pageF   = document.getElementById("audit-filter-page")?.value ?? "";
+  const actionF = document.getElementById("audit-filter-action")?.value ?? "";
+  const searchF = (document.getElementById("audit-filter-search")?.value ?? "").toLowerCase().trim();
+
+  let rows = allAuditLogs;
+  if (pageF)   rows = rows.filter(r => (r.page || "").includes(pageF));
+  if (actionF) rows = rows.filter(r => (r.action || "").includes(actionF));
+  if (searchF) rows = rows.filter(r =>
+    (r.details || "").toLowerCase().includes(searchF) ||
+    (r.userEmail || "").toLowerCase().includes(searchF) ||
+    (r.entity || "").toLowerCase().includes(searchF)
+  );
+
+  if (countEl) countEl.textContent = `${rows.length} سجل`;
+
+  if (!rows.length) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state">لا توجد سجلات مطابقة</div></td></tr>';
+    return;
+  }
+
+  const PAGE_ICONS = {
+    "المالية": "📊", "التجار": "🤝", "الموظفين": "👤",
+    "السجل الشامل": "📒", "المنتجات": "📦",
+  };
+  const ACTION_COLORS = {
+    "إضافة": "color:#1a6b3a;background:#e7f5ec",
+    "تعديل": "color:#7a4f10;background:#fdf4e3",
+    "حذف":   "color:#b3432f;background:#fce8e5",
+    "صرف راتب": "color:#1a4bbf;background:#e8f0fb",
+    "إلغاء صرف": "color:#888;background:#f2f2f2",
+  };
+
+  tbody.innerHTML = "";
+  rows.forEach((d, i) => {
+    const icon = PAGE_ICONS[d.page] ?? "📝";
+    const actionStyle = ACTION_COLORS[d.action] ?? "color:#555;background:#f2f2f2";
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td style="font-size:12px;color:var(--muted);text-align:center">${rows.length - i}</td>
+      <td style="font-size:13px;font-weight:700">${icon} ${esc(d.page || "—")}</td>
+      <td><span style="display:inline-block;padding:2px 9px;border-radius:99px;font-size:11.5px;font-weight:800;${actionStyle}">${esc(d.action || "—")}</span></td>
+      <td style="font-size:12.5px;color:var(--muted)">${esc(d.entity || "—")}</td>
+      <td style="font-size:13px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(d.details || '')}">${esc(d.details || "—")}</td>
+      <td style="font-size:12px;color:var(--muted);white-space:nowrap">🔑 ${esc(d.userEmail || "—")}</td>
+      <td style="white-space:nowrap;font-size:12px">${fmtDateTime(d.createdAt)}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+function setupAuditFilters() {
+  ["audit-filter-page", "audit-filter-action", "audit-filter-search"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.addEventListener("input", renderAuditLog); el.addEventListener("change", renderAuditLog); }
+  });
+  document.getElementById("audit-reset-btn")?.addEventListener("click", () => {
+    document.getElementById("audit-filter-page").value = "";
+    document.getElementById("audit-filter-action").value = "";
+    document.getElementById("audit-filter-search").value = "";
+    renderAuditLog();
+  });
 }
 
 function loadDlActivity() {
@@ -622,6 +766,7 @@ function init() {
   document.getElementById("tab-statement").addEventListener("click", () => switchTab("statement"));
   document.getElementById("tab-inventory").addEventListener("click", () => switchTab("inventory"));
   document.getElementById("tab-dlactivity").addEventListener("click", () => switchTab("dlactivity"));
+  document.getElementById("tab-auditlog").addEventListener("click", () => switchTab("auditlog"));
 
   loadEmployees();
   loadMerchants();
@@ -631,6 +776,8 @@ function init() {
   loadWarehouseOps();
   loadLoadingOps();
   loadDlActivity();
+  loadAuditLog();
+  setupAuditFilters();
   loadOpeningBalance();
   document.getElementById("save-opening").addEventListener("click", saveOpeningBalance);
 
