@@ -1042,6 +1042,17 @@ function openTxDetail(t){
   document.getElementById("tx-detail-modal").classList.add("open");
 }
 
+/* ── سجل المراقبة الشامل ── */
+async function writeAuditLog(action, entity, details) {
+  try {
+    await addDoc(collection(db,"auditLog"),{
+      action, entity, page:"الموظفين", details,
+      userEmail: auth.currentUser?.email || "—",
+      createdAt: serverTimestamp(),
+    });
+  } catch(err){ console.error("auditLog write failed",err); }
+}
+
 /* ── نافذة الموظف ── */
 function setupEmpModal(){
   const modal=document.getElementById("emp-modal");
@@ -1107,8 +1118,13 @@ async function saveEmployee(e){
       idCardNumber:document.getElementById("f-idcard").value.trim(),
       monthlySalary:Number(document.getElementById("f-salary").value)||0, photoUrl,
     };
-    if(editEmpId){ await updateDoc(doc(db,"employees",editEmpId),data); toast("تم تحديث الموظف"); }
-    else { await addDoc(collection(db,"employees"),{...data,createdAt:serverTimestamp()}); toast("تمت إضافة الموظف"); }
+    if(editEmpId){
+      await updateDoc(doc(db,"employees",editEmpId),data); toast("تم تحديث الموظف");
+      writeAuditLog("تعديل","موظف",`${name}${data.jobTitle?" — "+data.jobTitle:""}`);
+    } else {
+      await addDoc(collection(db,"employees"),{...data,createdAt:serverTimestamp()}); toast("تمت إضافة الموظف");
+      writeAuditLog("إضافة","موظف",`${name}${data.jobTitle?" — "+data.jobTitle:""}${data.monthlySalary?" — راتب "+data.monthlySalary+" ج.م":""}`);
+    }
     closeEmpModal();
   }catch(err){ console.error(err); toast("خطأ أثناء الحفظ",true); }
   finally{ btn.disabled=false; btn.textContent="حفظ الموظف"; }
@@ -1155,9 +1171,12 @@ async function deleteAttRecord(){
   if(!attModalRecId) return;
   if(!confirm("هل تريد حذف سجل هذا اليوم؟")) return;
   try{
+    const emp=employees.find(e=>e.id===currentEmpId);
+    const rec=dailyAtt.find(r=>r.id===attModalRecId);
     await deleteDoc(doc(db,"daily_attendance",attModalRecId));
     dailyAtt=dailyAtt.filter(r=>r.id!==attModalRecId);
     renderCalendar(); renderSalary(); toast("تم حذف السجل"); closeAttModal();
+    writeAuditLog("حذف","سجل حضور",`${emp?.name||"—"} — ${rec?.date||attModalDate||"—"}`);
   }catch(err){ console.error(err); toast("خطأ أثناء الحذف",true); }
 }
 
@@ -1252,11 +1271,13 @@ async function saveAdvTx(e){
     };
     const curUser=auth.currentUser;
     const byEmail=curUser?.email??"غير معروف";
+    const emp2=employees.find(em=>em.id===currentEmpId);
     if(advEditId){
       await updateDoc(doc(db,"finance_transactions",advEditId),{
         ...data, updatedAt:serverTimestamp(), updatedBy:byEmail
       });
       toast("تم تحديث السجل");
+      writeAuditLog("تعديل","سلفة/حركة مالية",`${emp2?.name||"—"} — ${cfg.type} — ${amount} ج.م`);
     } else {
       const finId=await nextFinId();
       await addDoc(collection(db,"finance_transactions"),{
@@ -1265,6 +1286,7 @@ async function saveAdvTx(e){
         updatedAt:serverTimestamp(), updatedBy:byEmail,
       });
       toast("تمت الإضافة — المعرف: "+finId);
+      writeAuditLog("إضافة","سلفة/حركة مالية",`${finId} — ${emp2?.name||"—"} — ${cfg.type} — ${amount} ج.م`);
     }
     closeAdvModal();
   }catch(err){ console.error(err); toast("خطأ أثناء الحفظ",true); }
@@ -1276,10 +1298,13 @@ async function deleteAdvTx(){
   if(!confirm("هل تريد حذف هذا السجل؟")) return;
   try{
     const byEmail=auth.currentUser?.email??"غير معروف";
+    const emp=employees.find(em=>em.id===currentEmpId);
+    const tx=empFinTxs.find(t=>t.id===advEditId);
     await updateDoc(doc(db,"finance_transactions",advEditId),{
       _active:false, deletedAt:serverTimestamp(), deletedBy:byEmail
     });
     toast("تم حذف السجل"); closeAdvModal();
+    writeAuditLog("حذف","سلفة/حركة مالية",`${emp?.name||"—"} — ${tx?.type||"—"} — ${tx?.amount||0} ج.م`);
   }catch(err){ console.error(err); toast("خطأ أثناء الحذف",true); }
 }
 
@@ -1330,7 +1355,12 @@ function renderList(){
 
 async function deleteEmp(id){
   if(!confirm("هل تريد حذف هذا الموظف؟")) return;
-  try{ await deleteDoc(doc(db,"employees",id)); toast("تم حذف الموظف"); }
+  try{
+    const emp=employees.find(e=>e.id===id);
+    await deleteDoc(doc(db,"employees",id));
+    toast("تم حذف الموظف");
+    writeAuditLog("حذف","موظف",`${emp?.name||"—"}${emp?.jobTitle?" — "+emp.jobTitle:""}`);
+  }
   catch(err){ console.error(err); toast("خطأ أثناء الحذف",true); }
 }
 
@@ -1520,6 +1550,7 @@ async function markSalaryPaid(){
       paidBy:       curUser?.email??"",
     });
     toast(`✅ تم تأكيد صرف راتب ${monthLabel}`);
+    writeAuditLog("صرف راتب","راتب موظف",`${emp?.name||"—"} — ${monthLabel}${emp?.monthlySalary?" — "+emp.monthlySalary+" ج.م":""}`);
     // انتقال تلقائي للشهر التالي بعد لحظة
     setTimeout(()=>changeMonth(+1), 1400);
   }catch(err){
@@ -1537,8 +1568,10 @@ async function unmarkSalaryPaid(){
   if(!confirm(`هل تريد إلغاء تأكيد صرف راتب ${monthLabel}؟`)) return;
   try{
     const curMonthStr=`${calYear}-${String(calMonth+1).padStart(2,"0")}`;
+    const emp=employees.find(e=>e.id===currentEmpId);
     await deleteDoc(doc(db,"salary_payments",`${currentEmpId}_${curMonthStr}`));
     toast("تم إلغاء تأكيد الصرف");
+    writeAuditLog("إلغاء صرف","راتب موظف",`${emp?.name||"—"} — ${monthLabel}`);
   }catch(err){ console.error(err); toast("خطأ أثناء الحذف",true); }
 }
 
@@ -1744,13 +1777,16 @@ async function setDay(dateStr,newStatus,_rid){
   const emp=employees.find(e=>e.id===currentEmpId);
   const existing=dailyAtt.find(r=>r.date===dateStr);
   try{
+    const statusLabels={present:"✅ حضور",absent:"❌ غياب",paid_leave:"🏖️ إجازة براتب",unpaid_leave:"🚫 إجازة بدون راتب"};
     if(existing){
       if(existing.status===newStatus){
         await deleteDoc(doc(db,"daily_attendance",existing.id));
         dailyAtt=dailyAtt.filter(r=>r.date!==dateStr);
+        writeAuditLog("حذف","سجل حضور",`${emp?.name||"—"} — ${dateStr} — ${statusLabels[newStatus]||newStatus}`);
       } else {
         await updateDoc(doc(db,"daily_attendance",existing.id),{status:newStatus,updatedAt:serverTimestamp()});
         existing.status=newStatus;
+        writeAuditLog("تعديل","سجل حضور",`${emp?.name||"—"} — ${dateStr} — ${statusLabels[newStatus]||newStatus}`);
       }
     } else {
       const attId=await nextAttId();
@@ -1760,6 +1796,7 @@ async function setDay(dateStr,newStatus,_rid){
         createdAt:serverTimestamp(), updatedAt:serverTimestamp(),
       });
       dailyAtt.push({id:newDoc.id,attId,date:dateStr,status:newStatus});
+      writeAuditLog("إضافة","سجل حضور",`${emp?.name||"—"} — ${dateStr} — ${statusLabels[newStatus]||newStatus}`);
     }
     renderCalendar(); renderSalary();
   }catch(err){ console.error(err); toast("خطأ أثناء الحفظ",true); }
