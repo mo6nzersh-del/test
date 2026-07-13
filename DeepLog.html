@@ -164,6 +164,16 @@
       .dl-desc-cell{ max-width:110px; font-size:12px }
     }
 
+    /* ══ منيو التبويبات: يظهر حتى 900px (هاتف + تابلت + landscape) ══ */
+    @media (max-width:900px) {
+      .section-tabs  { display:none!important }
+      #mob-tab-bar   { display:block!important; margin-bottom:16px }
+    }
+    @media (min-width:901px) {
+      #mob-tab-bar   { display:none!important }
+      #mob-tab-overlay { display:none!important }
+    }
+
     /* ══ منيو التبويبات للهاتف (مخفي على سطح المكتب) ══ */
     #mob-tab-bar     { display:none }
     #mob-tab-overlay {
@@ -245,11 +255,7 @@
       .dl-header p  { font-size:12px }
       .dl-badge     { font-size:11px; padding:3px 10px }
 
-      /* ── التبويبات: مخفية على الهاتف (يُستبدل بالمنيو) ── */
-      .section-tabs { display:none!important }
-
-      /* ── إظهار منيو الهاتف ── */
-      #mob-tab-bar { display:block; margin-bottom:16px }
+      /* ── (التبويبات تُخفى بمحور منفصل أدناه) ── */
 
       /* ── البانيل ── */
       .panel { padding:14px 12px; margin-bottom:16px }
