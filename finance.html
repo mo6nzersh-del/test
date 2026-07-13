@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>المالية - أحمد وحمدي</title>
+  <title>المالية - Ahmed And hamdy</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="/assets/auth-guard-C6CJ8_8i.css" />
@@ -663,7 +663,7 @@ function renderNav(user){
         <img src="https://i.imgur.com/NsN1HgC.png" alt="logo"
           style="height:30px;object-fit:contain;border-radius:5px;background:#fff;padding:2px 4px"
           onerror="this.style.display='none'" />
-        <span>أحمد وحمدي</span>
+        <span>Ahmed And hamdy</span>
       </div>
       <nav class="nav-tabs">${pages.map(p=>`<a href="/${p.href}" class="${p.href==="finance.html"?"active":""}">${p.label}</a>`).join("")}</nav>
       <div class="user-chip">
@@ -699,15 +699,15 @@ function buildDeductMonthSelect(currentVal=""){
   const nextY=nextDate.getFullYear(), nextM=nextDate.getMonth();
   const opts=[
     {val:`${curY}-${String(curM+1).padStart(2,"0")}`,
-     label:`الشهر الحالي — ${new Date(curY,curM,1).toLocaleDateString("ar-EG",{month:"long",year:"numeric"})}`},
+     label:`الشهر الحالي — ${new Date(curY,curM,1).toLocaleDateString("ar-EG-u-nu-latn",{month:"long",year:"numeric"})}`},
     {val:`${nextY}-${String(nextM+1).padStart(2,"0")}`,
-     label:`الشهر القادم — ${new Date(nextY,nextM,1).toLocaleDateString("ar-EG",{month:"long",year:"numeric"})}`}
+     label:`الشهر القادم — ${new Date(nextY,nextM,1).toLocaleDateString("ar-EG-u-nu-latn",{month:"long",year:"numeric"})}`}
   ];
   sel.innerHTML='<option value="">— اختر شهر الخصم —</option>';
   // إذا كانت القيمة المحفوظة شهراً قديماً لا يوجد في الخيارين، أضفه مع تنبيه
   if(currentVal&&!opts.find(o=>o.val===currentVal)){
     const [y,m]=currentVal.split("-").map(Number);
-    const oldLabel=new Date(y,m-1,1).toLocaleDateString("ar-EG",{month:"long",year:"numeric"});
+    const oldLabel=new Date(y,m-1,1).toLocaleDateString("ar-EG-u-nu-latn",{month:"long",year:"numeric"});
     const o=document.createElement("option");
     o.value=currentVal; o.textContent=`${oldLabel} (شهر سابق — محفوظ)`;
     o.selected=true;
@@ -724,14 +724,14 @@ function buildDeductMonthSelect(currentVal=""){
 
 /* ── أدوات ── */
 const esc = t => { const d=document.createElement("div"); d.textContent=t??""; return d.innerHTML; };
-const fmt = n => new Intl.NumberFormat("ar-EG",{maximumFractionDigits:2}).format(n||0)+" ج.م";
+const fmt = n => new Intl.NumberFormat("ar-EG-u-nu-latn",{maximumFractionDigits:2}).format(n||0)+" ج.م";
 const today = () => new Date().toISOString().slice(0,10);
-const fmtDate = s => s?new Date(s+"T00:00:00").toLocaleDateString("ar-EG",
+const fmtDate = s => s?new Date(s+"T00:00:00").toLocaleDateString("ar-EG-u-nu-latn",
   {year:"numeric",month:"long",day:"numeric"}):"—";
 const fmtMonth = s => {
   if(!s) return "";
   const [y,m]=s.split("-");
-  return new Date(Number(y),Number(m)-1,1).toLocaleDateString("ar-EG",{month:"long",year:"numeric"});
+  return new Date(Number(y),Number(m)-1,1).toLocaleDateString("ar-EG-u-nu-latn",{month:"long",year:"numeric"});
 };
 
 function toast(msg,err=false){
@@ -925,14 +925,14 @@ function openTxDetail(t){
     infoRows.push(`<tr><td class="lbl">الجهة</td><td class="val">${esc(party)}</td></tr>`);
   }
 
-  const printDate=new Date().toLocaleDateString("ar-EG",{year:"numeric",month:"long",day:"numeric",hour:"2-digit",minute:"2-digit"});
+  const printDate=new Date().toLocaleDateString("ar-EG-u-nu-latn",{year:"numeric",month:"long",day:"numeric",hour:"2-digit",minute:"2-digit"});
 
   document.getElementById("tx-detail-content").innerHTML=`
   <!-- ══ عرض الشاشة ══ -->
   <div class="screen-only" style="display:block">
     <div class="tx-detail-header">
       <div class="tx-detail-mark">${icon}</div>
-      <div class="tx-detail-company">أحمد وحمدي</div>
+      <div class="tx-detail-company">Ahmed And hamdy</div>
       <div class="tx-detail-subtitle">نظام المحاسبة الداخلي</div>
       <div class="tx-detail-id-row">
         <span class="tx-detail-id-badge">${esc(t.finId||"—")}</span>
@@ -951,13 +951,13 @@ function openTxDetail(t){
     ${t.description?`<div class="tx-detail-desc-box"><strong>📝 الوصف / الملاحظات</strong>${esc(t.description)}</div>`:""}
     <div class="tx-detail-footer">
       <span>رقم الحركة: ${esc(t.finId||"—")}</span>
-      <span>نظام أحمد وحمدي © ${new Date().getFullYear()}</span>
+      <span>نظام Ahmed And hamdy © ${new Date().getFullYear()}</span>
     </div>
   </div>
 
   <!-- ══ نسخة الطباعة الرسمية (تظهر فقط عند الطباعة) ══ -->
   <div class="doc-page print-only" style="display:none">
-    <div class="doc-watermark">أحمد وحمدي</div>
+    <div class="doc-watermark">Ahmed And hamdy</div>
     <div class="doc-outer-border">
       <div class="doc-inner-border">
 
@@ -967,7 +967,7 @@ function openTxDetail(t){
             <div class="doc-doc-title">سند ${t.dir==="in"?"قبض":"صرف"}</div>
           </div>
           <div class="doc-top-bar-center">
-            <div class="doc-company-name">أحمد وحمدي</div>
+            <div class="doc-company-name">Ahmed And hamdy</div>
             <div class="doc-company-sub">نظام المحاسبة الداخلي</div>
           </div>
           <div>
@@ -1030,7 +1030,7 @@ function openTxDetail(t){
         <!-- ذيل الوثيقة -->
         <div class="doc-bottom-bar">
           <div>تاريخ الطباعة: ${printDate}</div>
-          <div class="doc-bottom-barcode">${esc(t.finId||"—")} — أحمد وحمدي</div>
+          <div class="doc-bottom-barcode">${esc(t.finId||"—")} — Ahmed And hamdy</div>
           <div>هذا المستند صادر من نظام المحاسبة الداخلي</div>
         </div>
 
@@ -1619,7 +1619,7 @@ async function saveTx(e){
   const _app  = getApp();
   const _auth = getAuth(_app);
   const _db   = getFirestore(_app);
-  const _fmt  = n => new Intl.NumberFormat("ar-EG",{maximumFractionDigits:2}).format(n||0)+" ج.م";
+  const _fmt  = n => new Intl.NumberFormat("ar-EG-u-nu-latn",{maximumFractionDigits:2}).format(n||0)+" ج.م";
 
   let _whs=[], _prods=[], _selWhId=null;
 
