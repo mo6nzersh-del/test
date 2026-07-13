@@ -127,6 +127,29 @@
     .warehouse-row .wh-name{font-weight:700}
     .warehouse-row .wh-meta{font-size:12px;color:var(--muted)}
     .warehouse-row .wh-actions{display:flex;gap:8px}
+
+    /* ══ سلة المحذوفات ══ */
+    .trash-stats{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+    .trash-stat-pill{display:flex;align-items:center;gap:8px;background:var(--surface);border:1.5px solid var(--border);
+      border-radius:10px;padding:10px 16px}
+    .trash-stat-pill .tsp-ico{font-size:20px}
+    .trash-stat-pill .tsp-num{font-size:20px;font-weight:900;color:var(--ink)}
+    .trash-stat-pill .tsp-lbl{font-size:11.5px;color:var(--muted);font-weight:600}
+    .trash-filters{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+    .trash-restore-btn{border:none;background:#e7f5ec;color:#1a6b3a;border-radius:7px;
+      padding:5px 13px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;
+      transition:background .12s}
+    .trash-restore-btn:hover{background:#c6ecd5}
+    .trash-restore-btn:disabled{opacity:.5;cursor:not-allowed}
+    .trash-perm-del-btn{border:none;background:#fce8e5;color:#b3432f;border-radius:7px;
+      padding:5px 13px;font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;
+      transition:background .12s}
+    .trash-perm-del-btn:hover{background:#f5c6c0}
+    .trash-empty{text-align:center;padding:40px 20px;color:var(--muted);font-size:14px}
+    .trash-empty .te-ico{font-size:48px;display:block;margin-bottom:10px}
+    .deleted-row td{opacity:.75;background:#fffaf9}
+    .del-badge{display:inline-block;font-size:10.5px;font-weight:700;background:#fce8e5;color:#b3432f;
+      border-radius:5px;padding:2px 7px}
   </style>
 </head>
 <body>
@@ -148,6 +171,7 @@
       <button type="button" id="tab-dlactivity">سجل حركات هذه الصفحة</button>
       <button type="button" id="tab-auditlog" style="background:linear-gradient(135deg,#1a3a6b,#2a5bbf);color:#fff;border-color:#1a3a6b;font-weight:800">🔍 سجل المراقبة الشامل</button>
       <button type="button" id="tab-accounts">👤 إدارة الحسابات</button>
+      <button type="button" id="tab-trash" style="background:linear-gradient(135deg,#b3432f,#e07070);color:#fff;border-color:#b3432f;font-weight:800">🗑️ سلة المحذوفات</button>
     </div>
 
     <!-- ══════════ TAB 1: FINANCE ══════════ -->
@@ -392,6 +416,77 @@
         </div>
       </div>
     </div>
+    <!-- ══════════ TAB 8: سلة المحذوفات ══════════ -->
+    <div class="section-view" id="view-trash">
+      <div class="panel">
+        <div class="panel-header">
+          <h3>🗑️ سلة المحذوفات</h3>
+          <span id="trash-count" style="font-size:13px;color:var(--muted)"></span>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin:-4px 0 14px">
+          تظهر هنا جميع الحركات المالية التي تم حذفها من أي صفحة. يمكنك استعادتها بالكامل أو حذفها نهائياً.
+          <br /><strong style="color:#b3432f">ملاحظة:</strong> حركات المخازن والتحميل تُحذف نهائياً ولا يمكن استعادتها.
+        </p>
+
+        <!-- إحصائيات سريعة -->
+        <div class="trash-stats">
+          <div class="trash-stat-pill">
+            <span class="tsp-ico">💰</span>
+            <div>
+              <div class="tsp-num" id="trash-fin-count">—</div>
+              <div class="tsp-lbl">حركة مالية محذوفة</div>
+            </div>
+          </div>
+          <div class="trash-stat-pill">
+            <span class="tsp-ico">💵</span>
+            <div>
+              <div class="tsp-num" id="trash-fin-total">—</div>
+              <div class="tsp-lbl">إجمالي المبالغ المحذوفة</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- فلاتر -->
+        <div class="trash-filters">
+          <select id="trash-filter-type" class="filter-select">
+            <option value="">كل الأنواع</option>
+            <option value="advance">👤 سلفة موظف</option>
+            <option value="withdrawal">📤 سحب</option>
+            <option value="deposit">📥 إيداع</option>
+            <option value="merchant">🤝 دفعة تاجر</option>
+            <option value="other">📝 أخرى</option>
+          </select>
+          <select id="trash-filter-dir" class="filter-select">
+            <option value="">كل الاتجاهات</option>
+            <option value="in">↓ داخل (إيداع)</option>
+            <option value="out">↑ خارج (سحب)</option>
+          </select>
+          <input type="text" id="trash-search" class="search-input" placeholder="بحث بالرقم أو الوصف أو الجهة..." />
+          <button type="button" id="trash-reset-btn" class="btn outline small">إعادة ضبط</button>
+        </div>
+
+        <!-- جدول الحركات المحذوفة -->
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th style="width:100px">رقم الحركة</th>
+                <th>النوع</th>
+                <th>الاتجاه</th>
+                <th>المبلغ</th>
+                <th>التاريخ</th>
+                <th>الجهة</th>
+                <th>تاريخ الحذف</th>
+                <th style="width:160px">الإجراء</th>
+              </tr>
+            </thead>
+            <tbody id="trash-tbody">
+              <tr><td colspan="8"><div class="empty-state">جارِ التحميل...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </main>
 </div>
 
@@ -567,8 +662,8 @@ import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signOut } 
 import {
   getFirestore, collection, doc,
   addDoc, updateDoc, deleteDoc, getDoc, setDoc,
-  query, orderBy, onSnapshot, writeBatch,
-  serverTimestamp, runTransaction
+  query, where, orderBy, onSnapshot, writeBatch,
+  serverTimestamp, runTransaction, deleteField
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app = initializeApp({
@@ -629,11 +724,24 @@ function switchTab(key) {
     dlactivity:  { btn: document.getElementById("tab-dlactivity"),  view: document.getElementById("view-dlactivity") },
     auditlog:    { btn: document.getElementById("tab-auditlog"),    view: document.getElementById("view-auditlog") },
     accounts:    { btn: document.getElementById("tab-accounts"),    view: document.getElementById("view-accounts") },
+    trash:       { btn: document.getElementById("tab-trash"),       view: document.getElementById("view-trash") },
   };
-  Object.values(tabs).forEach(({ btn, view }) => { btn.classList.remove("active"); view.classList.remove("active"); });
+  Object.values(tabs).forEach(({ btn, view }) => {
+    btn.classList.remove("active");
+    view.classList.remove("active");
+    btn.style.background = "";
+    btn.style.color = "";
+    btn.style.borderColor = "";
+  });
   if (key === "auditlog") {
     tabs[key].btn.style.background = "linear-gradient(135deg,#1a3a6b,#2a5bbf)";
     tabs[key].btn.style.color = "#fff";
+    tabs[key].btn.style.borderColor = "#1a3a6b";
+  }
+  if (key === "trash") {
+    tabs[key].btn.style.background = "linear-gradient(135deg,#b3432f,#e07070)";
+    tabs[key].btn.style.color = "#fff";
+    tabs[key].btn.style.borderColor = "#b3432f";
   }
   tabs[key].btn.classList.add("active"); tabs[key].view.classList.add("active");
 }
@@ -821,6 +929,7 @@ function init() {
   document.getElementById("tab-dlactivity").addEventListener("click", () => switchTab("dlactivity"));
   document.getElementById("tab-auditlog").addEventListener("click", () => switchTab("auditlog"));
   document.getElementById("tab-accounts").addEventListener("click", () => switchTab("accounts"));
+  document.getElementById("tab-trash").addEventListener("click", () => switchTab("trash"));
 
   loadEmployees();
   loadMerchants();
@@ -832,6 +941,7 @@ function init() {
   loadDlActivity();
   loadAuditLog();
   loadAccounts();
+  loadTrash();
   setupAuditFilters();
   loadOpeningBalance();
   document.getElementById("account-form").addEventListener("submit", handleCreateAccount);
@@ -1734,6 +1844,201 @@ function loadAccounts() {
         <td>${fmtDateTime(r.createdAt)}</td>
       </tr>`).join("");
   }, err => console.error("loadAccounts failed", err));
+}
+
+/* ══════════════════════════════════════
+   سلة المحذوفات — الحركات المالية المحذوفة
+══════════════════════════════════════ */
+let allDeletedFinTx = [];
+
+const TYPE_LABELS_TRASH = {
+  advance:    { label: "سلفة موظف",   icon: "👤", badge: "tb-advance" },
+  withdrawal: { label: "سحب",         icon: "📤", badge: "tb-withdrawal" },
+  deposit:    { label: "إيداع",       icon: "📥", badge: "tb-deposit" },
+  merchant:   { label: "دفعة تاجر",   icon: "🤝", badge: "tb-merchant" },
+  other:      { label: "أخرى",        icon: "📝", badge: "tb-other" },
+};
+
+function loadTrash() {
+  /* نستمع بـ onSnapshot لأي تغيير في حالة _active === false */
+  const q = query(
+    collection(db, "finance_transactions"),
+    where("_active", "==", false),
+    orderBy("deletedAt", "desc")
+  );
+  onSnapshot(q, snap => {
+    allDeletedFinTx = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderTrash();
+    setupTrashFilters();
+  }, err => {
+    console.error("loadTrash error:", err);
+    const tbody = document.getElementById("trash-tbody");
+    if (tbody) tbody.innerHTML = '<tr><td colspan="8"><div class="empty-state">حدث خطأ أثناء التحميل</div></td></tr>';
+  });
+}
+
+function renderTrash() {
+  const tbody    = document.getElementById("trash-tbody");
+  const countEl  = document.getElementById("trash-count");
+  const finCountEl = document.getElementById("trash-fin-count");
+  const finTotalEl = document.getElementById("trash-fin-total");
+
+  const typeF   = document.getElementById("trash-filter-type")?.value  || "";
+  const dirF    = document.getElementById("trash-filter-dir")?.value   || "";
+  const searchF = (document.getElementById("trash-search")?.value || "").trim().toLowerCase();
+
+  let rows = allDeletedFinTx;
+
+  if (typeF)   rows = rows.filter(t => t.type === typeF);
+  if (dirF)    rows = rows.filter(t => t.dir  === dirF);
+  if (searchF) rows = rows.filter(t => {
+    const party = (t.employeeName || t.merchantName || t.partyName || "").toLowerCase();
+    return (
+      (t.finId     || "").toLowerCase().includes(searchF) ||
+      (t.description || "").toLowerCase().includes(searchF) ||
+      party.includes(searchF)
+    );
+  });
+
+  /* إحصائيات */
+  const total = allDeletedFinTx.reduce((s, t) => s + (Number(t.amount) || 0), 0);
+  if (countEl)    countEl.textContent    = `${allDeletedFinTx.length} حركة محذوفة`;
+  if (finCountEl) finCountEl.textContent = allDeletedFinTx.length;
+  if (finTotalEl) finTotalEl.textContent = fmt(total);
+
+  if (!rows.length) {
+    tbody.innerHTML = `
+      <tr><td colspan="8">
+        <div class="trash-empty">
+          <span class="te-ico">🗑️</span>
+          ${allDeletedFinTx.length === 0
+            ? "سلة المحذوفات فارغة — لا توجد حركات مالية محذوفة"
+            : "لا توجد نتائج تطابق الفلتر المحدد"}
+        </div>
+      </td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = "";
+  rows.forEach(t => {
+    const cfg  = TYPE_LABELS_TRASH[t.type] || { label: t.type || "—", icon: "📝", badge: "tb-other" };
+    const dirLabel = t.dir === "in"
+      ? '<span class="dir-in">↓ داخل</span>'
+      : '<span class="dir-out">↑ خارج</span>';
+    const party = t.type === "advance"
+      ? (t.employeeName || "—")
+      : t.type === "merchant"
+        ? (t.merchantName || t.partyName || "—")
+        : (t.partyName || "—");
+    const deletedAt = fmtDateTime(t.deletedAt);
+
+    const tr = document.createElement("tr");
+    tr.className = "deleted-row";
+    tr.innerHTML = `
+      <td style="font-family:monospace;font-weight:800;font-size:12px">
+        ${esc(t.finId || "—")}
+      </td>
+      <td><span class="type-badge ${cfg.badge}">${cfg.icon} ${esc(cfg.label)}</span></td>
+      <td>${dirLabel}</td>
+      <td style="font-weight:800;font-size:14px;color:${t.dir === "in" ? "#1a6b3a" : "#b3432f"}">${fmt(t.amount)}</td>
+      <td style="white-space:nowrap;font-size:12.5px">${esc(fmtDate(t.date))}</td>
+      <td style="font-size:13px">${esc(party)}</td>
+      <td style="white-space:nowrap;font-size:12px;color:var(--muted)">${deletedAt}</td>
+      <td style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <button class="trash-restore-btn" data-id="${esc(t.id)}" title="استعادة الحركة وإعادتها للنظام">↩️ استعادة</button>
+        <button class="trash-perm-del-btn" data-id="${esc(t.id)}" title="حذف نهائي — لا يمكن التراجع">🗑 حذف نهائي</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+
+  /* ربط أزرار الاستعادة والحذف النهائي */
+  tbody.querySelectorAll(".trash-restore-btn").forEach(btn =>
+    btn.addEventListener("click", () => restoreFinTx(btn.dataset.id, btn))
+  );
+  tbody.querySelectorAll(".trash-perm-del-btn").forEach(btn =>
+    btn.addEventListener("click", () => permanentlyDeleteFinTx(btn.dataset.id, btn))
+  );
+}
+
+function setupTrashFilters() {
+  ["trash-filter-type", "trash-filter-dir", "trash-search"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el._trashListenerAttached) {
+      el.addEventListener("input",  renderTrash);
+      el.addEventListener("change", renderTrash);
+      el._trashListenerAttached = true;
+    }
+  });
+  const resetBtn = document.getElementById("trash-reset-btn");
+  if (resetBtn && !resetBtn._trashListenerAttached) {
+    resetBtn.addEventListener("click", () => {
+      document.getElementById("trash-filter-type").value = "";
+      document.getElementById("trash-filter-dir").value  = "";
+      document.getElementById("trash-search").value      = "";
+      renderTrash();
+    });
+    resetBtn._trashListenerAttached = true;
+  }
+}
+
+/* ── استعادة حركة مالية محذوفة ── */
+async function restoreFinTx(id, btn) {
+  if (!id) return;
+  if (!confirm("هل تريد استعادة هذه الحركة المالية وإعادتها للنظام؟")) return;
+  btn.disabled = true;
+  btn.textContent = "جارِ الاستعادة...";
+  try {
+    await updateDoc(doc(db, "finance_transactions", id), {
+      _active:    true,
+      deletedAt:  deleteField(),
+      restoredAt: serverTimestamp(),
+      restoredBy: currentUser?.email ?? "—",
+    });
+    toast("✅ تمت استعادة الحركة بنجاح");
+    /* تسجيل في سجل المراقبة */
+    await addDoc(collection(db, "auditLog"), {
+      action:    "استعادة",
+      entity:    "حركة مالية",
+      page:      "السجل الشامل",
+      details:   `استعادة حركة محذوفة — المعرف: ${id}`,
+      userEmail: currentUser?.email ?? "—",
+      createdAt: serverTimestamp(),
+    }).catch(err => console.error("auditLog write failed", err));
+    logDlAction("استعادة حركة مالية", `المعرف: ${id}`);
+  } catch (err) {
+    console.error(err);
+    toast("حدث خطأ أثناء الاستعادة", true);
+    btn.disabled = false;
+    btn.textContent = "↩️ استعادة";
+  }
+}
+
+/* ── حذف نهائي للحركة المالية (لا رجعة) ── */
+async function permanentlyDeleteFinTx(id, btn) {
+  if (!id) return;
+  if (!confirm("⚠️ هذا الإجراء نهائي ولا يمكن التراجع عنه!\n\nهل أنت متأكد من حذف هذه الحركة نهائياً من النظام؟")) return;
+  btn.disabled = true;
+  btn.textContent = "جارِ الحذف...";
+  try {
+    const snap = await getDoc(doc(db, "finance_transactions", id));
+    const txData = snap.exists() ? snap.data() : {};
+    await deleteDoc(doc(db, "finance_transactions", id));
+    toast("تم الحذف النهائي للحركة");
+    await addDoc(collection(db, "auditLog"), {
+      action:    "حذف نهائي",
+      entity:    "حركة مالية",
+      page:      "السجل الشامل",
+      details:   `حذف نهائي — ${txData.finId || id} — ${fmt(txData.amount || 0)}`,
+      userEmail: currentUser?.email ?? "—",
+      createdAt: serverTimestamp(),
+    }).catch(err => console.error("auditLog write failed", err));
+    logDlAction("حذف نهائي لحركة مالية", `${txData.finId || id} — ${fmt(txData.amount || 0)}`);
+  } catch (err) {
+    console.error(err);
+    toast("حدث خطأ أثناء الحذف النهائي", true);
+    btn.disabled = false;
+    btn.textContent = "🗑 حذف نهائي";
+  }
 }
 
 async function handleCreateAccount(e) {
