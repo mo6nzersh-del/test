@@ -1860,14 +1860,17 @@ const TYPE_LABELS_TRASH = {
 };
 
 function loadTrash() {
-  /* نستمع بـ onSnapshot لأي تغيير في حالة _active === false */
-  const q = query(
-    collection(db, "finance_transactions"),
-    where("_active", "==", false),
-    orderBy("deletedAt", "desc")
-  );
-  onSnapshot(q, snap => {
-    allDeletedFinTx = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  /* نستمع إلى كل الحركات المالية ونُصفّي المحذوفة (_active===false) من جهة العميل
+     تجنباً للحاجة إلى فهرس مركّب في Firestore */
+  onSnapshot(collection(db, "finance_transactions"), snap => {
+    allDeletedFinTx = snap.docs
+      .map(d => ({ id: d.id, ...d.data() }))
+      .filter(t => t._active === false)
+      .sort((a, b) => {
+        const ta = a.deletedAt?.seconds ?? 0;
+        const tb = b.deletedAt?.seconds ?? 0;
+        return tb - ta; /* الأحدث أولاً */
+      });
     renderTrash();
     setupTrashFilters();
   }, err => {
