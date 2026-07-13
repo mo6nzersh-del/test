@@ -156,18 +156,12 @@
       font-size:13px;
       color:var(--muted);
       max-width:200px;
+      white-space:nowrap;
       overflow:hidden;
-      display:-webkit-box;
-      -webkit-box-orient:vertical;
-      -webkit-line-clamp:2;
-      white-space:normal;
-      word-break:break-word;
+      text-overflow:ellipsis;
     }
     @media(max-width:640px){
-      .dl-desc-cell{
-        max-width:120px;
-        font-size:12px;
-      }
+      .dl-desc-cell{ max-width:110px; font-size:12px }
     }
 
     /* ══ منيو التبويبات للهاتف (مخفي على سطح المكتب) ══ */
