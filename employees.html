@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>الموظفين - أحمد وحمدي</title>
+  <title>الموظفين - Ahmed And hamdy</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="/assets/auth-guard-C6CJ8_8i.css" />
@@ -466,7 +466,7 @@
               <img src="https://i.imgur.com/NsN1HgC.png" class="id-card-hdr-logo" alt="شعار"
                    onerror="this.style.display='none'" />
               <div class="id-card-hdr-brand">
-                <div class="id-card-hdr-name">أحمد وحمدي</div>
+                <div class="id-card-hdr-name">Ahmed And hamdy</div>
                 <div class="id-card-hdr-sub">نظام إدارة الموظفين الداخلي</div>
               </div>
               <div class="id-card-hdr-badge">بطاقة عمل رسمية</div>
@@ -518,7 +518,7 @@
                 <div class="id-card-ftr-bar" style="height:15px"></div>
                 <div class="id-card-ftr-bar" style="height:10px"></div>
               </div>
-              <span class="id-card-ftr-seal">✦ أحمد وحمدي</span>
+              <span class="id-card-ftr-seal">✦ Ahmed And hamdy</span>
             </div>
           </div>
         </div>
@@ -794,7 +794,7 @@ function renderNav(user) {
         <img src="https://i.imgur.com/NsN1HgC.png" alt="logo"
           style="height:30px;object-fit:contain;border-radius:5px;background:#fff;padding:2px 4px"
           onerror="this.style.display='none'" />
-        <span>أحمد وحمدي</span>
+        <span>Ahmed And hamdy</span>
       </div>
       <nav class="nav-tabs">${pages.map(p=>`<a href="/${p.href}" class="${p.href==="employees.html"?"active":""}">${p.label}</a>`).join("")}</nav>
       <div class="user-chip">
@@ -966,9 +966,9 @@ function openTxDetail(t){
   const cfg=_TX_TYPE_CFG[t.type]??FIN_TYPE_CFG[t.type]??{label:t.type||"—",badge:"tb-other"};
   const icon=_TX_ICONS[t.type]??"📝";
   const dirClass=t.dir==="in"?"dir-in":"dir-out";
-  const fD=s=>s?new Date(s+"T00:00:00").toLocaleDateString("ar-EG",{year:"numeric",month:"long",day:"numeric"}):"—";
-  const fM=s=>{ if(!s) return ""; const [y,m]=s.split("-"); return new Date(Number(y),Number(m)-1,1).toLocaleDateString("ar-EG",{month:"long",year:"numeric"}); };
-  const fN=n=>new Intl.NumberFormat("ar-EG",{maximumFractionDigits:2}).format(n||0)+" ج.م";
+  const fD=s=>s?new Date(s+"T00:00:00").toLocaleDateString("ar-EG-u-nu-latn",{year:"numeric",month:"long",day:"numeric"}):"—";
+  const fM=s=>{ if(!s) return ""; const [y,m]=s.split("-"); return new Date(Number(y),Number(m)-1,1).toLocaleDateString("ar-EG-u-nu-latn",{month:"long",year:"numeric"}); };
+  const fN=n=>new Intl.NumberFormat("ar-EG-u-nu-latn",{maximumFractionDigits:2}).format(n||0)+" ج.م";
   const eS=s=>{ const d=document.createElement("div"); d.textContent=s??""; return d.innerHTML; };
   const emp=employees?.find(e=>e.id===t.employeeId);
   const empName=t.employeeName||(emp?.name)||"—";
@@ -980,12 +980,12 @@ function openTxDetail(t){
     `<tr><td class="lbl">الموظف</td><td class="val">${eS(empName)}</td></tr>`,
     t.deductMonth?`<tr><td class="lbl">شهر الخصم</td><td class="val">${eS(fM(t.deductMonth))}</td></tr>`:""
   ];
-  const printDate=new Date().toLocaleDateString("ar-EG",{year:"numeric",month:"long",day:"numeric"});
+  const printDate=new Date().toLocaleDateString("ar-EG-u-nu-latn",{year:"numeric",month:"long",day:"numeric"});
   document.getElementById("tx-detail-content").innerHTML=`
   <div class="emp-screen-only">
     <div class="tx-detail-header">
       <div class="tx-detail-mark">${icon}</div>
-      <div class="tx-detail-company">أحمد وحمدي</div>
+      <div class="tx-detail-company">Ahmed And hamdy</div>
       <div class="tx-detail-subtitle">نظام المحاسبة الداخلي</div>
       <div class="tx-detail-id-row"><span class="tx-detail-id-badge">${eS(t.finId||"—")}</span></div>
       <div style="margin-top:8px"><span class="type-badge ${cfg.badge}">${eS(cfg.label)}</span></div>
@@ -1001,14 +1001,14 @@ function openTxDetail(t){
       <div class="tx-detail-amount-val ${t.dir==="in"?"in":"out"}">${fN(t.amount)}</div>
     </div>
     ${t.description?`<div class="tx-detail-desc-box"><strong>📝 الوصف / الملاحظات</strong>${eS(t.description)}</div>`:""}
-    <div class="tx-detail-footer"><span>رقم الحركة: ${eS(t.finId||"—")}</span><span>نظام أحمد وحمدي © ${new Date().getFullYear()}</span></div>
+    <div class="tx-detail-footer"><span>رقم الحركة: ${eS(t.finId||"—")}</span><span>نظام Ahmed And hamdy © ${new Date().getFullYear()}</span></div>
   </div>
   <div class="doc-page emp-print-only" style="display:none">
-    <div class="doc-watermark">أحمد وحمدي</div>
+    <div class="doc-watermark">Ahmed And hamdy</div>
     <div class="doc-outer-border"><div class="doc-inner-border">
       <div class="doc-top-bar">
         <div class="doc-top-bar-left"><div class="doc-doc-title">سند ${t.dir==="in"?"قبض":"صرف"}</div></div>
-        <div class="doc-top-bar-center"><div class="doc-company-name">أحمد وحمدي</div><div class="doc-company-sub">نظام المحاسبة الداخلي</div></div>
+        <div class="doc-top-bar-center"><div class="doc-company-name">Ahmed And hamdy</div><div class="doc-company-sub">نظام المحاسبة الداخلي</div></div>
         <div><div class="doc-serial-badge">${eS(t.finId||"—")}</div></div>
       </div>
       <div class="doc-body">
@@ -1034,7 +1034,7 @@ function openTxDetail(t){
       </div>
       <div class="doc-bottom-bar">
         <div>تاريخ الطباعة: ${printDate}</div>
-        <div class="doc-bottom-barcode">${eS(t.finId||"—")} — أحمد وحمدي</div>
+        <div class="doc-bottom-barcode">${eS(t.finId||"—")} — Ahmed And hamdy</div>
         <div>هذا المستند صادر من نظام المحاسبة الداخلي</div>
       </div>
     </div></div>
