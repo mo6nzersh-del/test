@@ -438,8 +438,8 @@ function calcBalance(merId){
   // الحركات المباشرة (merchantTransactions)
   const directBal=merchantTxs.filter(t=>t.merchantId===merId)
     .reduce((s,t)=>s+(t.type==="out"?-t.amount:t.amount),0);
-  // دفعات المالية (finance_transactions نوع تاجر)
-  const finBal=finTxs.filter(t=>t.merchantId===merId)
+  // دفعات المالية (finance_transactions نوع تاجر فقط)
+  const finBal=finTxs.filter(t=>t.merchantId===merId&&t.type==="merchant")
     .reduce((s,t)=>s+(t.dir==="in"?t.amount:-t.amount),0);
   return directBal+finBal;
 }
