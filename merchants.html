@@ -27,3 +27,1137 @@
       font-size:12px;padding:4px 8px;border-radius:6px;cursor:pointer}
     .delete-btn:hover{background:var(--danger-soft);color:var(--danger)}
 
+    /* ── بطاقات الإحصائيات ── */
+    .mer-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:20px}
+    .mer-stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;
+      padding:18px 20px;box-shadow:0 2px 8px rgba(0,0,0,.07);transition:transform .12s,box-shadow .12s}
+    .mer-stat:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.11)}
+    .mer-stat .msk{font-size:13px;color:var(--ink);font-weight:700;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+    .mer-stat .msv{font-size:26px;font-weight:900;letter-spacing:-.5px;margin-bottom:4px}
+    .mer-stat .mss{font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.5}
+    .mer-stat.stat-in {background:linear-gradient(135deg,#e8f8ee 0%,#f4fcf7 100%);border-color:#a8dbb7}
+    .mer-stat.stat-out{background:linear-gradient(135deg,#fde8e5 0%,#fff4f2 100%);border-color:#f0b3a8}
+    .mer-stat.stat-net{background:linear-gradient(135deg,#e8f0fb 0%,#f4f8ff 100%);border-color:#a8c2f0}
+
+    /* ── الصناديق الثلاثة قبل/بعد كل حركة (داخل السجل) ── */
+    .tx-row-box3-toggle{border:none;background:transparent;color:var(--muted);
+      font-size:13px;padding:4px 8px;border-radius:6px;cursor:pointer}
+    .tx-row-box3-toggle:hover,.tx-row-box3-toggle.active{background:var(--primary-soft,#eef2fb);color:var(--primary-dark,#2a5bbf)}
+    .tx-row-box3-detail{padding:12px 14px 16px;background:var(--bg);border-bottom:1px solid var(--border)}
+    .tx-row-box3-group{margin-bottom:12px}
+    .tx-row-box3-group:last-child{margin-bottom:0}
+    .tx-row-box3-title{font-size:12.5px;font-weight:800;color:var(--muted);margin-bottom:8px}
+    .tx-row-box3-detail .mer-stat{padding:12px 14px;box-shadow:none}
+    .tx-row-box3-detail .mer-stat .msv{font-size:19px;margin-bottom:0}
+    .tx-row-box3-detail .mer-stat .msk{font-size:11.5px}
+
+    /* ── بادجات المالية ── */
+    .type-badge{display:inline-block;font-size:11px;font-weight:700;border-radius:6px;padding:2px 8px}
+    .tb-advance{background:#e8f0fb;color:#2a5bbf}
+    .tb-withdrawal{background:#fce8e5;color:#b3432f}
+    .tb-deposit{background:#e7f5ec;color:#1a6b3a}
+    .tb-merchant{background:#fdf4e3;color:#7a4f10}
+    .tb-other{background:#f2f2f2;color:#666}
+    .rec-id{font-size:11px;color:var(--muted);font-weight:700;background:var(--bg);
+      border:1px solid var(--border);border-radius:6px;padding:2px 7px;white-space:nowrap;
+      font-family:monospace,Cairo,sans-serif}
+    .rec-id-link{color:var(--primary-dark,#2a5bbf)!important;background:var(--primary-soft,#eef2fb)!important;
+      border-color:var(--primary,#4a7dd4)!important;cursor:pointer;text-decoration:underline;transition:opacity .15s}
+    .rec-id-link:hover{opacity:.7}
+    /* ── نافذة تفاصيل الحركة ── */
+    .tx-detail-box{direction:rtl;font-family:Cairo,sans-serif}
+    .tx-detail-header{text-align:center;border-bottom:3px solid var(--primary);padding-bottom:16px;margin-bottom:18px}
+    .tx-detail-mark{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--primary,#4a7dd4),var(--primary-dark,#2a5bbf));color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px}
+    .tx-detail-company{font-size:17px;font-weight:800;margin-bottom:2px}
+    .tx-detail-subtitle{font-size:12px;color:var(--muted)}
+    .tx-detail-id-row{display:flex;justify-content:center;gap:8px;margin:12px 0 0}
+    .tx-detail-id-badge{font-size:15px;font-weight:800;font-family:monospace;background:var(--primary-soft,#eef2fb);color:var(--primary-dark,#2a5bbf);border:1.5px solid var(--primary,#4a7dd4);border-radius:8px;padding:4px 14px}
+    .tx-detail-meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:var(--bg);border-radius:10px;padding:14px 16px;margin-bottom:16px}
+    .tx-detail-meta-grid .dm-item{display:flex;flex-direction:column;gap:3px}
+    .tx-detail-meta-grid .dm-label{font-size:11px;color:var(--muted);font-weight:700}
+    .tx-detail-meta-grid .dm-val{font-size:14px;font-weight:700;color:var(--ink)}
+    .tx-detail-amount-row{display:flex;justify-content:space-between;align-items:center;border-top:2px solid var(--primary);padding-top:14px;margin-top:4px}
+    .tx-detail-amount-label{font-size:14px;font-weight:800;color:var(--ink)}
+    .tx-detail-amount-val{font-size:22px;font-weight:900}
+    .tx-detail-amount-val.in{color:#1a6b3a}
+    .tx-detail-amount-val.out{color:#b3432f}
+    .tx-detail-desc-box{background:var(--bg);border-radius:8px;padding:10px 14px;margin-top:14px;font-size:13px;color:var(--muted)}
+    .tx-detail-desc-box strong{color:var(--ink);display:block;margin-bottom:4px;font-size:12px}
+    .tx-detail-footer{display:flex;justify-content:space-between;font-size:11px;color:var(--muted);border-top:1px dashed var(--border);padding-top:12px;margin-top:16px}
+    .mer-print-only{display:none!important}
+    @media print{
+      .mer-print-only{display:block!important} .mer-screen-only{display:none!important}
+      body > *{display:none!important}
+      #tx-detail-modal{display:block!important;position:fixed!important;top:0;left:0;right:0;bottom:0;background:#fff!important;padding:0!important;overflow:visible!important}
+      #tx-detail-modal .modal-box{box-shadow:none!important;border:none!important;max-height:none!important;overflow:visible!important;padding:0!important;border-radius:0!important;background:#fff!important;width:100%!important;max-width:100%!important}
+      #tx-detail-modal .modal-box-header,#tx-detail-print-footer{display:none!important}
+      @page{size:A4 portrait;margin:18mm 20mm 22mm 20mm}
+      *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      .doc-watermark{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) rotate(-35deg);font-size:90px;font-weight:900;color:rgba(42,91,191,0.04);pointer-events:none;white-space:nowrap;z-index:0;letter-spacing:8px}
+      .doc-outer-border{border:3px double #1a3a6b;border-radius:4px;position:relative;overflow:hidden}
+      .doc-inner-border{border:1px solid #b8c8e8;margin:6px;border-radius:2px}
+      .doc-top-bar{background:#1a3a6b;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;color:#fff}
+      .doc-top-bar-left{text-align:left} .doc-top-bar-center{text-align:center;flex:1;padding:0 16px}
+      .doc-company-name{font-size:20px;font-weight:900;letter-spacing:1px;margin-bottom:2px}
+      .doc-company-sub{font-size:10px;opacity:.8}
+      .doc-doc-title{font-size:12px;font-weight:700;border:1.5px solid rgba(255,255,255,.5);border-radius:4px;padding:4px 12px;white-space:nowrap;opacity:.92}
+      .doc-serial-badge{font-size:15px;font-weight:900;font-family:monospace;background:rgba(255,255,255,.15);border:1.5px solid rgba(255,255,255,.4);border-radius:5px;padding:4px 12px;letter-spacing:1px}
+      .doc-body{padding:18px 22px}
+      .doc-type-ribbon{display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:18px;padding:10px;background:#f4f7ff;border:1px solid #c8d8f4;border-radius:4px}
+      .doc-type-icon{font-size:22px} .doc-type-name{font-size:14px;font-weight:800;color:#1a3a6b;letter-spacing:.5px}
+      .doc-type-dir{font-size:12px;font-weight:700;border-radius:99px;padding:2px 12px}
+      .doc-type-dir.in{background:#e1f5e8;color:#1a6b3a;border:1px solid #a3d8b5}
+      .doc-type-dir.out{background:#fde8e5;color:#8b2010;border:1px solid #f0b8b0}
+      .doc-info-table{width:100%;border-collapse:collapse;margin-bottom:16px}
+      .doc-info-table td{padding:7px 12px;font-size:12px;border:1px solid #d4ddf0;vertical-align:top}
+      .doc-info-table .lbl{background:#f0f4fa;color:#3a5080;font-weight:700;width:30%;white-space:nowrap}
+      .doc-info-table .val{color:#111;font-weight:600}
+      .doc-amount-section{background:#f4f7ff;border:2px solid #1a3a6b;border-radius:4px;padding:14px 18px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between}
+      .doc-amount-label{font-size:12px;font-weight:800;color:#1a3a6b}
+      .doc-amount-number{font-size:26px;font-weight:900}
+      .doc-amount-number.in{color:#1a6b3a} .doc-amount-number.out{color:#8b2010}
+      .doc-amount-words{font-size:11px;color:#555;margin-top:3px;font-style:italic}
+      .doc-desc-section{border:1px solid #d4ddf0;border-radius:3px;padding:10px 14px;margin-bottom:18px;background:#fafbff}
+      .doc-desc-section .doc-desc-lbl{font-size:10.5px;font-weight:700;color:#5a6a8a;margin-bottom:4px}
+      .doc-desc-section .doc-desc-val{font-size:12.5px;color:#222;line-height:1.6}
+      .doc-sigs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:20px}
+      .doc-sig-box{text-align:center}
+      .doc-sig-box .sig-label{font-size:10px;font-weight:700;color:#3a5080;margin-bottom:28px}
+      .doc-sig-box .sig-line{border-top:1.5px solid #1a3a6b;margin:0 8px;margin-bottom:4px}
+      .doc-sig-box .sig-name{font-size:9.5px;color:#888}
+      .doc-bottom-bar{background:#f0f4fa;border-top:2px solid #1a3a6b;padding:8px 22px;display:flex;justify-content:space-between;align-items:center;font-size:9.5px;color:#5a6a8a}
+      .doc-bottom-barcode{font-family:monospace;font-size:9px;background:#e4eaf6;border-radius:3px;padding:2px 8px;border:1px solid #c8d0e4;letter-spacing:1px}
+    }
+
+    /* ── روابط الأسماء القابلة للنقر ── */
+    .link-cell{cursor:pointer;color:var(--primary-dark,#2a5bbf);font-weight:700}
+    .link-cell:hover{text-decoration:underline}
+
+    /* ── فلتر بار ── */
+    .filter-bar{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+    .filter-bar .field{margin:0}
+
+    /* ── toggle group ── */
+    .toggle-group{display:flex;gap:0;border:1.5px solid var(--border);border-radius:8px;overflow:hidden}
+    .toggle-group button{flex:1;border:none;background:var(--surface);padding:8px 18px;
+      font-family:inherit;font-size:13.5px;font-weight:700;color:var(--muted);cursor:pointer;
+      transition:background .12s,color .12s}
+    .toggle-group button.active.in {background:#e7f5ec;color:#1a6b3a}
+    .toggle-group button.active.out{background:#fce8e5;color:#b3432f}
+
+    @media print{
+      *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+      #topbar,.page-header,.section-tabs,.back-link,.filter-bar,
+      .btn,.row-actions,.modal-overlay{display:none!important}
+      body{background:#fff!important}
+      .page{max-width:100%!important;padding:10px 20px!important;margin:0!important}
+      .panel{box-shadow:none!important;border:1.5px solid #ccc!important;
+        margin-bottom:14px!important;page-break-inside:avoid}
+      .record-row{border:1px solid #eee!important;margin-bottom:4px;border-radius:6px}
+      .delete-btn{display:none!important}
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+  <header id="topbar" class="topbar"></header>
+  <main class="page">
+
+    <!-- ═══════ قائمة التجار ═══════ -->
+    <div id="list-section">
+      <div class="page-header">
+        <div>
+          <h2>التجار</h2>
+          <p>إدارة قائمة التجار وسجلات الحساب والدفعات المالية</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <h3>التجار</h3>
+          <button type="button" class="btn small" id="add-merchant-btn">+ إضافة تاجر</button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr>
+              <th>الاسم</th><th>الهاتف</th><th>البريد الإلكتروني</th>
+              <th>الرصيد الإجمالي</th><th></th>
+            </tr></thead>
+            <tbody id="merchants-tbody">
+              <tr><td colspan="5"><div class="empty-state">جارِ التحميل...</div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ تفاصيل التاجر ═══════ -->
+    <div id="detail-section" style="display:none">
+      <span class="back-link" id="back-btn">→ العودة إلى قائمة التجار</span>
+
+      <div class="detail-header">
+        <img class="detail-avatar" id="detail-avatar" src="" alt="" style="display:none" />
+        <div class="detail-info">
+          <h2 id="detail-name">—</h2>
+          <p id="detail-address" style="color:var(--muted);font-size:13px;margin:2px 0 0"></p>
+        </div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-chip"><div class="k">الهاتف</div><div class="v" id="detail-phone">—</div></div>
+        <div class="info-chip"><div class="k">البريد</div><div class="v" id="detail-email">—</div></div>
+        <div class="info-chip">
+          <div class="k">📥 المبلغ المستحق على التاجر</div>
+          <div class="v" id="detail-balance">—</div>
+        </div>
+      </div>
+
+      <!-- ── إحصائيات الحساب ── -->
+      <div class="mer-stats" id="mer-unified-stats"></div>
+
+      <!-- ── كشف الحساب الموحد ── -->
+      <div class="panel print-target">
+        <div class="panel-header">
+          <h3>كشف الحساب الموحد</h3>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <button type="button" id="add-fin-tx-btn"
+              style="display:inline-flex;align-items:center;gap:7px;background:#1a6b3a;color:#fff;
+                     border:none;border-radius:8px;padding:9px 18px;font-size:14px;font-weight:800;
+                     font-family:inherit;cursor:pointer;box-shadow:0 2px 8px rgba(26,107,58,.3);
+                     transition:background .15s,transform .1s"
+              onmouseover="this.style.background='#145c30'"
+              onmouseout="this.style.background='#1a6b3a'">
+              💳 تسجيل دفعة مالية
+            </button>
+            <button type="button" class="btn small outline" id="export-csv-btn">📥 CSV</button>
+            <button type="button" class="btn small outline" onclick="window.print()">🖨️ طباعة</button>
+          </div>
+        </div>
+        <div class="filter-bar" style="padding:0 20px 14px">
+          <div class="field">
+            <label for="filter-from">من تاريخ</label>
+            <input type="date" id="filter-from" />
+          </div>
+          <div class="field">
+            <label for="filter-to">إلى تاريخ</label>
+            <input type="date" id="filter-to" />
+          </div>
+          <button type="button" class="btn small outline" id="filter-apply-btn">تصفية</button>
+          <button type="button" class="btn small outline" id="filter-clear-btn">مسح الفلتر</button>
+        </div>
+        <div class="records-list" id="unified-list">
+          <div class="empty-state">جارِ التحميل...</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- ═══════ نافذة إضافة دفعة مالية للتاجر ═══════ -->
+<div class="modal-overlay" id="fin-tx-modal">
+  <div class="modal-box" style="max-width:440px">
+    <div class="modal-box-header">
+      <h3 id="fin-tx-modal-title">إضافة دفعة مالية</h3>
+      <button type="button" class="modal-close" id="fin-tx-modal-close">&times;</button>
+    </div>
+    <form id="fin-tx-form">
+      <div class="field">
+        <label>نوع الحركة *</label>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;
+            background:#e8f8ee;border:2px solid #a8dbb7;border-radius:8px;padding:10px 14px;
+            font-size:14px;font-weight:700;color:#1a6b3a;transition:border-color .12s">
+            <input type="radio" name="fin_dir" value="out" id="fin-dir-in" checked />
+            💳 التاجر دفع نقداً — تسديد مستحقات (يُقلّل دينه)
+          </label>
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;
+            background:#fdf0ee;border:2px solid #f0b8b0;border-radius:8px;padding:10px 14px;
+            font-size:14px;font-weight:700;color:#b3432f;transition:border-color .12s">
+            <input type="radio" name="fin_dir" value="in" id="fin-dir-out" />
+            ➕ إضافة مبلغ على حساب التاجر (يزيد دينه)
+          </label>
+        </div>
+      </div>
+      <div class="field" style="margin-top:2px">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-weight:700;font-size:13.5px">
+          <input type="checkbox" id="fin-affect-cash" checked />
+          💰 هذه الحركة نقدية فعلياً (دخلت/خرجت من صندوق الكاش)
+        </label>
+        <p style="font-size:11.5px;color:var(--muted);margin:4px 0 0">
+          فعّلها إذا استلمت أو دفعت نقداً حقيقياً. عطّلها إذا كانت تسوية دين فقط بدون نقد (مثل خصم أو تنازل).
+        </p>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="field">
+          <label for="fin-tx-amount">المبلغ (ج.م) *</label>
+          <input type="number" id="fin-tx-amount" min="0.01" step="0.01" placeholder="0.00" required />
+        </div>
+        <div class="field">
+          <label for="fin-tx-date">التاريخ *</label>
+          <input type="date" id="fin-tx-date" required />
+        </div>
+      </div>
+      <div class="field">
+        <label for="fin-tx-desc">الوصف / الملاحظات</label>
+        <textarea id="fin-tx-desc" rows="2" placeholder="مثال: دفعة أولى، سداد جزئي..."
+          style="resize:vertical;min-height:52px"></textarea>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button type="submit" class="btn" id="fin-tx-save-btn">حفظ الدفعة</button>
+        <button type="button" class="btn outline" id="fin-tx-cancel-btn">إلغاء</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════ نافذة إضافة / تعديل تاجر ═══════ -->
+<div class="modal-overlay" id="merchant-modal">
+  <div class="modal-box">
+    <div class="modal-box-header">
+      <h3 id="merchant-modal-title">إضافة تاجر</h3>
+      <button type="button" class="modal-close" id="merchant-modal-close">&times;</button>
+    </div>
+    <form id="merchant-form">
+      <input type="hidden" id="merchant-id" />
+      <div class="field">
+        <label for="merchant-name">اسم التاجر *</label>
+        <input type="text" id="merchant-name" required placeholder="مثال: محمد علي" />
+      </div>
+      <div class="field">
+        <label for="merchant-address">العنوان</label>
+        <input type="text" id="merchant-address" placeholder="مثال: القاهرة - مدينة نصر" />
+      </div>
+      <div class="field">
+        <label for="merchant-phone">رقم الهاتف</label>
+        <input type="text" id="merchant-phone" placeholder="مثال: 01012345678" />
+      </div>
+      <div class="field">
+        <label for="merchant-email">البريد الإلكتروني</label>
+        <input type="email" id="merchant-email" placeholder="مثال: name@example.com" />
+      </div>
+      <button type="submit" class="btn" id="merchant-submit-btn">حفظ التاجر</button>
+    </form>
+  </div>
+</div>
+
+<!-- ═══════ نافذة تفاصيل الحركة المالية ═══════ -->
+<div class="modal-overlay" id="tx-detail-modal">
+  <div class="modal-box" style="max-width:500px">
+    <div class="modal-box-header">
+      <h3>تفاصيل الحركة المالية</h3>
+      <button type="button" class="modal-close" id="tx-detail-close">&times;</button>
+    </div>
+    <div id="tx-detail-content" class="tx-detail-box"></div>
+    <div style="display:flex;gap:10px;margin-top:16px" id="tx-detail-print-footer">
+      <button type="button" class="btn" id="tx-detail-print-btn">🖨️ طباعة</button>
+      <button type="button" class="btn outline" id="tx-detail-close2">إغلاق</button>
+    </div>
+    <div id="tx-detail-balance-box" style="display:none;margin-top:14px"></div>
+  </div>
+</div>
+
+<!-- ═══════ Firebase ═══════ -->
+<script type="module">
+import { initializeApp }   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, onAuthStateChanged, signOut }
+                            from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {
+  getFirestore, collection, doc,
+  addDoc, updateDoc, deleteDoc,
+  query, where, orderBy, onSnapshot,
+  serverTimestamp, runTransaction, writeBatch
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const app = initializeApp({
+  apiKey:            "AIzaSyDQsaNVskKiV2cwPVlJDixpTD1S-Dhp7gs",
+  authDomain:        "reta-and-hamd.firebaseapp.com",
+  projectId:         "reta-and-hamd",
+  storageBucket:     "reta-and-hamd.firebasestorage.app",
+  messagingSenderId: "220767743863",
+  appId:             "1:220767743863:web:2ecd37bd5830a39ec1bb72"
+});
+const auth = getAuth(app);
+const db   = getFirestore(app);
+
+onAuthStateChanged(auth, user => {
+  if (!user) { window.location.href = "/"; return; }
+  renderNav(user);
+  init();
+});
+
+function renderNav(user){
+  const pages=[
+    {href:"dashboard.html",label:"الرئيسية"},
+    {href:"products.html", label:"المنتجات"},
+    {href:"merchants.html",label:"التجار"},
+    {href:"employees.html",label:"الموظفين"},
+    {href:"finance.html",  label:"المالية"},
+  ];
+  document.getElementById("topbar").innerHTML=`
+    <div class="topbar-inner">
+      <div class="brand"><span class="mark">أ</span><span>أحمد وحمدي</span></div>
+      <nav class="nav-tabs">${pages.map(p=>`<a href="/${p.href}" class="${p.href==="merchants.html"?"active":""}">${p.label}</a>`).join("")}</nav>
+      <div class="user-chip">
+        <span>${user.email??""}</span>
+        <button class="icon-btn" id="logout-btn">خروج</button>
+      </div>
+    </div>`;
+  document.getElementById("logout-btn").addEventListener("click",()=>signOut(auth).then(()=>location.href="/"));
+}
+
+/* ── حالة ── */
+let merchants      = [];
+let merchantTxs    = [];   // merchantTransactions (النظام الأصلي)
+let finTxs         = [];   // finance_transactions (الجديد)
+let activityOpMap  = {};   // opId → OP-XXXXX من سجل المنتجات
+let currentMerId   = null;
+let editMerId      = null;
+let txDir          = "in";
+let merFinUnsub    = null;
+
+/* ── أدوات ── */
+const esc = t => { const d=document.createElement("div"); d.textContent=t??""; return d.innerHTML; };
+const fmt = n => new Intl.NumberFormat("ar-EG",{maximumFractionDigits:2}).format(n||0)+" ج.م";
+const fmtDate = s => s ? new Date(s+"T00:00:00").toLocaleDateString("ar-EG",
+  {year:"numeric",month:"long",day:"numeric"}) : "—";
+const fmtTs = ts => {
+  if(!ts) return "—";
+  const d=ts.toDate?.()??new Date(ts);
+  return d.toLocaleDateString("ar-EG",{year:"numeric",month:"long",day:"numeric"});
+};
+
+function toast(msg,err=false){
+  let t=document.getElementById("toast");
+  if(!t){ t=document.createElement("div"); t.id="toast"; t.className="toast"; document.body.appendChild(t); }
+  t.textContent=msg;
+  t.className=`toast show${err?" error-toast":""}`;
+  clearTimeout(t._timer);
+  t._timer=setTimeout(()=>{ t.className="toast"; },2600);
+}
+
+function calcBalance(merId){
+  // الحركات المباشرة (merchantTransactions)
+  const directBal=merchantTxs.filter(t=>t.merchantId===merId)
+    .reduce((s,t)=>s+(t.type==="out"?-t.amount:t.amount),0);
+  // دفعات المالية (finance_transactions نوع تاجر)
+  const finBal=finTxs.filter(t=>t.merchantId===merId)
+    .reduce((s,t)=>s+(t.dir==="in"?t.amount:-t.amount),0);
+  return directBal+finBal;
+}
+
+/* ── تn�يئة ── */
+let pendingOpenId=new URLSearchParams(window.location.search).get("id");
+function init(){
+  setupMerchantModal();
+  setupDetail();
+  loadMerchants();
+  loadAllMerchantTxs();
+  loadFinTxs();
+  loadActivityOpMap();
+  // نافذة التفاصيل — مستقلة عن تحميل البيانات
+  try{ setupDetailModal(); }catch(e){ console.warn("setupDetailModal:",e); }
+}
+
+/* ── نافذة تفاصيل الحركة ── */
+function setupDetailModal(){
+  const modal=document.getElementById("tx-detail-modal"); if(!modal) return;
+  document.getElementById("tx-detail-close").addEventListener("click",()=>modal.classList.remove("open"));
+  document.getElementById("tx-detail-close2").addEventListener("click",()=>modal.classList.remove("open"));
+  document.getElementById("tx-detail-print-btn").addEventListener("click",()=>window.print());
+  modal.addEventListener("click",e=>{ if(e.target===modal) modal.classList.remove("open"); });
+}
+
+const _TX_TYPE_CFG={
+  advance:   {label:"سلفة موظف",       badge:"tb-advance"},
+  withdrawal:{label:"سحب من الصندوق", badge:"tb-withdrawal"},
+  deposit:   {label:"إيداع في الصندوق",badge:"tb-deposit"},
+  merchant:  {label:"دفعة تاجر",       badge:"tb-merchant"},
+  other:     {label:"عملية أخرى",      badge:"tb-other"},
+};
+const _TX_ICONS={advance:"👤",withdrawal:"📤",deposit:"📥",merchant:"🤝",other:"📝"};
+
+function amountInWords(n){
+  if(!n||isNaN(n)) return "صفر";
+  const whole=Math.floor(n); const cents=Math.round((n-whole)*100);
+  const ones=["","واحد","اثنان","ثلاثة","أربعة","خمسة","ستة","سبعة","ثمانية","تسعة","عشرة","أحد عشر","اثنا عشر","ثلاثة عشر","أربعة عشر","خمسة عشر","ستة عشر","سبعة عشر","ثمانية عشر","تسعة عشر"];
+  const tens=["","","عشرون","ثلاثون","أربعون","خمسون","ستون","سبعون","ثمانون","تسعون"];
+  const bH=v=>{ if(v<20) return ones[v]; const t=tens[Math.floor(v/10)],o=ones[v%10]; return o?o+" و"+t:t; };
+  const bT=v=>{ if(v<100) return bH(v); const h=Math.floor(v/100),r=v%100; const hW=h===1?"مئة":h===2?"مئتان":ones[h]+" مئة"; return r?hW+" و"+bH(r):hW; };
+  const cv=v=>{ if(v===0) return "صفر"; if(v<1000) return bT(v); if(v<1000000){ const th=Math.floor(v/1000),r=v%1000; const tW=th===1?"ألف":th===2?"ألفان":th<11?bT(th)+" آلاف":bT(th)+" ألف"; return r?tW+" و"+bT(r):tW; } const m=Math.floor(v/1000000),r=v%1000000; const mW=m===1?"مليون":m===2?"مليونان":bT(m)+" مليون"; return r?mW+" و"+cv(r):mW; };
+  let res=cv(whole)+" جنيه"; if(cents>0) res+=" و"+bH(cents)+" قرش"; return res;
+}
+
+/* ── حساب رصيد التاجر قبل وبعد حركة مالية معيّنة (لعرضه في المعاينة/الطباعة) ── */
+function calcMerchantBalanceBeforeAfter(tx){
+  const merId=tx.merchantId; if(!merId) return null;
+  const direct=merchantTxs.filter(x=>x.merchantId===merId).map(x=>({
+    id:x.id, dateSecs:_toSecs(x), dir:x.type, amount:x.amount||0,
+  }));
+  const fin=finTxs.filter(x=>x.merchantId===merId).map(x=>({
+    id:x.id, dateSecs:x.date?new Date(x.date+"T00:00:00").getTime()/1000:0, dir:x.dir, amount:x.amount||0,
+  }));
+  const sorted=[...direct,...fin].sort((a,b)=>a.dateSecs-b.dateSecs);
+  let running=0, before=0, after=0, found=false;
+  sorted.forEach(r=>{
+    if(!found && r.id===tx.id){
+      before=running;
+      running+=(r.dir==="in"?1:-1)*r.amount;
+      after=running;
+      found=true;
+    } else {
+      running+=(r.dir==="in"?1:-1)*r.amount;
+    }
+  });
+  if(!found){ after=running; before=running-((tx.dir==="in"?1:-1)*(tx.amount||0)); }
+  return {before, after};
+}
+
+function renderTxBalanceBox(tx){
+  const box=document.getElementById("tx-detail-balance-box"); if(!box) return;
+  const balCtx=tx.type==="merchant"?calcMerchantBalanceBeforeAfter(tx):null;
+  if(!balCtx){ box.style.display="none"; box.innerHTML=""; return; }
+  const fN=n=>new Intl.NumberFormat("ar-EG",{maximumFractionDigits:2}).format(n||0)+" ج.م";
+  const card=(icon,label,val,cls)=>`
+    <div class="mer-stat ${cls}" style="width:100%">
+      <div class="msk">${icon} ${label}</div>
+      <div class="msv" style="color:${val>=0?"#b3432f":"#1a6b3a"}">${fN(Math.abs(val))}</div>
+      <div class="mss">
+        <strong style="color:${val>=0?"#b3432f":"#1a6b3a"}">${val>=0?"⚠️ التاجر مدين بهذا المبلغ":"✅ رصيد دائن — التاجر دفع أكثر"}</strong>
+      </div>
+    </div>`;
+  box.style.display="flex";
+  box.style.flexDirection="column";
+  box.style.gap="12px";
+  box.innerHTML=`
+    ${card("⬆️","الرصيد قبل الحركة",balCtx.before,"stat-out")}
+    ${card("⬇️","الرصيد بعد الحركة",balCtx.after,"stat-in")}`;
+}
+
+function openTxDetail(t){
+  if(!t) return;
+  const cfg=_TX_TYPE_CFG[t.type]??{label:t.type||"—",badge:"tb-other"};
+  const icon=_TX_ICONS[t.type]??"📝";
+  const dirClass=t.dir==="in"?"dir-in":"dir-out";
+  const fD=s=>s?new Date(s+"T00:00:00").toLocaleDateString("ar-EG",{year:"numeric",month:"long",day:"numeric"}):"—";
+  const fM=s=>{ if(!s) return ""; const [y,m]=s.split("-"); return new Date(Number(y),Number(m)-1,1).toLocaleDateString("ar-EG",{month:"long",year:"numeric"}); };
+  const fN=n=>new Intl.NumberFormat("ar-EG",{maximumFractionDigits:2}).format(n||0)+" ج.م";
+  const eS=s=>{ const d=document.createElement("div"); d.textContent=s??""; return d.innerHTML; };
+  const party=t.type==="advance"?(t.employeeName||"—"):t.type==="merchant"?(t.merchantName||t.partyName||"—"):(t.partyName||"—");
+  const infoRows=[
+    `<tr><td class="lbl">رقم الحركة</td><td class="val" style="font-family:monospace;font-weight:800;font-size:13px">${eS(t.finId||"—")}</td></tr>`,
+    `<tr><td class="lbl">التاريخ</td><td class="val">${eS(fD(t.date))}</td></tr>`,
+    `<tr><td class="lbl">نوع العملية</td><td class="val">${eS(cfg.label)}</td></tr>`,
+    t.type==="merchant"
+      ? `<tr><td class="lbl">نوع الحركة</td><td class="val ${dirClass}">${t.dir==="out"?"تسديد مستحقات (تقليل الدين) ↓":"زيادة دين على التاجر ↑"}</td></tr>`
+      : `<tr><td class="lbl">اتجاه العملية</td><td class="val ${dirClass}">${t.dir==="in"?"إيداع في الصندوق ↓":"سحب من الصندوق ↑"}</td></tr>`,
+    t.type==="merchant"?`<tr><td class="lbl">التاجر</td><td class="val">${eS(party)}</td></tr>`:
+    t.type==="advance"?`<tr><td class="lbl">الموظف</td><td class="val">${eS(party)}</td></tr>${t.deductMonth?`<tr><td class="lbl">شهر الخصم</td><td class="val">${eS(fM(t.deductMonth))}</td></tr>`:""}`:
+    t.partyName?`<tr><td class="lbl">الجهة</td><td class="val">${eS(party)}</td></tr>`:"",
+    t.sourcePage?`<tr><td class="lbl">أُضيفت من صفحة</td><td class="val">${eS(t.sourcePage)}</td></tr>`:""
+  ];
+  let partyRow="";
+  if(t.type==="advance") partyRow=`<div class="dm-item"><div class="dm-label">الموظف</div><div class="dm-val">${eS(party)}</div></div>${t.deductMonth?`<div class="dm-item"><div class="dm-label">شهر الخصم</div><div class="dm-val">${eS(fM(t.deductMonth))}</div></div>`:""}`;
+  else if(t.type==="merchant") partyRow=`<div class="dm-item"><div class="dm-label">التاجر</div><div class="dm-val">${eS(party)}</div></div>`;
+  else if(t.partyName) partyRow=`<div class="dm-item"><div class="dm-label">الجهة</div><div class="dm-val">${eS(party)}</div></div>`;
+  if(t.sourcePage) partyRow+=`<div class="dm-item"><div class="dm-label">أُضيفت من صفحة</div><div class="dm-val">${eS(t.sourcePage)}</div></div>`;
+  const printDate=new Date().toLocaleDateString("ar-EG",{year:"numeric",month:"long",day:"numeric"});
+  document.getElementById("tx-detail-content").innerHTML=`
+  <div class="mer-screen-only">
+    <div class="tx-detail-header">
+      <div class="tx-detail-mark">${icon}</div>
+      <div class="tx-detail-company">أحمد وحمدي</div>
+      <div class="tx-detail-subtitle">نظام المحاسبة الداخلي</div>
+      <div class="tx-detail-id-row"><span class="tx-detail-id-badge">${eS(t.finId||"—")}</span></div>
+      <div style="margin-top:8px"><span class="type-badge ${cfg.badge}">${eS(cfg.label)}</span></div>
+    </div>
+    <div class="tx-detail-meta-grid">
+      <div class="dm-item"><div class="dm-label">التاريخ</div><div class="dm-val">${eS(fD(t.date))}</div></div>
+      <div class="dm-item"><div class="dm-label">${t.type==="merchant"?"نوع الحركة":"الاتجاه"}</div><div class="dm-val ${dirClass}">${t.type==="merchant"?(t.dir==="out"?"← تسديد مستحقات":"← زيادة دين"):(t.dir==="in"?"← إيداع":"← سحب")}</div></div>
+      ${partyRow}
+    </div>
+    <div class="tx-detail-amount-row">
+      <div class="tx-detail-amount-label">المبلغ الإجمالي</div>
+      <div class="tx-detail-amount-val ${t.dir==="in"?"in":"out"}">${fN(t.amount)}</div>
+    </div>
+    ${t.description?`<div class="tx-detail-desc-box"><strong>📝 الوصف / الملاحظات</strong>${eS(t.description)}</div>`:""}
+    <div class="tx-detail-footer"><span>رقم الحركة: ${eS(t.finId||"—")}</span><span>نظام أحمد وحمدي © ${new Date().getFullYear()}</span></div>
+  </div>
+  <div class="doc-page mer-print-only" style="display:none">
+    <div class="doc-watermark">أحمد وحمدي</div>
+    <div class="doc-outer-border"><div class="doc-inner-border">
+      <div class="doc-top-bar">
+        <div class="doc-top-bar-left"><div class="doc-doc-title">سند ${t.dir==="in"?"قبض":"صرف"}</div></div>
+        <div class="doc-top-bar-center"><div class="doc-company-name">أحمد وحمدي</div><div class="doc-company-sub">نظام المحاسبة الداخلي</div></div>
+        <div><div class="doc-serial-badge">${eS(t.finId||"—")}</div></div>
+      </div>
+      <div class="doc-body">
+        <div class="doc-type-ribbon">
+          <span class="doc-type-icon">${icon}</span>
+          <span class="doc-type-name">${eS(cfg.label)}</span>
+          <span class="doc-type-dir ${t.dir==="in"?"in":"out"}">${t.dir==="in"?"إيداع في الصندوق ↓":"سحب من الصندوق ↑"}</span>
+        </div>
+        <table class="doc-info-table">${infoRows.join("")}</table>
+        <div class="doc-amount-section">
+          <div>
+            <div class="doc-amount-label">إجمالي مبلغ ${t.dir==="in"?"الإيداع":"السحب"}</div>
+            <div class="doc-amount-words">فقط ${amountInWords(t.amount)} لا غير</div>
+          </div>
+          <div class="doc-amount-number ${t.dir==="in"?"in":"out"}">${fN(t.amount)}</div>
+        </div>
+        ${t.description?`<div class="doc-desc-section"><div class="doc-desc-lbl">البيان / الملاحظات</div><div class="doc-desc-val">${eS(t.description)}</div></div>`:""}
+        <div class="doc-sigs">
+          <div class="doc-sig-box"><div class="sig-label">المحاسب / المُعِدّ</div><div class="sig-line"></div><div class="sig-name">الاسم والتوقيع</div></div>
+          <div class="doc-sig-box"><div class="sig-label">${t.type==="merchant"?"التاجر / المستلم":t.type==="advance"?"الموظف / المستلم":"الجهة المعنية"}</div><div class="sig-line"></div><div class="sig-name">${eS(party!=="—"?party:"الاسم والتوقيع")}</div></div>
+          <div class="doc-sig-box"><div class="sig-label">المدير المفوّض</div><div class="sig-line"></div><div class="sig-name">الاسم والتوقيع والختم</div></div>
+        </div>
+      </div>
+      <div class="doc-bottom-bar">
+        <div>تاريخ الطباعة: ${printDate}</div>
+        <div class="doc-bottom-barcode">${eS(t.finId||"—")} — أحمد وحمدي</div>
+        <div>هذا المستند صادر من نظام المحاسبة الداخلي</div>
+      </div>
+    </div></div>
+  </div>`;
+  renderTxBalanceBox(t);
+  document.getElementById("tx-detail-modal").classList.add("open");
+}
+
+/* ── نافذة التاجر ── */
+function setupMerchantModal(){
+  const modal=document.getElementById("merchant-modal");
+  document.getElementById("add-merchant-btn").addEventListener("click",()=>openMerModal(null));
+  document.getElementById("merchant-modal-close").addEventListener("click",closeMerModal);
+  modal.addEventListener("click",e=>{ if(e.target===modal) closeMerModal(); });
+  document.getElementById("merchant-form").addEventListener("submit",saveMerchant);
+}
+function openMerModal(mer){
+  document.getElementById("merchant-form").reset();
+  if(mer){
+    editMerId=mer.id;
+    document.getElementById("merchant-modal-title").textContent="تعديل التاجر";
+    document.getElementById("merchant-name").value   =mer.name??"";
+    document.getElementById("merchant-address").value=mer.address??"";
+    document.getElementById("merchant-phone").value  =mer.phone??"";
+    document.getElementById("merchant-email").value  =mer.email??"";
+  } else {
+    editMerId=null;
+    document.getElementById("merchant-modal-title").textContent="إضافة تاجر";
+  }
+  document.getElementById("merchant-modal").classList.add("open");
+}
+function closeMerModal(){ document.getElementById("merchant-modal").classList.remove("open"); editMerId=null; }
+
+/* ── سجل المراقبة الشامل ── */
+async function writeAuditLog(action, entity, details) {
+  try {
+    await addDoc(collection(db,"auditLog"),{
+      action, entity, page:"التجار", details,
+      userEmail: auth.currentUser?.email || "—",
+      createdAt: serverTimestamp(),
+    });
+  } catch(err){ console.error("auditLog write failed",err); }
+}
+
+async function saveMerchant(e){
+  e.preventDefault();
+  const name=document.getElementById("merchant-name").value.trim(); if(!name) return;
+  const btn=document.getElementById("merchant-submit-btn");
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
+  try{
+    const data={
+      name,
+      address:document.getElementById("merchant-address").value.trim(),
+      phone:  document.getElementById("merchant-phone").value.trim(),
+      email:  document.getElementById("merchant-email").value.trim(),
+    };
+    if(editMerId){
+      await updateDoc(doc(db,"merchants",editMerId),data); toast("تم تحديث التاجر");
+      writeAuditLog("تعديل","تاجر",`${name}${data.phone?" — "+data.phone:""}`);
+    } else {
+      await addDoc(collection(db,"merchants"),{...data,createdAt:serverTimestamp()}); toast("تمت إضافة التاجر");
+      writeAuditLog("إضافة","تاجر",`${name}${data.phone?" — "+data.phone:""}`);
+    }
+    closeMerModal();
+  }catch(err){ console.error(err); toast("خطأ أثناء الحفظ",true); }
+  finally{ btn.disabled=false; btn.textContent="حفظ التاجر"; }
+}
+
+/* ── تحميل البيانات ── */
+function loadMerchants(){
+  onSnapshot(collection(db,"merchants"),snap=>{
+    merchants=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderList();
+    if(currentMerId) fillHeader();
+    if(pendingOpenId){
+      const id=pendingOpenId; pendingOpenId=null;
+      if(merchants.some(m=>m.id===id)) openDetail(id);
+    }
+  },err=>{ console.error(err); });
+}
+
+function loadAllMerchantTxs(){
+  const q=query(collection(db,"merchantTransactions"),orderBy("createdAt","desc"));
+  onSnapshot(q,snap=>{
+    merchantTxs=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderList();
+    if(currentMerId){ fillHeader(); refreshLedger(); }
+  },err=>{ console.error(err); });
+}
+
+function loadFinTxs(){
+  const q=query(collection(db,"finance_transactions"),where("type","==","merchant"));
+  onSnapshot(q,snap=>{
+    finTxs=snap.docs.map(d=>({id:d.id,...d.data()})).filter(t=>t._active!==false);
+    renderList();
+    if(currentMerId){ fillHeader(); refreshLedger(); }
+  },err=>{ console.error(err); });
+}
+
+function loadActivityOpMap(){
+  const q=query(collection(db,"activityLog"),orderBy("createdAt","desc"));
+  onSnapshot(q,snap=>{
+    activityOpMap={};
+    const total=snap.size;
+    let rowNum=total;
+    snap.forEach(d=>{
+      const data=d.data();
+      if(data.opId){
+        activityOpMap[data.opId]=`OP-${String(rowNum).padStart(5,"0")}`;
+      }
+      rowNum--;
+    });
+    if(currentMerId) refreshLedger();
+  },err=>{ console.error(err); });
+}
+
+/* ── قائمة التجار ── */
+function renderList(){
+  const tbody=document.getElementById("merchants-tbody");
+  if(!merchants.length){
+    tbody.innerHTML='<tr><td colspan="5"><div class="empty-state">لا يوجد تجار مسجلون بعد</div></td></tr>';
+    return;
+  }
+  tbody.innerHTML="";
+  merchants.forEach(mer=>{
+    const bal=calcBalance(mer.id);
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td><span class="link-cell" data-id="${mer.id}">${esc(mer.name)}</span></td>
+      <td>${esc(mer.phone)||"—"}</td>
+      <td>${esc(mer.email)||"—"}</td>
+      <td style="font-weight:700;color:${bal>=0?"var(--primary-dark)":"var(--danger)"}">${fmt(bal)}</td>
+      <td><div class="row-actions">
+        <button class="edit" data-id="${mer.id}">تعديل</button>
+        <button class="del"  data-id="${mer.id}">حذف</button>
+      </div></td>`;
+    tbody.appendChild(tr);
+  });
+  tbody.querySelectorAll(".link-cell").forEach(el=>el.addEventListener("click",()=>openDetail(el.dataset.id)));
+  tbody.querySelectorAll(".edit").forEach(el=>el.addEventListener("click",()=>{
+    const m=merchants.find(x=>x.id===el.dataset.id); if(m) openMerModal(m);
+  }));
+  tbody.querySelectorAll(".del").forEach(el=>el.addEventListener("click",()=>deleteMer(el.dataset.id)));
+}
+
+async function deleteMer(id){
+  if(!confirm("هل تريد حذف هذا التاجر؟")) return;
+  try{ await deleteDoc(doc(db,"merchants",id)); toast("تم حذف التاجر"); }
+  catch(err){ console.error(err); toast("خطأ",true); }
+}
+
+/* ── صفحة التفاصيل ── */
+function setupDetail(){
+  document.getElementById("back-btn").addEventListener("click",backToList);
+
+  // فلاتر كشف الحساب
+  document.getElementById("filter-apply-btn").addEventListener("click",refreshLedger);
+  document.getElementById("filter-clear-btn").addEventListener("click",()=>{
+    const now=new Date();
+    document.getElementById("filter-from").value=new Date(now.getFullYear(),now.getMonth(),1).toISOString().slice(0,10);
+    document.getElementById("filter-to").value=now.toISOString().slice(0,10);
+    refreshLedger();
+  });
+
+  // تصدير CSV
+  document.getElementById("export-csv-btn").addEventListener("click",exportLedgerCSV);
+
+  // نموذج الدفعة المالية
+  setupFinTxModal();
+}
+
+function refreshLedger(){
+  renderUnifiedStats();
+  renderUnifiedList();
+}
+
+function openDetail(id){
+  currentMerId=id;
+  document.getElementById("list-section").style.display="none";
+  document.getElementById("detail-section").style.display="block";
+  // ضبط الفلتر الافتراضي: أول يوم في الشهر الحالي → اليوم
+  const now=new Date();
+  document.getElementById("filter-from").value=new Date(now.getFullYear(),now.getMonth(),1).toISOString().slice(0,10);
+  document.getElementById("filter-to").value=now.toISOString().slice(0,10);
+  fillHeader();
+  refreshLedger();
+}
+
+function backToList(){
+  currentMerId=null;
+  document.getElementById("list-section").style.display="block";
+  document.getElementById("detail-section").style.display="none";
+}
+
+function fillHeader(){
+  const mer=merchants.find(m=>m.id===currentMerId); if(!mer) return;
+  document.getElementById("detail-name").textContent   =mer.name??"";
+  document.getElementById("detail-address").textContent=mer.address||"لا يوجد عنوان";
+  document.getElementById("detail-phone").textContent  =mer.phone||"—";
+  document.getElementById("detail-email").textContent  =mer.email||"—";
+  const bal=calcBalance(currentMerId);
+  const balEl=document.getElementById("detail-balance");
+  balEl.textContent=fmt(bal);
+  balEl.style.color=bal>=0?"var(--primary-dark)":"var(--danger)";
+}
+
+/* ── helpers: parse date string or Firestore timestamp to seconds ── */
+function _toSecs(t){
+  if(t.date) return new Date(t.date+"T00:00:00").getTime()/1000;
+  return t.createdAt?.seconds??0;
+}
+function _toDateStr(t){
+  if(t.date) return t.date; // YYYY-MM-DD
+  const d=t.createdAt?.toDate?.();
+  return d?d.toISOString().slice(0,10):"";
+}
+
+/* ── نافذة إضافة دفعة مالية مباشرة من صفحة التاجر ── */
+function setupFinTxModal(){
+  const modal=document.getElementById("fin-tx-modal");
+  document.getElementById("fin-tx-modal-close").addEventListener("click",closeFinTxModal);
+  document.getElementById("fin-tx-cancel-btn").addEventListener("click",closeFinTxModal);
+  modal.addEventListener("click",e=>{ if(e.target===modal) closeFinTxModal(); });
+  document.getElementById("fin-tx-form").addEventListener("submit",saveFinTx);
+  document.getElementById("add-fin-tx-btn").addEventListener("click",()=>{
+    document.getElementById("fin-tx-form").reset();
+    document.getElementById("fin-tx-date").value=new Date().toISOString().slice(0,10);
+    document.getElementById("fin-dir-in").checked=true;
+    const mer=merchants.find(m=>m.id===currentMerId);
+    document.getElementById("fin-tx-modal-title").textContent=`دفعة مالية — ${mer?.name??""}`;
+    modal.classList.add("open");
+  });
+}
+function closeFinTxModal(){ document.getElementById("fin-tx-modal").classList.remove("open"); }
+
+async function saveFinTx(e){
+  e.preventDefault();
+  const amount=Number(document.getElementById("fin-tx-amount").value);
+  if(!amount||amount<=0){ toast("أدخل مبلغاً صحيحاً",true); return; }
+  // dir هنا يخص دفتر مستحقات التاجر فقط: out=تسديد (يقلل دينه) / in=زيادة دين
+  const dir=document.querySelector('input[name="fin_dir"]:checked')?.value;
+  if(!dir){ toast("حدد نوع الحركة",true); return; }
+  const affectsCash=document.getElementById("fin-affect-cash").checked;
+  const mer=merchants.find(m=>m.id===currentMerId);
+  const date=document.getElementById("fin-tx-date").value;
+  const desc=document.getElementById("fin-tx-desc").value.trim();
+  const btn=document.getElementById("fin-tx-save-btn");
+  btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
+  try{
+    const cRef=doc(db,"counters","finance_trans");
+    let seqNum=1;
+    await runTransaction(db,async tx=>{
+      const snap=await tx.get(cRef);
+      seqNum=(snap.exists()?snap.data().seq:0)+1;
+      tx.set(cRef,{seq:seqNum},{merge:true});
+    });
+    const finId="F-"+String(seqNum).padStart(4,"0");
+    const batch=writeBatch(db);
+
+    // 1) حركة على دفتر مستحقات التاجر (صندوق المنتجات) — دائماً
+    const merRef=doc(collection(db,"finance_transactions"));
+    batch.set(merRef,{
+      type:"merchant", dir, amount, date,
+      description:desc,
+      merchantId:currentMerId, merchantName:mer?.name??"",
+      partyName:"", employeeId:"", employeeName:"",
+      finId, _active:true, sourcePage:"التجار",
+      createdAt:serverTimestamp(), updatedAt:serverTimestamp(),
+    });
+
+    // 2) مرآة على صندوق الكاش فقط إذا الحركة نقدية فعلياً
+    //    out (تسديد من التاجر) = فلوس دخلت الصندوق = deposit/in
+    //    in  (زيادة دين على التاجر) = فلوس خرجت من الصندوق = withdrawal/out
+    if(affectsCash){
+      const cashRef=doc(collection(db,"finance_transactions"));
+      batch.set(cashRef,{
+        type: dir==="out" ? "deposit" : "withdrawal",
+        dir:  dir==="out" ? "in" : "out",
+        amount, date,
+        description:`دفعة تاجر (${mer?.name??""}) — ${desc||(dir==="out"?"تسديد مستحقات":"زيادة على الحساب")}`,
+        partyName: mer?.name??"", merchantId:"", merchantName:"",
+        employeeId:"", employeeName:"", finId, _active:true, sourcePage:"التجار",
+        createdAt:serverTimestamp(), updatedAt:serverTimestamp(),
+      });
+    }
+
+    await batch.commit();
+    const typeLabel=dir==="out"?"تسديد مستحقات":"زيادة دين";
+    toast("تمت إضافة الدفعة — "+finId);
+    writeAuditLog("إضافة","دفعة تاجر",`${mer?.name||"—"} — ${typeLabel} — ${amount} ج.م${affectsCash?" (يؤثر على الصندوق)":""}`);
+    closeFinTxModal();
+  }catch(err){ console.error(err); toast("خطأ أثناء الحفظ",true); }
+  finally{ btn.disabled=false; btn.textContent="حفظ الدفعة"; }
+}
+
+/* ── بناء قائمة الحركات الموحدة مع فلتر التاريخ ── */
+function _buildAllRows(){
+  const fromVal=document.getElementById("filter-from").value;
+  const toVal  =document.getElementById("filter-to").value;
+  const fromD  =fromVal?fromVal:"";
+  const toD    =toVal  ?toVal  :"";
+
+  const direct=merchantTxs.filter(t=>t.merchantId===currentMerId).map(t=>({
+    _src: t.source==="loading" ? "loading" : "direct",
+    seqId: (t.opId && activityOpMap[t.opId])
+      ? activityOpMap[t.opId]
+      : (t.txId || (t.opId ? t.opId.slice(0,8).toUpperCase() : "—")),
+    dateStr:_toDateStr(t),
+    dateSecs:_toSecs(t),
+    dir:t.type,
+    amount:t.amount||0,
+    note:t.note||"",
+    id:t.id,
+    sourcePage:t.sourcePage||"",
+  }));
+  const fin=finTxs.filter(t=>t.merchantId===currentMerId).map(t=>({
+    _src:"finance",
+    seqId:t.finId||"—",
+    dateStr:t.date||"",
+    dateSecs:t.date?new Date(t.date+"T00:00:00").getTime()/1000:0,
+    dir:t.dir,
+    amount:t.amount||0,
+    note:t.description||"",
+    id:t.id,
+    sourcePage:t.sourcePage||"",
+  }));
+  let all=[...direct,...fin].sort((a,b)=>b.dateSecs-a.dateSecs);
+  if(fromD) all=all.filter(t=>t.dateStr>=fromD);
+  if(toD)   all=all.filter(t=>t.dateStr<=toD);
+  return all;
+}
+
+/* ── إحصائيات الفترة المفلترة ── */
+function renderUnifiedStats(){
+  const all=_buildAllRows();
+  // الإحصائيات الكلية (بدون فلتر) للرصيد الحقيقي
+  const allFull=[
+    ...merchantTxs.filter(t=>t.merchantId===currentMerId).map(t=>({dir:t.type,amount:t.amount||0})),
+    ...finTxs.filter(t=>t.merchantId===currentMerId).map(t=>({dir:t.dir,amount:t.amount||0})),
+  ];
+  const totalIn =allFull.filter(t=>t.dir==="in") .reduce((s,t)=>s+t.amount,0);
+  const totalOut=allFull.filter(t=>t.dir==="out").reduce((s,t)=>s+t.amount,0);
+  const net=totalIn-totalOut;
+
+  const filtIn =all.filter(t=>t.dir==="in") .reduce((s,t)=>s+t.amount,0);
+  const filtOut=all.filter(t=>t.dir==="out").reduce((s,t)=>s+t.amount,0);
+  const isFiltered=document.getElementById("filter-from").value||document.getElementById("filter-to").value;
+  const inCount =allFull.filter(t=>t.dir==="in").length;
+  const outCount=allFull.filter(t=>t.dir==="out").length;
+  document.getElementById("mer-unified-stats").innerHTML=`
+    <div class="mer-stat stat-in">
+      <div class="msk">📦 إجمالي مسحوبات هذا التاجر${isFiltered?" (الفترة)":""}</div>
+      <div class="msv" style="color:#1a6b3a">${fmt(isFiltered?filtIn:totalIn)}</div>
+      <div class="mss">
+        <strong style="color:#1a6b3a">${inCount} عملية تحميل</strong>
+        <br/>البضائع التي أخذها التاجر من المخزن — هذا ما يدين به
+      </div>
+    </div>
+    <div class="mer-stat stat-net">
+      <div class="msk">💳 إجمالي مدفوعات التاجر${isFiltered?" (الفترة)":""}</div>
+      <div class="msv" style="color:#1a4bbf">${fmt(isFiltered?filtOut:totalOut)}</div>
+      <div class="mss">
+        <strong style="color:#1a4bbf">${outCount} دفعة</strong>
+        <br/>المبالغ التي دفعها التاجر فعلياً حتى الآن
+      </div>
+    </div>
+    <div class="mer-stat stat-out">
+      <div class="msk">💰 المبلغ المستحق على هذا التاجر</div>
+      <div class="msv" style="color:${net>=0?"#b3432f":"#1a6b3a"}">
+        ${fmt(Math.abs(net))}
+      </div>
+      <div class="mss">
+        <strong style="color:${net>=0?"#b3432f":"#1a6b3a"}">
+          ${net>=0?"⚠️ على التاجر سداد هذا المبلغ":"✅ رصيد دائن — التاجر دفع أكثر"}
+        </strong>
+        <br/>${allFull.length} عملية إجمالاً (مسحوبات − مدفوعات)
+      </div>
+    </div>`;
+}
+
+/* ── كشف الحساب ── */
+function renderUnifiedList(){
+  const list=document.getElementById("unified-list"); if(!list) return;
+  const all=_buildAllRows();
+  if(!all.length){
+    list.innerHTML='<div class="empty-state">لا توجد حركات في هذه الفترة</div>';
+    return;
+  }
+  list.innerHTML="";
+
+  // ── حساب الرصيد الافتتاحي (ما قبل الفترة المفلترة) ──
+  const fromVal=document.getElementById("filter-from").value;
+  let openingBalance=0;
+  if(fromVal){
+    // كل الحركات قبل تاريخ البداية (من كلا المصدرين، بدون فلتر)
+    const allDirect=merchantTxs.filter(t=>t.merchantId===currentMerId);
+    const allFin   =finTxs.filter(t=>t.merchantId===currentMerId);
+    [...allDirect,...allFin].forEach(t=>{
+      const ds=t.date??(t.createdAt?.toDate?.()?.toISOString().slice(0,10)??"");
+      if(ds && ds<fromVal) openingBalance+=(t.type==="in"||t.dir==="in"?1:-1)*(t.amount||0);
+    });
+  }
+
+  // نحسب الرصيد التراكمي من الأقدم للأحدث ثم نعكس الترتيب للعرض
+  let runningBalance=openingBalance;
+  const sorted=[...all].reverse();
+  const balances=[];
+  sorted.forEach(t=>{
+    runningBalance+=(t.dir==="in"?1:-1)*t.amount;
+    balances.push(runningBalance);
+  });
+  balances.reverse();
+
+  // ── حساب الـ3 صناديق (مسحوبات/مدفوعات/مستحق) قبل وبعد كل حركة، على كامل تاريخ التاجر بلا فلتر ──
+  const fullHist=[
+    ...merchantTxs.filter(t=>t.merchantId===currentMerId).map(t=>({id:t.id,dir:t.type,amount:t.amount||0,dateSecs:_toSecs(t)})),
+    ...finTxs.filter(t=>t.merchantId===currentMerId).map(t=>({id:t.id,dir:t.dir,amount:t.amount||0,dateSecs:t.date?new Date(t.date+"T00:00:00").getTime()/1000:0})),
+  ].sort((a,b)=>a.dateSecs-b.dateSecs);
+  const box3ById={};
+  let rIn=0,rOut=0;
+  fullHist.forEach(t=>{
+    const beforeIn=rIn, beforeOut=rOut;
+    if(t.dir==="in") rIn+=t.amount; else rOut+=t.amount;
+    box3ById[t.id]={
+      before:{in:beforeIn,out:beforeOut,net:beforeIn-beforeOut},
+      after: {in:rIn,     out:rOut,     net:rIn-rOut},
+    };
+  });
+  const box3Group=(title,vals)=>`
+    <div class="tx-row-box3-group">
+      <div class="tx-row-box3-title">${title}</div>
+      <div class="mer-stats" style="margin-bottom:0">
+        <div class="mer-stat stat-in">
+          <div class="msk">📦 إجمالي مسحوبات هذا التاجر</div>
+          <div class="msv" style="color:#1a6b3a">${fmt(vals.in)}</div>
+        </div>
+        <div class="mer-stat stat-net">
+          <div class="msk">💳 إجمالي مدفوعات التاجر</div>
+          <div class="msv" style="color:#1a4bbf">${fmt(vals.out)}</div>
+        </div>
+        <div class="mer-stat stat-out">
+          <div class="msk">💰 المبلغ المستحق على هذا التاجر</div>
+          <div class="msv" style="color:${vals.net>=0?"#b3432f":"#1a6b3a"}">${fmt(Math.abs(vals.net))}</div>
+        </div>
+      </div>
+    </div>`;
+
+  all.forEach((t,i)=>{
+    const isIn=t.dir==="in";
+    const div=document.createElement("div");
+    div.className="record-row";
+    const typeBadge=t._src==="finance"
+      ?`<span style="font-size:10px;background:#fdf4e3;color:#7a4f10;border-radius:5px;padding:2px 7px;font-weight:700;white-space:nowrap">مالية</span>`
+      :t._src==="loading"
+        ?`<span style="font-size:10px;background:#edf7ed;color:#2e7d32;border-radius:5px;padding:2px 7px;font-weight:700;white-space:nowrap">📦 تحميل</span>`
+        :`<span style="font-size:10px;background:#f0f4fb;color:#2a5bbf;border-radius:5px;padding:2px 7px;font-weight:700;white-space:n�wrap">مباشرة</span>`;
+    const dateDisp=t.dateStr
+      ? new Date(t.dateStr+"T00:00:00").toLocaleDateString("ar-EG",{year:"numeric",month:"short",day:"numeric"})
+      : "—";
+    const bal=balances[i];
+    const recIdCls=t._src==="finance"?"rec-id rec-id-link":"rec-id";
+    const recIdAttr=t._src==="finance"?` data-fin-id="${t.id}" title="انقر لعرض تفاصيل الحركة"`:"";
+    const pageOrigin=t.sourcePage?` · من صفحة ${esc(t.sourcePage)}`:"";
+    div.innerHTML=`
+      <span class="${recIdCls}" style="min-width:62px;text-align:center"${recIdAttr}>${esc(t.seqId)}</span>
+      ${typeBadge}
+      <div class="record-main">
+        <div class="title">${esc(t.note)||(isIn?"دفعة واردة":"دفعة صادرة")}</div>
+        <div class="meta">${dateDisp}${pageOrigin}</div>
+      </div>
+      <div class="record-amount ${isIn?"in":"out"}">${fmt(t.amount)}</div>
+      <div style="font-size:11px;color:${bal>=0?"var(--primary-dark)":"var(--danger)"};font-weight:700;white-space:nowrap;min-width:80px;text-align:left">
+        ${fmt(Math.abs(bal))}<br/><span style="font-weight:400;color:var(--muted)">${bal>=0?"رصيد":"عليه"}</span>
+      </div>
+      <button class="tx-row-box3-toggle" data-toggle="${t.id}" title="عرض الصناديق قبل وبعد هذه الحركة">📊</button>
+      <button class="delete-btn" data-id="${t.id}" data-src="${t._src}">🗑️</button>`;
+    list.appendChild(div);
+
+    const b3=box3ById[t.id];
+    if(b3){
+      const detail=document.createElement("div");
+      detail.className="tx-row-box3-detail";
+      detail.id="tx-row-box3-"+t.id;
+      detail.style.display="none";
+      detail.innerHTML=box3Group("الصناديق قبل هذه الحركة",b3.before)+box3Group("الصناديق بعد هذه الحركة",b3.after);
+      list.appendChild(detail);
+    }
+  });
+  list.querySelectorAll(".tx-row-box3-toggle").forEach(btn=>btn.addEventListener("click",()=>{
+    const detail=document.getElementById("tx-row-box3-"+btn.dataset.toggle);
+    if(!detail) return;
+    const showing=detail.style.display!=="none";
+    detail.style.display=showing?"none":"block";
+    btn.classList.toggle("active",!showing);
+  }));
+  list.querySelectorAll(".rec-id-link[data-fin-id]").forEach(el=>
+    el.addEventListener("click",()=>openTxDetail(finTxs.find(t=>t.id===el.dataset.finId))));
+  list.querySelectorAll(".delete-btn").forEach(btn=>btn.addEventListener("click",async()=>{
+    const src=btn.dataset.src;
+    const isLoading=src==="loading";
+    const msg=isLoading
+      ?"حذف هذه المعاملة لن يُعيد الكميات للمخزن. هل تريد المتابعة؟"
+      :"هل تريد حذف هذه الحركة؟";
+    if(!confirm(msg)) return;
+    try{
+      const mer=merchants.find(m=>m.id===currentMerId);
+      if(src==="direct"||src==="loading"){
+        await deleteDoc(doc(db,"merchantTransactions",btn.dataset.id));
+        writeAuditLog("حذف","حركة تاجر",`${mer?.name||"—"} — ${src==="loading"?"تحميل":"مباشرة"}`);
+      } else {
+        await updateDoc(doc(db,"finance_transactions",btn.dataset.id),{_active:false,deletedAt:serverTimestamp()});
+        writeAuditLog("حذف","حركة مالية للتاجر",`${mer?.name||"—"}`);
+      }
+      toast("تم الحذف");
+    }catch(err){ console.error(err); toast("خطأ",true); }
+  }));
+}
+
+/* ── تصدير CSV ── */
+function exportLedgerCSV(){
+  const mer=merchants.find(m=>m.id===currentMerId);
+  const all=_buildAllRows();
+  if(!all.length){ toast("لا توجد بيانات للتصدير",true); return; }
+  const fromVal=document.getElementById("filter-from").value;
+  const toVal  =document.getElementById("filter-to").value;
+  const BOM="\uFEFF"; // UTF-8 BOM لدعم Excel العربي
+  const header=["الرقم التسلسلي","التاريخ","الاتجاه","المبلغ","البيان","النوع"].join(",");
+  const rows=all.map(t=>[
+    t.seqId,
+    t.dateStr,
+    t.dir==="in"?"داخل (تحصيل)":"خارج (دفع)",
+    t.amount,
+    `"${(t.note||"").replace(/"/g,'""')}"`,
+    t._src==="finance"?"مالية":t._src==="loading"?"تحميل":"مباشرة",
+  ].join(","));
+  const csv=BOM+header+"\n"+rows.join("\n");
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  const merName=mer?.name??"تاجر";
+  const suffix=(fromVal||toVal)?`_${fromVal||""}${toVal?"_إلى_"+toVal:""}` :"";
+  a.href=url; a.download=`كشف_حساب_${merName}${suffix}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+  toast("تم التصدير — "+all.length+" سجل");
+}
+</script>
+</body>
+</html>
