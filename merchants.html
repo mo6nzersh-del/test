@@ -339,6 +339,7 @@
       <button type="button" class="btn" id="tx-detail-print-btn">🖨️ طباعة</button>
       <button type="button" class="btn outline" id="tx-detail-close2">إغلاق</button>
     </div>
+    <div id="tx-detail-balance-box" style="display:none;margin-top:14px;padding:12px 16px;border:1px solid var(--border);border-radius:10px;background:var(--bg)"></div>
   </div>
 </div>
 
@@ -473,6 +474,47 @@ function amountInWords(n){
   let res=cv(whole)+" جنيه"; if(cents>0) res+=" و"+bH(cents)+" قرش"; return res;
 }
 
+/* ── حساب رصيد التاجر قبل وبعد حركة مالية معيّنة (لعرضه في المعاينة/الطباعة) ── */
+function calcMerchantBalanceBeforeAfter(tx){
+  const merId=tx.merchantId; if(!merId) return null;
+  const direct=merchantTxs.filter(x=>x.merchantId===merId).map(x=>({
+    id:x.id, dateSecs:_toSecs(x), dir:x.type, amount:x.amount||0,
+  }));
+  const fin=finTxs.filter(x=>x.merchantId===merId).map(x=>({
+    id:x.id, dateSecs:x.date?new Date(x.date+"T00:00:00").getTime()/1000:0, dir:x.dir, amount:x.amount||0,
+  }));
+  const sorted=[...direct,...fin].sort((a,b)=>a.dateSecs-b.dateSecs);
+  let running=0, before=0, after=0, found=false;
+  sorted.forEach(r=>{
+    if(!found && r.id===tx.id){
+      before=running;
+      running+=(r.dir==="in"?1:-1)*r.amount;
+      after=running;
+      found=true;
+    } else {
+      running+=(r.dir==="in"?1:-1)*r.amount;
+    }
+  });
+  if(!found){ after=running; before=running-((tx.dir==="in"?1:-1)*(tx.amount||0)); }
+  return {before, after};
+}
+
+function renderTxBalanceBox(tx){
+  const box=document.getElementById("tx-detail-balance-box"); if(!box) return;
+  const balCtx=tx.type==="merchant"?calcMerchantBalanceBeforeAfter(tx):null;
+  if(!balCtx){ box.style.display="none"; box.innerHTML=""; return; }
+  const fN=n=>new Intl.NumberFormat("ar-EG",{maximumFractionDigits:2}).format(n||0)+" ج.م";
+  const cell=(label,val)=>`
+    <div style="text-align:center;flex:1">
+      <div style="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:4px">${label}</div>
+      <div style="font-size:15px;font-weight:800;color:${val>=0?"var(--primary-dark)":"var(--danger)"}">${fN(Math.abs(val))} ${val>=0?"(رصيد)":"(عليه)"}</div>
+    </div>`;
+  box.style.display="flex";
+  box.style.alignItems="center";
+  box.style.gap="12px";
+  box.innerHTML=`${cell("الرصيد قبل الحركة",balCtx.before)}<div style="width:1px;background:var(--border);align-self:stretch"></div>${cell("الرصيد بعد الحركة",balCtx.after)}`;
+}
+
 function openTxDetail(t){
   if(!t) return;
   const cfg=_TX_TYPE_CFG[t.type]??{label:t.type||"—",badge:"tb-other"};
@@ -492,12 +534,14 @@ function openTxDetail(t){
       : `<tr><td class="lbl">اتجاه العملية</td><td class="val ${dirClass}">${t.dir==="in"?"إيداع في الصندوق ↓":"سحب من الصندوق ↑"}</td></tr>`,
     t.type==="merchant"?`<tr><td class="lbl">التاجر</td><td class="val">${eS(party)}</td></tr>`:
     t.type==="advance"?`<tr><td class="lbl">الموظف</td><td class="val">${eS(party)}</td></tr>${t.deductMonth?`<tr><td class="lbl">شهر الخصم</td><td class="val">${eS(fM(t.deductMonth))}</td></tr>`:""}`:
-    t.partyName?`<tr><td class="lbl">الجهة</td><td class="val">${eS(party)}</td></tr>`:""
+    t.partyName?`<tr><td class="lbl">الجهة</td><td class="val">${eS(party)}</td></tr>`:"",
+    t.sourcePage?`<tr><td class="lbl">أُضيفت من صفحة</td><td class="val">${eS(t.sourcePage)}</td></tr>`:""
   ];
   let partyRow="";
   if(t.type==="advance") partyRow=`<div class="dm-item"><div class="dm-label">الموظف</div><div class="dm-val">${eS(party)}</div></div>${t.deductMonth?`<div class="dm-item"><div class="dm-label">شهر الخصم</div><div class="dm-val">${eS(fM(t.deductMonth))}</div></div>`:""}`;
   else if(t.type==="merchant") partyRow=`<div class="dm-item"><div class="dm-label">التاجر</div><div class="dm-val">${eS(party)}</div></div>`;
   else if(t.partyName) partyRow=`<div class="dm-item"><div class="dm-label">الجهة</div><div class="dm-val">${eS(party)}</div></div>`;
+  if(t.sourcePage) partyRow+=`<div class="dm-item"><div class="dm-label">أُضيفت من صفحة</div><div class="dm-val">${eS(t.sourcePage)}</div></div>`;
   const printDate=new Date().toLocaleDateString("ar-EG",{year:"numeric",month:"long",day:"numeric"});
   document.getElementById("tx-detail-content").innerHTML=`
   <div class="mer-screen-only">
@@ -556,6 +600,7 @@ function openTxDetail(t){
       </div>
     </div></div>
   </div>`;
+  renderTxBalanceBox(t);
   document.getElementById("tx-detail-modal").classList.add("open");
 }
 
@@ -817,7 +862,7 @@ async function saveFinTx(e){
       description:desc,
       merchantId:currentMerId, merchantName:mer?.name??"",
       partyName:"", employeeId:"", employeeName:"",
-      finId, _active:true,
+      finId, _active:true, sourcePage:"التجار",
       createdAt:serverTimestamp(), updatedAt:serverTimestamp(),
     });
 
@@ -832,7 +877,7 @@ async function saveFinTx(e){
         amount, date,
         description:`دفعة تاجر (${mer?.name??""}) — ${desc||(dir==="out"?"تسديد مستحقات":"زيادة على الحساب")}`,
         partyName: mer?.name??"", merchantId:"", merchantName:"",
-        employeeId:"", employeeName:"", finId, _active:true,
+        employeeId:"", employeeName:"", finId, _active:true, sourcePage:"التجار",
         createdAt:serverTimestamp(), updatedAt:serverTimestamp(),
       });
     }
@@ -864,6 +909,7 @@ function _buildAllRows(){
     amount:t.amount||0,
     note:t.note||"",
     id:t.id,
+    sourcePage:t.sourcePage||"",
   }));
   const fin=finTxs.filter(t=>t.merchantId===currentMerId).map(t=>({
     _src:"finance",
@@ -874,6 +920,7 @@ function _buildAllRows(){
     amount:t.amount||0,
     note:t.description||"",
     id:t.id,
+    sourcePage:t.sourcePage||"",
   }));
   let all=[...direct,...fin].sort((a,b)=>b.dateSecs-a.dateSecs);
   if(fromD) all=all.filter(t=>t.dateStr>=fromD);
@@ -977,12 +1024,13 @@ function renderUnifiedList(){
     const bal=balances[i];
     const recIdCls=t._src==="finance"?"rec-id rec-id-link":"rec-id";
     const recIdAttr=t._src==="finance"?` data-fin-id="${t.id}" title="انقر لعرض تفاصيل الحركة"`:"";
+    const pageOrigin=t.sourcePage?` · من صفحة ${esc(t.sourcePage)}`:"";
     div.innerHTML=`
       <span class="${recIdCls}" style="min-width:62px;text-align:center"${recIdAttr}>${esc(t.seqId)}</span>
       ${typeBadge}
       <div class="record-main">
         <div class="title">${esc(t.note)||(isIn?"دفعة واردة":"دفعة صادرة")}</div>
-        <div class="meta">${dateDisp}</div>
+        <div class="meta">${dateDisp}${pageOrigin}</div>
       </div>
       <div class="record-amount ${isIn?"in":"out"}">${fmt(t.amount)}</div>
       <div style="font-size:11px;color:${bal>=0?"var(--primary-dark)":"var(--danger)"};font-weight:700;white-space:nowrap;min-width:80px;text-align:left">
