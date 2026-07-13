@@ -492,7 +492,7 @@ function calcMerchantBalanceBeforeAfter(tx){
   const direct=merchantTxs.filter(x=>x.merchantId===merId).map(x=>({
     id:x.id, dateSecs:_toSecs(x), dir:x.type, amount:x.amount||0,
   }));
-  const fin=finTxs.filter(x=>x.merchantId===merId).map(x=>({
+  const fin=finTxs.filter(x=>x.merchantId===merId&&x.type==="merchant").map(x=>({
     id:x.id, dateSecs:x.date?new Date(x.date+"T00:00:00").getTime()/1000:0, dir:x.dir, amount:x.amount||0,
   }));
   const sorted=[...direct,...fin].sort((a,b)=>a.dateSecs-b.dateSecs);
@@ -704,8 +704,9 @@ function loadAllMerchantTxs(){
 }
 
 function loadFinTxs(){
-  const q=query(collection(db,"finance_transactions"),where("type","==","merchant"));
-  onSnapshot(q,snap=>{
+  // نجلب كل حركات finance_transactions (وليس فقط type=="merchant") حتى تظهر
+  // أي حركة مرتبطة باسم تاجر (سلفة/سحب/إيداع/أخرى) داخل سجله هنا أيضاً
+  onSnapshot(collection(db,"finance_transactions"),snap=>{
     finTxs=snap.docs.map(d=>({id:d.id,...d.data()})).filter(t=>t._active!==false);
     renderList();
     if(currentMerId){ fillHeader(); refreshLedger(); }
@@ -929,7 +930,10 @@ function _buildAllRows(){
     sourcePage:t.sourcePage||"",
   }));
   const fin=finTxs.filter(t=>t.merchantId===currentMerId).map(t=>({
-    _src:"finance",
+    // أي حركة finance_transactions مرتبطة بهذا التاجر تظهر هنا، بغض النظر عن نوعها
+    // (دفعة تاجر / سلفة / سحب / إيداع / أخرى) — لكن فقط دفعات النوع "merchant" تُحتسب في رصيد مستحقاته
+    _src: t.type==="merchant" ? "finance" : "finance-other",
+    txType:t.type,
     seqId:t.finId||"—",
     dateStr:t.date||"",
     dateSecs:t.date?new Date(t.date+"T00:00:00").getTime()/1000:0,
@@ -947,11 +951,13 @@ function _buildAllRows(){
 
 /* ── إحصائيات الفترة المفلترة ── */
 function renderUnifiedStats(){
-  const all=_buildAllRows();
+  // نستبعد حركات finance_transactions من نوع غير "merchant" (سلفة/سحب/إيداع/أخرى)
+  // من حساب مستحقات التاجر — هي تظهر في السجل للاطّلاع فقط ولا تمثل ديناً عليه
+  const all=_buildAllRows().filter(t=>t._src!=="finance-other");
   // الإحصائيات الكلية (بدون فلتر) للرصيد الحقيقي
   const allFull=[
     ...merchantTxs.filter(t=>t.merchantId===currentMerId).map(t=>({dir:t.type,amount:t.amount||0})),
-    ...finTxs.filter(t=>t.merchantId===currentMerId).map(t=>({dir:t.dir,amount:t.amount||0})),
+    ...finTxs.filter(t=>t.merchantId===currentMerId&&t.type==="merchant").map(t=>({dir:t.dir,amount:t.amount||0})),
   ];
   const totalIn =allFull.filter(t=>t.dir==="in") .reduce((s,t)=>s+t.amount,0);
   const totalOut=allFull.filter(t=>t.dir==="out").reduce((s,t)=>s+t.amount,0);
@@ -1007,9 +1013,10 @@ function renderUnifiedList(){
   const fromVal=document.getElementById("filter-from").value;
   let openingBalance=0;
   if(fromVal){
-    // كل الحركات قبل تاريخ البداية (من كلا المصدرين، بدون فلتر)
+    // كل حركات مستحقات التاجر قبل تاريخ البداية (بدون فلتر) — لا نحتسب هنا حركات
+    // finance_transactions من نوع غير "merchant" (سلفة/سحب/إيداع/أخرى) لأنها لا تمثل ديناً على التاجر
     const allDirect=merchantTxs.filter(t=>t.merchantId===currentMerId);
-    const allFin   =finTxs.filter(t=>t.merchantId===currentMerId);
+    const allFin   =finTxs.filter(t=>t.merchantId===currentMerId&&t.type==="merchant");
     [...allDirect,...allFin].forEach(t=>{
       const ds=t.date??(t.createdAt?.toDate?.()?.toISOString().slice(0,10)??"");
       if(ds && ds<fromVal) openingBalance+=(t.type==="in"||t.dir==="in"?1:-1)*(t.amount||0);
@@ -1017,19 +1024,21 @@ function renderUnifiedList(){
   }
 
   // نحسب الرصيد التراكمي من الأقدم للأحدث ثم نعكس الترتيب للعرض
+  // (حركات finance-other لا تُغيّر رصيد مستحقات التاجر — تظهر فقط للاطّلاع)
   let runningBalance=openingBalance;
   const sorted=[...all].reverse();
   const balances=[];
   sorted.forEach(t=>{
-    runningBalance+=(t.dir==="in"?1:-1)*t.amount;
+    if(t._src!=="finance-other") runningBalance+=(t.dir==="in"?1:-1)*t.amount;
     balances.push(runningBalance);
   });
   balances.reverse();
 
   // ── حساب الـ3 صناديق (مسحوبات/مدفوعات/مستحق) قبل وبعد كل حركة، على كامل تاريخ التاجر بلا فلتر ──
+  // (فقط الحركات التي تمثل ديناً حقيقياً على التاجر: تحميل/مباشرة + finance_transactions من نوع "merchant")
   const fullHist=[
     ...merchantTxs.filter(t=>t.merchantId===currentMerId).map(t=>({id:t.id,dir:t.type,amount:t.amount||0,dateSecs:_toSecs(t)})),
-    ...finTxs.filter(t=>t.merchantId===currentMerId).map(t=>({id:t.id,dir:t.dir,amount:t.amount||0,dateSecs:t.date?new Date(t.date+"T00:00:00").getTime()/1000:0})),
+    ...finTxs.filter(t=>t.merchantId===currentMerId&&t.type==="merchant").map(t=>({id:t.id,dir:t.dir,amount:t.amount||0,dateSecs:t.date?new Date(t.date+"T00:00:00").getTime()/1000:0})),
   ].sort((a,b)=>a.dateSecs-b.dateSecs);
   const box3ById={};
   let rIn=0,rOut=0;
@@ -1064,18 +1073,27 @@ function renderUnifiedList(){
     const isIn=t.dir==="in";
     const div=document.createElement("div");
     div.className="record-row";
+    const otherTypeLabels={advance:"👤 سلفة موظف",withdrawal:"📤 سحب من الصندوق",deposit:"📥 إيداع في الصندوق",other:"📝 عملية أخرى"};
     const typeBadge=t._src==="finance"
       ?`<span style="font-size:10px;background:#fdf4e3;color:#7a4f10;border-radius:5px;padding:2px 7px;font-weight:700;white-space:nowrap">مالية</span>`
-      :t._src==="loading"
-        ?`<span style="font-size:10px;background:#edf7ed;color:#2e7d32;border-radius:5px;padding:2px 7px;font-weight:700;white-space:nowrap">📦 تحميل</span>`
-        :`<span style="font-size:10px;background:#f0f4fb;color:#2a5bbf;border-radius:5px;padding:2px 7px;font-weight:700;white-space:n�wrap">مباشرة</span>`;
+      :t._src==="finance-other"
+        ?`<span style="font-size:10px;background:#f2f2f2;color:#555;border-radius:5px;padding:2px 7px;font-weight:700;white-space:nowrap">${otherTypeLabels[t.txType]||"حركة مالية"}</span>`
+        :t._src==="loading"
+          ?`<span style="font-size:10px;background:#edf7ed;color:#2e7d32;border-radius:5px;padding:2px 7px;font-weight:700;white-space:nowrap">📦 تحميل</span>`
+          :`<span style="font-size:10px;background:#f0f4fb;color:#2a5bbf;border-radius:5px;padding:2px 7px;font-weight:700;white-space:nowrap">مباشرة</span>`;
     const dateDisp=t.dateStr
       ? new Date(t.dateStr+"T00:00:00").toLocaleDateString("ar-EG",{year:"numeric",month:"short",day:"numeric"})
       : "—";
     const bal=balances[i];
-    const recIdCls=t._src==="finance"?"rec-id rec-id-link":"rec-id";
-    const recIdAttr=t._src==="finance"?` data-fin-id="${t.id}" title="انقر لعرض تفاصيل الحركة"`:"";
+    const isClickable=t._src==="finance"||t._src==="finance-other";
+    const recIdCls=isClickable?"rec-id rec-id-link":"rec-id";
+    const recIdAttr=isClickable?` data-fin-id="${t.id}" title="انقر لعرض تفاصيل الحركة"`:"";
     const pageOrigin=t.sourcePage?` · من صفحة ${esc(t.sourcePage)}`:"";
+    const balCell=t._src==="finance-other"
+      ?`<div style="font-size:10.5px;color:var(--muted);font-weight:600;white-space:nowrap;min-width:80px;text-align:left">لا تُحتسب في مستحقات التاجر</div>`
+      :`<div style="font-size:11px;color:${bal>=0?"var(--primary-dark)":"var(--danger)"};font-weight:700;white-space:nowrap;min-width:80px;text-align:left">
+        ${fmt(Math.abs(bal))}<br/><span style="font-weight:400;color:var(--muted)">${bal>=0?"رصيد":"عليه"}</span>
+      </div>`;
     div.innerHTML=`
       <span class="${recIdCls}" style="min-width:62px;text-align:center"${recIdAttr}>${esc(t.seqId)}</span>
       ${typeBadge}
@@ -1084,10 +1102,8 @@ function renderUnifiedList(){
         <div class="meta">${dateDisp}${pageOrigin}</div>
       </div>
       <div class="record-amount ${isIn?"in":"out"}">${fmt(t.amount)}</div>
-      <div style="font-size:11px;color:${bal>=0?"var(--primary-dark)":"var(--danger)"};font-weight:700;white-space:nowrap;min-width:80px;text-align:left">
-        ${fmt(Math.abs(bal))}<br/><span style="font-weight:400;color:var(--muted)">${bal>=0?"رصيد":"عليه"}</span>
-      </div>
-      <button class="tx-row-box3-toggle" data-toggle="${t.id}" title="عرض الصناديق قبل وبعد هذه الحركة">📊</button>
+      ${balCell}
+      ${t._src==="finance-other"?"":`<button class="tx-row-box3-toggle" data-toggle="${t.id}" title="عرض الصناديق قبل وبعد هذه الحركة">📊</button>`}
       <button class="delete-btn" data-id="${t.id}" data-src="${t._src}">🗑️</button>`;
     list.appendChild(div);
 
