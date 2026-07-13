@@ -43,6 +43,18 @@
     .wh-inline-select:focus{border-color:#7c3aed}
     .wh-inline-select:disabled{opacity:.5;cursor:not-allowed}
 
+    /* ── أرصدة صناديق الكاش قبل/بعد كل حركة (داخل الجدول) ── */
+    .tx-row-box4-toggle{border:none;background:transparent;color:var(--muted);
+      font-size:13px;padding:4px 8px;border-radius:6px;cursor:pointer}
+    .tx-row-box4-toggle:hover,.tx-row-box4-toggle.active{background:var(--primary-soft,#eef2fb);color:var(--primary-dark,#2a5bbf)}
+    .tx-row-box4-grid{display:flex;flex-wrap:wrap;gap:12px;padding:10px 6px}
+    .tx-row-box4-card{flex:1;min-width:170px;background:var(--bg);border:1px solid var(--border);
+      border-radius:8px;padding:10px 14px}
+    .tx-row-box4-card .msk{font-size:12px;color:var(--ink);font-weight:700;margin-bottom:6px}
+    .tx-row-box4-vals{display:flex;gap:16px}
+    .tx-row-box4-tag{font-size:10.5px;color:var(--muted);font-weight:600}
+    .tx-row-box4-vals .msv{font-size:15px;font-weight:800;color:var(--primary-dark,#2a5bbf)}
+
     /* ── نافذة دفعة التاجر السريعة ── */
     .mp-type-opt{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:10px;
       border:2px solid var(--border);background:var(--surface);cursor:pointer;transition:all .15s;margin-bottom:8px}
@@ -1169,6 +1181,39 @@ function renderTable(){
     return;
   }
   tbody.innerHTML="";
+
+  // ── حساب أرصدة صناديق الكاش (الرصيد/الإيداعات/المسحوبات/السلف) قبل وبعد كل حركة، على كامل التاريخ بلا فلتر ──
+  const fullCashTx=[...allTx.filter(t=>t.type!=="merchant")].sort((a,b)=>{
+    if(a.date!==b.date) return a.date<b.date?-1:1;
+    const ta=a.createdAt?.seconds??0, tb=b.createdAt?.seconds??0;
+    return ta-tb;
+  });
+  const box4ById={};
+  let rBal=openingBal,rIn=0,rOut=0,rAdv=0;
+  fullCashTx.forEach(t=>{
+    const before={balance:rBal,in:rIn,out:rOut,adv:rAdv};
+    if(t.dir==="in") rIn+=(t.amount||0); else rOut+=(t.amount||0);
+    rBal=openingBal+rIn-rOut;
+    if(t.type==="advance") rAdv+=(t.amount||0);
+    box4ById[t.id]={before,after:{balance:rBal,in:rIn,out:rOut,adv:rAdv}};
+  });
+  const box4Card=(icon,label,before,after,id)=>`
+    <div class="tx-row-box4-card">
+      <div class="msk">${icon} ${label}</div>
+      <div class="tx-row-box4-vals">
+        <div><span class="tx-row-box4-tag">قبل</span> <span class="msv">${fmt(before)}</span></div>
+        <div><span class="tx-row-box4-tag">بعد</span> <span class="msv">${fmt(after)}</span></div>
+      </div>
+    </div>`;
+  const box4Detail=(t)=>{
+    const b4=box4ById[t.id]; if(!b4) return "";
+    const cards=[box4Card("💰","رصيد الصندوق",b4.before.balance,b4.after.balance)];
+    if(t.dir==="in") cards.push(box4Card("📥","إجمالي الإيداعات",b4.before.in,b4.after.in));
+    if(t.dir==="out") cards.push(box4Card("📤","إجمالي المسحوبات",b4.before.out,b4.after.out));
+    if(t.type==="advance") cards.push(box4Card("👤","إجمالي السلف",b4.before.adv,b4.after.adv));
+    return `<div class="tx-row-box4-grid">${cards.join("")}</div>`;
+  };
+
   rows.forEach(t=>{
     const cfg=TYPE_CFG[t.type]??{label:t.type,badge:"tb-other"};
     const party=t.type==="advance"?(t.employeeName||"—")
@@ -1195,10 +1240,20 @@ function renderTable(){
       <td style="font-size:13px;color:var(--muted)">${partyCell}</td>
       <td style="font-size:13px;color:var(--muted);max-width:200px">${esc(t.description||"—")}</td>
       <td><div class="row-actions">
+        <button class="tx-row-box4-toggle" data-toggle="${t.id}" title="عرض أرصدة الصناديق قبل وبعد هذه الحركة">📊</button>
         <button class="edit" data-id="${t.id}">تعديل</button>
         <button class="del"  data-id="${t.id}">حذف</button>
       </div></td>`;
     tbody.appendChild(tr);
+
+    const detailHtml=box4Detail(t);
+    if(detailHtml){
+      const dtr=document.createElement("tr");
+      dtr.id="tx-row-box4-"+t.id;
+      dtr.style.display="none";
+      dtr.innerHTML=`<td colspan="8">${detailHtml}</td>`;
+      tbody.appendChild(dtr);
+    }
   });
   tbody.querySelectorAll(".link-cell[data-merchant-id]").forEach(el=>
     el.addEventListener("click",()=>{ window.location.href=`/merchants.html?id=${encodeURIComponent(el.dataset.merchantId)}`; }));
@@ -1211,6 +1266,14 @@ function renderTable(){
   // ── النقر على رقم الحركة → عرض التفاصيل ──
   tbody.querySelectorAll(".rec-id[data-tx-id]").forEach(el=>
     el.addEventListener("click",()=>openTxDetail(allTx.find(t=>t.id===el.dataset.txId))));
+  // ── إظهار/إخفاء أرصدة الصناديق قبل/بعد الحركة ──
+  tbody.querySelectorAll(".tx-row-box4-toggle").forEach(btn=>btn.addEventListener("click",()=>{
+    const row=document.getElementById("tx-row-box4-"+btn.dataset.toggle);
+    if(!row) return;
+    const showing=row.style.display!=="none";
+    row.style.display=showing?"none":"table-row";
+    btn.classList.toggle("active",!showing);
+  }));
 }
 
 /* ── فلاتر ── */
@@ -1506,6 +1569,12 @@ async function saveTx(e){
     if(!merchantId&&!partyName){ toast("حدد التاجر أو أدخل اسمه يدوياً",true); return; }
   } else {
     partyName=document.getElementById("f-party").value.trim();
+    // إن كان اسم الجهة المُدخل يطابق تاجراً موجوداً، اربط الحركة به تلقائياً
+    // حتى تظهر في سجل هذا التاجر داخل صفحة التجار مهما كان نوع الحركة
+    const matchedMerchant=partyName
+      ? merchants.find(m=>(m.name||"").trim().toLowerCase()===partyName.toLowerCase())
+      : null;
+    if(matchedMerchant){ merchantId=matchedMerchant.id; merchantName=matchedMerchant.name; }
   }
 
   const btn=document.getElementById("tx-save-btn");
@@ -1519,6 +1588,7 @@ async function saveTx(e){
       partyName, merchantId, merchantName,
       employeeId:empId, employeeName:emp?.name??"",
       deductMonth: selectedType==="advance"?deductMonth:"",
+      sourcePage:"المالية",
       _active:true,
     };
     if(editTxId){
