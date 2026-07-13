@@ -629,7 +629,7 @@ import {
   getFirestore, collection, doc,
   addDoc, updateDoc, deleteDoc, getDoc,
   query, where, onSnapshot,
-  serverTimestamp, runTransaction
+  serverTimestamp, runTransaction, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app = initializeApp({
@@ -1491,41 +1491,48 @@ async function saveMerchantPay(){
 
   const isCash=document.getElementById("mp-cash").checked;
   const desc=document.getElementById("mp-desc").value.trim();
+  const autoDesc=desc||(payType==="out"?`دفعة من ${merchant.name}`:`إضافة لحساب ${merchant.name}`);
 
   const btn=document.getElementById("mp-save-btn");
   btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
 
   try{
-    // ١. سجّل في merchantTransactions
-    await addDoc(collection(db,"merchantTransactions"),{
-      merchantId,
-      merchantName: merchant.name,
-      type: payType,   // "out"=سداد يقلل الدين, "in"=إضافة يزيد الدين
+    const finId=await nextFinId();
+    const batch=writeBatch(db);
+
+    // ١. حركة دفتر مستحقات التاجر في finance_transactions — دائماً
+    // payType: out=تسديد (يقلل الدين), in=زيادة دين على التاجر
+    const merRef=doc(collection(db,"finance_transactions"));
+    batch.set(merRef,{
+      type:"merchant",
+      dir: payType,           // out=تسديد, in=زيادة
       amount, date,
-      description: desc,
-      isFromFinance: true, sourcePage:"المالية",
-      _active: true,
-      createdAt: serverTimestamp(),
+      description: autoDesc,
+      merchantId, merchantName: merchant.name, partyName: merchant.name,
+      employeeId:"", employeeName:"",
+      finId, _active:true, sourcePage:"المالية",
+      createdAt:serverTimestamp(), updatedAt:serverTimestamp(),
     });
 
-    // ٢. إذا كانت نقدية فعلياً → سجّل في finance_transactions
+    // ٢. إذا كانت نقدية فعلياً → حركة كاش في finance_transactions
+    // payType=out (تاجر دفع) → نقد يدخل الصندوق → deposit / dir=in
+    // payType=in  (زيادة دين)→ نقد يخرج الصندوق → withdrawal / dir=out
     if(isCash){
-      // payType=out → التاجر دفع → نقد يدخل الصندوق → dir=in
-      // payType=in  → نضيف لحسابه → نقد يخرج الصندوق → dir=out
-      const dir=payType==="out"?"in":"out";
-      const finId=await nextFinId();
-      const autoDesc=desc||(payType==="out"?`دفعة من ${merchant.name}`:`إضافة لحساب ${merchant.name}`);
-      await addDoc(collection(db,"finance_transactions"),{
-        type:"merchant", dir, amount, date,
-        description: autoDesc,
-        merchantId, merchantName: merchant.name, partyName: merchant.name,
+      const cashRef=doc(collection(db,"finance_transactions"));
+      batch.set(cashRef,{
+        type: payType==="out" ? "deposit" : "withdrawal",
+        dir:  payType==="out" ? "in"      : "out",
+        amount, date,
+        description: `دفعة تاجر (${merchant.name}) — ${autoDesc}`,
+        partyName: merchant.name, merchantId, merchantName: merchant.name,
+        employeeId:"", employeeName:"",
         finId, _active:true, sourcePage:"المالية",
         createdAt:serverTimestamp(), updatedAt:serverTimestamp(),
       });
-      toast("تم الحفظ — "+finId);
-    } else {
-      toast("تم حفظ الدفعة");
     }
+
+    await batch.commit();
+    toast("تم الحفظ — "+finId);
     const typeLabel = payType==="out" ? "تسديد مستحقات" : "زيادة دين";
     writeAuditLog("إضافة","دفعة تاجر",`${merchant.name} — ${typeLabel} — ${amount} ج.م${isCash?" (نقدي)":""}`);
     closeMpModal();
