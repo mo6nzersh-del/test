@@ -394,7 +394,7 @@ function renderNav(user){
   ];
   document.getElementById("topbar").innerHTML=`
     <div class="topbar-inner">
-      <div class="brand"><span class="mark">أ</span><span>Ahmed And hamdy</span></div>
+      <div class="brand"><img src="https://i.imgur.com/NsN1HgC.png" alt="logo" style="height:30px;object-fit:contain;border-radius:5px;background:#fff;padding:2px 4px" onerror="this.style.display='none'" /><span>Ahmed And hamdy</span></div>
       <nav class="nav-tabs">${pages.map(p=>`<a href="/${p.href}" class="${p.href==="merchants.html"?"active":""}">${p.label}</a>`).join("")}</nav>
       <div class="user-chip">
         <span>${user.email??""}</span>
