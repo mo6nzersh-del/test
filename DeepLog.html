@@ -150,6 +150,204 @@
     .deleted-row td{opacity:.75;background:#fffaf9}
     .del-badge{display:inline-block;font-size:10.5px;font-weight:700;background:#fce8e5;color:#b3432f;
       border-radius:5px;padding:2px 7px}
+
+    /* ══════════════════════════════════════════
+       تصميم متجاوب للهاتف والأجهزة الضعيفة
+       ══════════════════════════════════════════ */
+
+    /* ── تقليل الحركة للأجهزة الضعيفة ── */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration:.01ms!important; transition-duration:.01ms!important }
+    }
+
+    /* ── الهاتف: عام ── */
+    @media (max-width:640px) {
+
+      /* الصفحة: تقليل الحشو */
+      .page { padding:12px 10px 40px }
+
+      /* رأس الصفحة */
+      .dl-header {
+        padding:12px 14px;
+        gap:8px;
+        flex-direction:column;
+        align-items:flex-start
+      }
+      .dl-header h2 { font-size:17px }
+      .dl-header p  { font-size:12px }
+      .dl-badge     { font-size:11px; padding:3px 10px }
+
+      /* ── التبويبات: تمرير أفقي بدلاً من الكسر ── */
+      .section-tabs {
+        display:flex;
+        gap:4px;
+        overflow-x:auto;
+        overflow-y:hidden;
+        scroll-snap-type:x mandatory;
+        -webkit-overflow-scrolling:touch;
+        padding-bottom:6px;
+        /* إخفاء شريط التمرير */
+        scrollbar-width:none;
+      }
+      .section-tabs::-webkit-scrollbar { display:none }
+      .section-tabs button {
+        flex-shrink:0;
+        scroll-snap-align:start;
+        padding:8px 13px;
+        font-size:13px;
+        white-space:nowrap;
+      }
+
+      /* ── البانيل ── */
+      .panel { padding:14px 12px; margin-bottom:16px }
+      .panel-header { flex-wrap:wrap; gap:6px }
+      .panel-header h3 { font-size:15px }
+
+      /* ── الفلاتر: عمود كامل ── */
+      .filters-bar {
+        flex-direction:column;
+        align-items:stretch;
+        gap:8px;
+      }
+      .filter-select,
+      .search-input   { width:100%; font-size:14px }
+      .filters-bar .btn { width:100% }
+
+      .trash-filters {
+        flex-direction:column;
+        align-items:stretch;
+        gap:8px;
+      }
+      .trash-filters .filter-select,
+      .trash-filters .search-input { width:100% }
+      .trash-filters .btn { width:100% }
+
+      /* ── الجداول: تمرير أفقي مع خط بصري ── */
+      .table-wrap {
+        overflow-x:auto;
+        -webkit-overflow-scrolling:touch;
+        border-radius:8px;
+        border:1px solid var(--border);
+      }
+      .table-wrap > .data-table { min-width:560px }
+      .data-table th { font-size:11.5px; padding:7px 8px }
+      .data-table td { font-size:13px;  padding:8px }
+
+      /* ── المودال: يفتح من الأسفل ── */
+      .modal-overlay {
+        align-items:flex-end;
+        padding:0;
+      }
+      .modal-box {
+        max-width:100%!important;
+        width:100%;
+        max-height:93vh;
+        border-radius:18px 18px 0 0;
+        padding:20px 16px 28px;
+        /* مقبض بصري */
+        background-image:radial-gradient(circle at 50% 8px, var(--border) 3px, transparent 3px);
+        background-size:100% 20px;
+        background-repeat:no-repeat;
+        padding-top:22px;
+      }
+
+      /* ── محدد النوع: عمودان بدلاً من ثلاثة ── */
+      .type-selector { grid-template-columns:repeat(2,1fr) }
+
+      /* ── حقلا المبلغ والتاريخ: عمود واحد ── */
+      div[style*="grid-template-columns:1fr 1fr"] {
+        display:grid!important;
+        grid-template-columns:1fr!important;
+      }
+
+      /* ── شبكة تفاصيل الحركة: عمود واحد ── */
+      .tx-detail-meta-grid {
+        grid-template-columns:1fr;
+        gap:8px;
+      }
+      .tx-detail-amount-row { flex-direction:column; align-items:flex-start; gap:4px }
+      .tx-detail-amount-val { font-size:19px }
+
+      /* ── صف المخزن ── */
+      .warehouse-row {
+        flex-direction:column;
+        align-items:flex-start;
+        gap:8px;
+        padding:12px;
+      }
+      .warehouse-row .wh-actions { width:100%; justify-content:flex-end }
+
+      /* ── سلة المحذوفات ── */
+      .trash-stats { gap:8px }
+      .trash-stat-pill { flex:1; min-width:0 }
+      .trash-restore-btn,
+      .trash-perm-del-btn {
+        padding:7px 10px;
+        font-size:12px;
+        width:100%;
+        text-align:center;
+        display:block;
+        margin-bottom:4px;
+      }
+
+      /* ── أزرار الصفوف: أكبر للمس ── */
+      .row-actions button { padding:8px 10px; font-size:13px }
+
+      /* ── حقول النموذج ── */
+      .field input, .field select, .field textarea {
+        font-size:15px; /* يمنع تكبير iOS التلقائي */
+      }
+
+      /* ── stmt ── */
+      .stmt-grid { flex-direction:column }
+      .stmt-field { min-width:0; width:100% }
+      .stmt-summary { grid-template-columns:1fr 1fr }
+      .stmt-card .v { font-size:15px }
+
+      /* ── أزرار الحفظ في النموذج ── */
+      #fin-form > div:last-child,
+      #wh-op-form > div:last-child,
+      #product-form > div:last-child {
+        flex-direction:column;
+      }
+      #fin-form > div:last-child .btn,
+      #wh-op-form > div:last-child .btn,
+      #product-form > div:last-child .btn {
+        width:100%;
+        margin-right:0!important;
+      }
+
+      /* ── أزرار طباعة / إغلاق التفاصيل ── */
+      #tx-detail-print-footer {
+        flex-direction:column;
+        gap:8px;
+      }
+      #tx-detail-print-footer .btn { width:100% }
+
+      /* ── حقول إنشاء الحساب ── */
+      #account-form {
+        flex-direction:column;
+      }
+      #account-form .field { min-width:0; width:100% }
+    }
+
+    /* ── شاشات صغيرة جداً (≤380px) ── */
+    @media (max-width:380px) {
+      .dl-header h2   { font-size:15px }
+      .section-tabs button { padding:7px 10px; font-size:12px }
+      .data-table th  { font-size:11px; padding:6px 6px }
+      .data-table td  { font-size:12px; padding:7px 6px }
+      .panel          { padding:12px 10px }
+      .type-opt .lbl  { font-size:11px }
+      .type-opt .sub  { display:none }
+      .stmt-summary   { grid-template-columns:1fr }
+    }
+
+    /* ── تحسين الطباعة: إخفاء عناصر لا لزوم لها ── */
+    @media print {
+      .section-tabs, .filters-bar, .trash-filters,
+      .row-actions, .panel-header .btn { display:none!important }
+    }
   </style>
 </head>
 <body>
