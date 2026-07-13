@@ -311,7 +311,7 @@
     <div class="page-header">
       <div>
         <h2>المالية والصندوق</h2>
-        <p>إدارة حركات الصندوق — سلف، مسحوبات، إيداعات، دفعات التجار</p>
+        <p>إدارة حركات الصندوق — سلف، مسحوبات، إيداعات، دفعات l�لتجار</p>
       </div>
       <button type="button" class="btn outline" onclick="window.print()">🖨️ طباعة التقرير</button>
     </div>
@@ -496,6 +496,7 @@
       <button type="button" class="btn" id="tx-detail-print-btn">🖨️ طباعة</button>
       <button type="button" class="btn outline" id="tx-detail-close2">إغلاق</button>
     </div>
+    <div id="tx-detail-balance-box" style="display:none;margin-top:14px;padding:12px 16px;border:1px solid var(--border);border-radius:10px;background:var(--bg)"></div>
   </div>
 </div>
 
@@ -655,7 +656,7 @@ function renderNav(user){
       <nav class="nav-tabs">${pages.map(p=>`<a href="/${p.href}" class="${p.href==="finance.html"?"active":""}">${p.label}</a>`).join("")}</nav>
       <div class="user-chip">
         <span>${user.email??""}</span>
-        <button class="icon-btn" id="logout-btn">خروج</button>
+        <button class="icon-btn" id="l�gout-btn">خروج</button>
       </div>
     </div>`;
   document.getElementById("logout-btn").addEventListener("click",()=>signOut(auth).then(()=>location.href="/"));
@@ -831,6 +832,44 @@ function amountInWords(n){
   return result;
 }
 
+/* ── حساب رصيد الصندوق قبل وبعد حركة نقدية معيّنة (لعرضه في المعاينة/الطباعة) ── */
+function calcFundBalanceBeforeAfter(tx){
+  const cashTx=allTx.filter(t=>t.type!=="merchant");
+  const sorted=[...cashTx].sort((a,b)=>{
+    if(a.date!==b.date) return a.date<b.date?-1:1;
+    const ta=a.createdAt?.seconds??0, tb=b.createdAt?.seconds??0;
+    return ta-tb;
+  });
+  let running=openingBal, before=0, after=0, found=false;
+  sorted.forEach(t=>{
+    if(!found && t.id===tx.id){
+      before=running;
+      running+=(t.dir==="in"?1:-1)*(t.amount||0);
+      after=running;
+      found=true;
+    } else {
+      running+=(t.dir==="in"?1:-1)*(t.amount||0);
+    }
+  });
+  if(!found){ after=running; before=running-((tx.dir==="in"?1:-1)*(tx.amount||0)); }
+  return {before, after};
+}
+
+function renderTxBalanceBox(tx){
+  const box=document.getElementById("tx-detail-balance-box"); if(!box) return;
+  const balCtx=tx.type!=="merchant"?calcFundBalanceBeforeAfter(tx):null;
+  if(!balCtx){ box.style.display="none"; box.innerHTML=""; return; }
+  const cell=(label,val)=>`
+    <div style="text-align:center;flex:1">
+      <div style="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:4px">${label}</div>
+      <div style="font-size:15px;font-weight:800;color:${val>=0?"var(--primary-dark)":"var(--danger)"}">${fmt(Math.abs(val))} ${val<0?"(عجز)":""}</div>
+    </div>`;
+  box.style.display="flex";
+  box.style.alignItems="center";
+  box.style.gap="12px";
+  box.innerHTML=`${cell("رصيد الصندوق قبل الحركة",balCtx.before)}<div style="width:1px;background:var(--border);align-self:stretch"></div>${cell("رصيد الصندوق بعد الحركة",balCtx.after)}`;
+}
+
 function openTxDetail(t){
   if(!t) return;
   const cfg=TYPE_CFG[t.type]??{label:t.type,badge:"tb-other"};
@@ -985,6 +1024,7 @@ function openTxDetail(t){
   </div><!-- /doc-page -->
   `;
 
+  renderTxBalanceBox(t);
   document.getElementById("tx-detail-modal").classList.add("open");
 }
 
@@ -1397,7 +1437,7 @@ async function saveMerchantPay(){
       type: payType,   // "out"=سداد يقلل الدين, "in"=إضافة يزيد الدين
       amount, date,
       description: desc,
-      isFromFinance: true,
+      isFromFinance: true, sourcePage:"المالية",
       _active: true,
       createdAt: serverTimestamp(),
     });
@@ -1413,7 +1453,7 @@ async function saveMerchantPay(){
         type:"merchant", dir, amount, date,
         description: autoDesc,
         merchantId, merchantName: merchant.name, partyName: merchant.name,
-        finId, _active:true,
+        finId, _active:true, sourcePage:"المالية",
         createdAt:serverTimestamp(), updatedAt:serverTimestamp(),
       });
       toast("تم الحفظ — "+finId);
