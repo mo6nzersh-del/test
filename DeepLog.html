@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>السجل الشامل - أحمد وحمدي</title>
+  <title>السجل الشامل - Ahmed And hamdy</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="/assets/auth-guard-C6CJ8_8i.css" />
@@ -696,14 +696,14 @@ onAuthStateChanged(auth, user => {
 
 /* ── أدوات مشتركة ── */
 const esc = t => { const d = document.createElement("div"); d.textContent = t ?? ""; return d.innerHTML; };
-const fmt = n => new Intl.NumberFormat("ar-EG", { maximumFractionDigits: 2 }).format(n || 0) + " ج.م";
-const fmtNum = n => new Intl.NumberFormat("ar-EG", { maximumFractionDigits: 3 }).format(n || 0);
+const fmt = n => new Intl.NumberFormat("ar-EG-u-nu-latn", { maximumFractionDigits: 2 }).format(n || 0) + " ج.م";
+const fmtNum = n => new Intl.NumberFormat("ar-EG-u-nu-latn", { maximumFractionDigits: 3 }).format(n || 0);
 const today = () => new Date().toISOString().slice(0, 10);
-const fmtDate = s => s ? new Date(s + "T00:00:00").toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" }) : "—";
+const fmtDate = s => s ? new Date(s + "T00:00:00").toLocaleDateString("ar-EG-u-nu-latn", { year: "numeric", month: "long", day: "numeric" }) : "—";
 const fmtDateTime = ts => {
   if (!ts) return "—";
   const d = ts?.toDate ? ts.toDate() : (ts instanceof Date ? ts : new Date(ts));
-  return d.toLocaleString("ar-EG", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  return d.toLocaleString("ar-EG-u-nu-latn", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
 };
 
 function toast(msg, err = false) {
@@ -1039,13 +1039,13 @@ function buildDeductMonthSelect(currentVal = "") {
   const nextDate = new Date(curY, curM + 1, 1);
   const nextY = nextDate.getFullYear(), nextM = nextDate.getMonth();
   const opts = [
-    { val: `${curY}-${String(curM + 1).padStart(2, "0")}`, label: `الشهر الحالي — ${new Date(curY, curM, 1).toLocaleDateString("ar-EG", { month: "long", year: "numeric" })}` },
-    { val: `${nextY}-${String(nextM + 1).padStart(2, "0")}`, label: `الشهر القادم — ${new Date(nextY, nextM, 1).toLocaleDateString("ar-EG", { month: "long", year: "numeric" })}` },
+    { val: `${curY}-${String(curM + 1).padStart(2, "0")}`, label: `الشهر الحالي — ${new Date(curY, curM, 1).toLocaleDateString("ar-EG-u-nu-latn", { month: "long", year: "numeric" })}` },
+    { val: `${nextY}-${String(nextM + 1).padStart(2, "0")}`, label: `الشهر القادم — ${new Date(nextY, nextM, 1).toLocaleDateString("ar-EG-u-nu-latn", { month: "long", year: "numeric" })}` },
   ];
   sel.innerHTML = '<option value="">— اختر شهر الخصم —</option>';
   if (currentVal && !opts.find(o => o.val === currentVal)) {
     const [y, m] = currentVal.split("-").map(Number);
-    const oldLabel = new Date(y, m - 1, 1).toLocaleDateString("ar-EG", { month: "long", year: "numeric" });
+    const oldLabel = new Date(y, m - 1, 1).toLocaleDateString("ar-EG-u-nu-latn", { month: "long", year: "numeric" });
     const o = document.createElement("option"); o.value = currentVal; o.textContent = `${oldLabel} (شهر سابق — محفوظ)`; o.selected = true;
     sel.appendChild(o);
   }
@@ -1303,7 +1303,7 @@ function openTxDetail(t) {
   const cfg = TYPE_CFG[t.type] ?? { label: t.type || "—", badge: "tb-other" };
   const icon = TYPE_ICONS[t.type] ?? "📝";
   const dirClass = t.dir === "in" ? "dir-in" : "dir-out";
-  const fM = s => { if (!s) return ""; const [y, m] = s.split("-"); return new Date(Number(y), Number(m) - 1, 1).toLocaleDateString("ar-EG", { month: "long", year: "numeric" }); };
+  const fM = s => { if (!s) return ""; const [y, m] = s.split("-"); return new Date(Number(y), Number(m) - 1, 1).toLocaleDateString("ar-EG-u-nu-latn", { month: "long", year: "numeric" }); };
   const party = t.type === "advance" ? (t.employeeName || "—") : t.type === "merchant" ? (t.merchantName || t.partyName || "—") : (t.partyName || "—");
   const infoRows = [
     `<tr><td class="lbl">رقم الحركة</td><td class="val" style="font-family:monospace;font-weight:800;font-size:13px">${esc(t.finId || "—")}</td></tr>`,
@@ -1320,12 +1320,12 @@ function openTxDetail(t) {
   if (t.type === "advance") partyRow = `<div class="dm-item"><div class="dm-label">الموظف</div><div class="dm-val">${esc(party)}</div></div>${t.deductMonth ? `<div class="dm-item"><div class="dm-label">شهر الخصم</div><div class="dm-val">${esc(fM(t.deductMonth))}</div></div>` : ""}`;
   else if (t.type === "merchant") partyRow = `<div class="dm-item"><div class="dm-label">التاجر</div><div class="dm-val">${esc(party)}</div></div>`;
   else if (t.partyName) partyRow = `<div class="dm-item"><div class="dm-label">الجهة</div><div class="dm-val">${esc(party)}</div></div>`;
-  const printDate = new Date().toLocaleDateString("ar-EG", { year: "numeric", month: "long", day: "numeric" });
+  const printDate = new Date().toLocaleDateString("ar-EG-u-nu-latn", { year: "numeric", month: "long", day: "numeric" });
   document.getElementById("tx-detail-content").innerHTML = `
   <div class="dl-screen-only">
     <div class="tx-detail-header">
       <div class="tx-detail-mark">${icon}</div>
-      <div class="tx-detail-company">أحمد وحمدي</div>
+      <div class="tx-detail-company">Ahmed And hamdy</div>
       <div class="tx-detail-subtitle">نظام المحاسبة الداخلي</div>
       <div class="tx-detail-id-row"><span class="tx-detail-id-badge">${esc(t.finId || "—")}</span></div>
       <div style="margin-top:8px"><span class="type-badge ${cfg.badge}">${esc(cfg.label)}</span></div>
@@ -1340,14 +1340,14 @@ function openTxDetail(t) {
       <div class="tx-detail-amount-val ${t.dir === "in" ? "in" : "out"}">${fmt(t.amount)}</div>
     </div>
     ${t.description ? `<div class="tx-detail-desc-box"><strong>📝 الوصف / الملاحظات</strong>${esc(t.description)}</div>` : ""}
-    <div class="tx-detail-footer"><span>رقم الحركة: ${esc(t.finId || "—")}</span><span>نظام أحمد وحمدي © ${new Date().getFullYear()}</span></div>
+    <div class="tx-detail-footer"><span>رقم الحركة: ${esc(t.finId || "—")}</span><span>نظام Ahmed And hamdy © ${new Date().getFullYear()}</span></div>
   </div>
   <div class="doc-page dl-print-only" style="display:none">
-    <div class="doc-watermark">أحمد وحمدي</div>
+    <div class="doc-watermark">Ahmed And hamdy</div>
     <div class="doc-outer-border"><div class="doc-inner-border">
       <div class="doc-top-bar">
         <div class="doc-top-bar-left"><div class="doc-doc-title">سند ${t.dir === "in" ? "قبض" : "صرف"}</div></div>
-        <div class="doc-top-bar-center"><div class="doc-company-name">أحمد وحمدي</div><div class="doc-company-sub">نظام المحاسبة الداخلي</div></div>
+        <div class="doc-top-bar-center"><div class="doc-company-name">Ahmed And hamdy</div><div class="doc-company-sub">نظام المحاسبة الداخلي</div></div>
         <div><div class="doc-serial-badge">${esc(t.finId || "—")}</div></div>
       </div>
       <div class="doc-body">
@@ -1373,7 +1373,7 @@ function openTxDetail(t) {
       </div>
       <div class="doc-bottom-bar">
         <div>تاريخ الطباعة: ${printDate}</div>
-        <div class="doc-bottom-barcode">${esc(t.finId || "—")} — أحمد وحمدي</div>
+        <div class="doc-bottom-barcode">${esc(t.finId || "—")} — Ahmed And hamdy</div>
         <div>هذا المستند صادر من نظام المحاسبة الداخلي</div>
       </div>
     </div></div>
