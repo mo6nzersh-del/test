@@ -151,6 +151,61 @@
     .del-badge{display:inline-block;font-size:10.5px;font-weight:700;background:#fce8e5;color:#b3432f;
       border-radius:5px;padding:2px 7px}
 
+    /* ══ منيو التبويبات للهاتف (مخفي على سطح المكتب) ══ */
+    #mob-tab-bar     { display:none }
+    #mob-tab-overlay {
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,.5); z-index:200;
+      align-items:flex-end
+    }
+    #mob-tab-overlay.open { display:flex }
+    #mob-tab-sheet {
+      width:100%; background:var(--surface);
+      border-radius:20px 20px 0 0;
+      padding:6px 0 36px;
+      max-height:78vh; overflow-y:auto;
+      animation:mobSheetUp .22s ease
+    }
+    @keyframes mobSheetUp {
+      from { transform:translateY(60%); opacity:.4 }
+      to   { transform:none; opacity:1 }
+    }
+    .mob-tab-handle {
+      width:38px; height:4px; background:var(--border);
+      border-radius:99px; margin:10px auto 16px
+    }
+    .mob-tab-list { display:flex; flex-direction:column; gap:6px; padding:0 12px }
+    #mob-tab-trigger {
+      display:flex; align-items:center; justify-content:space-between;
+      width:100%; padding:12px 16px;
+      background:var(--surface); border:1.5px solid var(--primary);
+      border-radius:12px; font-family:inherit;
+      font-size:15px; font-weight:700; color:var(--ink);
+      cursor:pointer; text-align:right; transition:background .12s
+    }
+    #mob-tab-trigger:hover { background:var(--primary-soft) }
+    .mob-tab-arrow {
+      font-size:20px; color:var(--primary);
+      transition:transform .2s; line-height:1; flex-shrink:0
+    }
+    #mob-tab-trigger.open .mob-tab-arrow { transform:rotate(180deg) }
+    .mob-tab-item {
+      width:100%; text-align:right; padding:13px 16px;
+      border:1.5px solid var(--border); border-radius:10px;
+      background:var(--surface); font-family:inherit;
+      font-size:15px; font-weight:700; color:var(--ink);
+      cursor:pointer; transition:background .12s,border-color .12s
+    }
+    .mob-tab-item:active { opacity:.8 }
+    .mob-tab-item.mob-active {
+      background:var(--primary-soft);
+      border-color:var(--primary); color:var(--primary-dark)
+    }
+    .mob-tab-item.mob-tab-blue { border-color:#1a3a6b; color:#1a3a6b; background:#eef2fb }
+    .mob-tab-item.mob-tab-blue.mob-active { background:#1a3a6b; color:#fff }
+    .mob-tab-item.mob-tab-red  { border-color:#b3432f; color:#b3432f; background:#fce8e5 }
+    .mob-tab-item.mob-tab-red.mob-active  { background:#b3432f; color:#fff }
+
     /* ══════════════════════════════════════════
        تصميم متجاوب للهاتف والأجهزة الضعيفة
        ══════════════════════════════════════════ */
@@ -177,26 +232,11 @@
       .dl-header p  { font-size:12px }
       .dl-badge     { font-size:11px; padding:3px 10px }
 
-      /* ── التبويبات: تمرير أفقي بدلاً من الكسر ── */
-      .section-tabs {
-        display:flex;
-        gap:4px;
-        overflow-x:auto;
-        overflow-y:hidden;
-        scroll-snap-type:x mandatory;
-        -webkit-overflow-scrolling:touch;
-        padding-bottom:6px;
-        /* إخفاء شريط التمرير */
-        scrollbar-width:none;
-      }
-      .section-tabs::-webkit-scrollbar { display:none }
-      .section-tabs button {
-        flex-shrink:0;
-        scroll-snap-align:start;
-        padding:8px 13px;
-        font-size:13px;
-        white-space:nowrap;
-      }
+      /* ── التبويبات: مخفية على الهاتف (يُستبدل بالمنيو) ── */
+      .section-tabs { display:none!important }
+
+      /* ── إظهار منيو الهاتف ── */
+      #mob-tab-bar { display:block; margin-bottom:16px }
 
       /* ── البانيل ── */
       .panel { padding:14px 12px; margin-bottom:16px }
@@ -370,6 +410,29 @@
       <button type="button" id="tab-auditlog" style="background:linear-gradient(135deg,#1a3a6b,#2a5bbf);color:#fff;border-color:#1a3a6b;font-weight:800">🔍 سجل المراقبة الشامل</button>
       <button type="button" id="tab-accounts">👤 إدارة الحسابات</button>
       <button type="button" id="tab-trash" style="background:linear-gradient(135deg,#b3432f,#e07070);color:#fff;border-color:#b3432f;font-weight:800">🗑️ سلة المحذوفات</button>
+    </div>
+
+    <!-- ══ منيو التبويبات (هاتف فقط) ══ -->
+    <div id="mob-tab-bar">
+      <button type="button" id="mob-tab-trigger" aria-haspopup="dialog">
+        <span id="mob-tab-label">💰 الحركات المالية</span>
+        <span class="mob-tab-arrow">▾</span>
+      </button>
+    </div>
+    <div id="mob-tab-overlay" role="dialog" aria-modal="true" aria-label="اختر قسماً">
+      <div id="mob-tab-sheet">
+        <div class="mob-tab-handle"></div>
+        <div class="mob-tab-list">
+          <button type="button" class="mob-tab-item mob-active" data-key="finance">💰 الحركات المالية</button>
+          <button type="button" class="mob-tab-item" data-key="warehouse">📦 حركات المخازن</button>
+          <button type="button" class="mob-tab-item" data-key="statement">📄 كشف الحساب الموحّد</button>
+          <button type="button" class="mob-tab-item" data-key="inventory">🏪 المخازن والمنتجات</button>
+          <button type="button" class="mob-tab-item" data-key="dlactivity">📋 سجل حركات هذه الصفحة</button>
+          <button type="button" class="mob-tab-item mob-tab-blue" data-key="auditlog">🔍 سجل المراقبة الشامل</button>
+          <button type="button" class="mob-tab-item" data-key="accounts">👤 إدارة الحسابات</button>
+          <button type="button" class="mob-tab-item mob-tab-red" data-key="trash">🗑️ سلة المحذوفات</button>
+        </div>
+      </div>
     </div>
 
     <!-- ══════════ TAB 1: FINANCE ══════════ -->
@@ -809,7 +872,7 @@
   </div>
 </div>
 
-<!-- ═══════ نافذة منتج ═══════ -->
+<!-- ═══════ نافذة منتج ═el�═════ -->
 <div class="modal-overlay" id="product-modal">
   <div class="modal-box">
     <div class="modal-box-header"><h3 id="product-modal-title">إضافة منتج</h3>
@@ -942,6 +1005,19 @@ function switchTab(key) {
     tabs[key].btn.style.borderColor = "#b3432f";
   }
   tabs[key].btn.classList.add("active"); tabs[key].view.classList.add("active");
+
+  /* ── تحديث منيو الهاتف ── */
+  const MOB_LABELS = {
+    finance:"💰 الحركات المالية", warehouse:"📦 حركات المخازن",
+    statement:"📄 كشف الحساب الموحّد", inventory:"🏪 المخازن والمنتجات",
+    dlactivity:"📋 سجل حركات هذه الصفحة", auditlog:"🔍 سجل المراقبة الشامل",
+    accounts:"👤 إدارة الحسابات", trash:"🗑️ سلة المحذوفات"
+  };
+  const mobLabel = document.getElementById("mob-tab-label");
+  if (mobLabel) mobLabel.textContent = MOB_LABELS[key] ?? key;
+  document.querySelectorAll(".mob-tab-item").forEach(btn => {
+    btn.classList.toggle("mob-active", btn.dataset.key === key);
+  });
 }
 
 /* ── الحالة العامة ── */
@@ -1152,6 +1228,42 @@ function init() {
   setupWarehouseModal();
   setupProductModal();
   setupStatement();
+  setupMobTabs();
+}
+
+function setupMobTabs() {
+  const trigger  = document.getElementById("mob-tab-trigger");
+  const overlay  = document.getElementById("mob-tab-overlay");
+  const sheet    = document.getElementById("mob-tab-sheet");
+  if (!trigger || !overlay) return;
+
+  function openMenu() {
+    overlay.classList.add("open");
+    trigger.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+  function closeMenu() {
+    overlay.classList.remove("open");
+    trigger.classList.remove("open");
+    document.body.style.overflow = "";
+  }
+
+  trigger.addEventListener("click", () =>
+    overlay.classList.contains("open") ? closeMenu() : openMenu()
+  );
+
+  /* إغلاق بالضغط على الخلفية (خارج الـ sheet) */
+  overlay.addEventListener("click", e => {
+    if (!sheet.contains(e.target)) closeMenu();
+  });
+
+  /* اختيار تبويب */
+  document.querySelectorAll(".mob-tab-item").forEach(btn => {
+    btn.addEventListener("click", () => {
+      switchTab(btn.dataset.key);
+      closeMenu();
+    });
+  });
 }
 
 /* ══════════════════════════════════════
