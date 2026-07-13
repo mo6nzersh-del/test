@@ -311,7 +311,7 @@
     <div class="page-header">
       <div>
         <h2>المالية والصندوق</h2>
-        <p>إدارة حركات الصندوق — سلف، مسحوبات، إيداعات، دفعات l�لتجار</p>
+        <p>إدارة حركات الصندوق — سلف، مسحوبات، إيداعات، دفعات التجار</p>
       </div>
       <button type="button" class="btn outline" onclick="window.print()">🖨️ طباعة التقرير</button>
     </div>
@@ -496,7 +496,7 @@
       <button type="button" class="btn" id="tx-detail-print-btn">🖨️ طباعة</button>
       <button type="button" class="btn outline" id="tx-detail-close2">إغلاق</button>
     </div>
-    <div id="tx-detail-balance-box" style="display:none;margin-top:14px;padding:12px 16px;border:1px solid var(--border);border-radius:10px;background:var(--bg)"></div>
+    <div id="tx-detail-balance-box" style="display:none;margin-top:14px"></div>
   </div>
 </div>
 
@@ -656,7 +656,7 @@ function renderNav(user){
       <nav class="nav-tabs">${pages.map(p=>`<a href="/${p.href}" class="${p.href==="finance.html"?"active":""}">${p.label}</a>`).join("")}</nav>
       <div class="user-chip">
         <span>${user.email??""}</span>
-        <button class="icon-btn" id="l�gout-btn">خروج</button>
+        <button class="icon-btn" id="logout-btn">خروج</button>
       </div>
     </div>`;
   document.getElementById("logout-btn").addEventListener("click",()=>signOut(auth).then(()=>location.href="/"));
@@ -859,15 +859,18 @@ function renderTxBalanceBox(tx){
   const box=document.getElementById("tx-detail-balance-box"); if(!box) return;
   const balCtx=tx.type!=="merchant"?calcFundBalanceBeforeAfter(tx):null;
   if(!balCtx){ box.style.display="none"; box.innerHTML=""; return; }
-  const cell=(label,val)=>`
-    <div style="text-align:center;flex:1">
-      <div style="font-size:11px;color:var(--muted);font-weight:700;margin-bottom:4px">${label}</div>
-      <div style="font-size:15px;font-weight:800;color:${val>=0?"var(--primary-dark)":"var(--danger)"}">${fmt(Math.abs(val))} ${val<0?"(عجز)":""}</div>
+  const card=(icon,label,val)=>`
+    <div class="stat-card ${val>=0?"stat-balance":"stat-out"}" style="width:100%">
+      <div class="sc-label">${icon} ${label}</div>
+      <div class="sc-val" style="color:${val>=0?"var(--primary-dark)":"var(--danger,#c0392b)"}">${fmt(Math.abs(val))}</div>
+      <div class="sc-sub">${val>=0?"":"⚠️ عجز في الصندوق"}</div>
     </div>`;
   box.style.display="flex";
-  box.style.alignItems="center";
+  box.style.flexDirection="column";
   box.style.gap="12px";
-  box.innerHTML=`${cell("رصيد الصندوق قبل الحركة",balCtx.before)}<div style="width:1px;background:var(--border);align-self:stretch"></div>${cell("رصيد الصندوق بعد الحركة",balCtx.after)}`;
+  box.innerHTML=`
+    ${card("⬆️","رصيد الصندوق قبل الحركة",balCtx.before)}
+    ${card("⬇️","رصيد الصندوق بعد الحركة",balCtx.after)}`;
 }
 
 function openTxDetail(t){
