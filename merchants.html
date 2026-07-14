@@ -519,9 +519,9 @@ function renderTxBalanceBox(tx){
   const card=(icon,label,val,cls)=>`
     <div class="mer-stat ${cls}" style="width:100%">
       <div class="msk">${icon} ${label}</div>
-      <div class="msv" style="color:${val>=0?"#b3432f":"#1a6b3a"}">${fN(Math.abs(val))}</div>
+      <div class="msv" style="color:${val<=0?"#b3432f":"#1a6b3a"}">${fN(Math.abs(val))}</div>
       <div class="mss">
-        <strong style="color:${val>=0?"#b3432f":"#1a6b3a"}">${val>=0?"⚠️ التاجر مدين بهذا المبلغ":"✅ رصيد دائن — التاجر دفع أكثر"}</strong>
+        <strong style="color:${val<=0?"#b3432f":"#1a6b3a"}">${val<=0?"⚠️ التاجر مدين بهذا المبلغ":"✅ رصيد دائن — التاجر دفع أكثر"}</strong>
       </div>
     </div>`;
   box.style.display="flex";
@@ -987,12 +987,12 @@ function renderUnifiedStats(){
     </div>
     <div class="mer-stat stat-out">
       <div class="msk">💰 المبلغ المستحق على هذا التاجر</div>
-      <div class="msv" style="color:${net>=0?"#b3432f":"#1a6b3a"}">
+      <div class="msv" style="color:${net<=0?"#b3432f":"#1a6b3a"}">
         ${fmt(Math.abs(net))}
       </div>
       <div class="mss">
-        <strong style="color:${net>=0?"#b3432f":"#1a6b3a"}">
-          ${net>=0?"⚠️ على التاجر سداد هذا المبلغ":"✅ رصيد دائن — التاجر دفع أكثر"}
+        <strong style="color:${net<=0?"#b3432f":"#1a6b3a"}">
+          ${net<=0?"⚠️ على التاجر سداد هذا المبلغ":"✅ رصيد دائن — التاجر دفع أكثر"}
         </strong>
         <br/>${allFull.length} عملية إجمالاً (مسحوبات − مدفوعات)
       </div>
@@ -1064,7 +1064,7 @@ function renderUnifiedList(){
         </div>
         <div class="mer-stat stat-out">
           <div class="msk">💰 المبلغ المستحق على هذا التاجر</div>
-          <div class="msv" style="color:${vals.net>=0?"#b3432f":"#1a6b3a"}">${fmt(Math.abs(vals.net))}</div>
+          <div class="msv" style="color:${vals.net<=0?"#b3432f":"#1a6b3a"}">${fmt(Math.abs(vals.net))}</div>
         </div>
       </div>
     </div>`;
