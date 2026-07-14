@@ -818,18 +818,30 @@ function loadProductsFund(){
 function renderProductsFund(){
   const inventoryValue=allProducts.reduce((s,p)=>s+(Number(p.quantity)||0)*(Number(p.price)||0),0);
 
+  /* رصيد كل تاجر:
+     - merchantTransactions: type="out" = بيع (دين على التاجر) → سالب
+     - finance_transactions type="merchant": dir="in" = سداد → موجب
+     الرصيد السالب = التاجر مدين لنا، نجمع قيمه المطلقة */
   const byMerchant={};
   allMerchantTxs.forEach(t=>{
     if(!t.merchantId) return;
+    // type="out" = بيع (ينشئ دين) → -amount ; أي شيء آخر = دفعة → +amount
     byMerchant[t.merchantId]=(byMerchant[t.merchantId]||0)+(t.type==="out"?-1:1)*(Number(t.amount)||0);
   });
   allTx.filter(t=>t.type==="merchant"&&t.merchantId).forEach(t=>{
+    // dir="in" = سداد من التاجر → يقلل الدين (موجب يُحسب على الرصيد السالب)
     byMerchant[t.merchantId]=(byMerchant[t.merchantId]||0)+(t.dir==="in"?1:-1)*(Number(t.amount)||0);
   });
-  const merchantDues=Object.values(byMerchant).reduce((s,bal)=>s+Math.max(0,bal),0);
+
+  // الرصيد السالب = التاجر مدين ← نجمع Math.max(0, -bal)
+  const entries=Object.values(byMerchant);
+  const merchantDues=entries.reduce((s,bal)=>s+Math.max(0,-bal),0);
+  const debtorCount=entries.filter(bal=>bal<-0.005).length;
 
   document.getElementById("stat-pf-inventory").textContent=fmt(inventoryValue);
   document.getElementById("stat-pf-dues").textContent=fmt(merchantDues);
+  const subEl=document.getElementById("stat-pf-dues-sub");
+  if(subEl) subEl.textContent=debtorCount>0?`${debtorCount} تاجر لديهم مستحقات`:"لا توجد مستحقات";
   document.getElementById("stat-pf-total").textContent=fmt(inventoryValue+merchantDues);
 }
 
