@@ -266,13 +266,13 @@
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer;
             background:#e8f8ee;border:2px solid #a8dbb7;border-radius:8px;padding:10px 14px;
             font-size:14px;font-weight:700;color:#1a6b3a;transition:border-color .12s">
-            <input type="radio" name="fin_dir" value="out" id="fin-dir-in" checked />
+            <input type="radio" name="fin_dir" value="in" id="fin-dir-in" checked />
             💳 التاجر دفع نقداً — تسديد مستحقات (يُقلّل دينه)
           </label>
           <label style="display:flex;align-items:center;gap:10px;cursor:pointer;
             background:#fdf0ee;border:2px solid #f0b8b0;border-radius:8px;padding:10px 14px;
             font-size:14px;font-weight:700;color:#b3432f;transition:border-color .12s">
-            <input type="radio" name="fin_dir" value="in" id="fin-dir-out" />
+            <input type="radio" name="fin_dir" value="out" id="fin-dir-out" />
             ➕ إضافة مبلغ على حساب التاجر (يزيد دينه)
           </label>
         </div>
@@ -890,10 +890,10 @@ async function saveFinTx(e){
     if(affectsCash){
       const cashRef=doc(collection(db,"finance_transactions"));
       batch.set(cashRef,{
-        type: dir==="out" ? "deposit" : "withdrawal",
-        dir:  dir==="out" ? "in" : "out",
+        type: dir==="in" ? "deposit" : "withdrawal",
+        dir:  dir==="in" ? "in" : "out",
         amount, date,
-        description:`دفعة تاجر (${mer?.name??""}) — ${desc||(dir==="out"?"تسديد مستحقات":"زيادة على الحساب")}`,
+        description:`دفعة تاجر (${mer?.name??""}) — ${desc||(dir==="in"?"تسديد مستحقات":"زيادة على الحساب")}`,
         partyName: mer?.name??"", merchantId:"", merchantName:"",
         employeeId:"", employeeName:"", finId, _active:true, sourcePage:"التجار",
         createdAt:serverTimestamp(), updatedAt:serverTimestamp(),
@@ -901,7 +901,7 @@ async function saveFinTx(e){
     }
 
     await batch.commit();
-    const typeLabel=dir==="out"?"تسديد مستحقات":"زيادة دين";
+    const typeLabel=dir==="in"?"تسديد مستحقات":"زيادة دين";
     toast("تمت إضافة الدفعة — "+finId);
     writeAuditLog("إضافة","دفعة تاجر",`${mer?.name||"—"} — ${typeLabel} — ${amount} ج.م${affectsCash?" (يؤثر على الصندوق)":""}`);
     closeFinTxModal();
