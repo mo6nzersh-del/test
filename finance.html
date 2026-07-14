@@ -448,14 +448,14 @@
     <!-- نوع الحركة -->
     <label style="font-size:13px;font-weight:700;color:var(--muted);display:block;margin-bottom:8px">نوع الحركة *</label>
     <div class="mp-type-opt sel-out selected" id="mp-opt-out">
-      <input type="radio" name="mp-pay-type" value="out" id="mp-radio-out" checked />
+      <input type="radio" name="mp-pay-type" value="in" id="mp-radio-out" checked />
       <div>
         <div class="mp-type-label">💳 التاجر دفع نقداً — تسديد مستحقات</div>
         <div class="mp-type-sub">(يقلل دينه)</div>
       </div>
     </div>
     <div class="mp-type-opt sel-in" id="mp-opt-in">
-      <input type="radio" name="mp-pay-type" value="in" id="mp-radio-in" />
+      <input type="radio" name="mp-pay-type" value="out" id="mp-radio-in" />
       <div>
         <div class="mp-type-label">➕ إضافة مبلغ على حساب التاجر</div>
         <div class="mp-type-sub">(يزيد دينه)</div>
@@ -1491,7 +1491,7 @@ async function saveMerchantPay(){
 
   const isCash=document.getElementById("mp-cash").checked;
   const desc=document.getElementById("mp-desc").value.trim();
-  const autoDesc=desc||(payType==="out"?`دفعة من ${merchant.name}`:`إضافة لحساب ${merchant.name}`);
+  const autoDesc=desc||(payType==="in"?`دفعة من ${merchant.name}`:`إضافة لحساب ${merchant.name}`);
 
   const btn=document.getElementById("mp-save-btn");
   btn.disabled=true; btn.innerHTML='<span class="spinner"></span>';
@@ -1501,7 +1501,7 @@ async function saveMerchantPay(){
     const batch=writeBatch(db);
 
     // ١. حركة دفتر مستحقات التاجر في finance_transactions — دائماً
-    // payType: out=تسديد (يقلل الدين), in=زيادة دين على التاجر
+    // payType: in=تسديد (يقلل الدين), out=زيادة دين على التاجر
     const merRef=doc(collection(db,"finance_transactions"));
     batch.set(merRef,{
       type:"merchant",
@@ -1515,16 +1515,18 @@ async function saveMerchantPay(){
     });
 
     // ٢. إذا كانت نقدية فعلياً → حركة كاش في finance_transactions
-    // payType=out (تاجر دفع) → نقد يدخل الصندوق → deposit / dir=in
-    // payType=in  (زيادة دين)→ نقد يخرج الصندوق → withdrawal / dir=out
+    // payType=in  (تاجر دفع) → نقد يدخل الصندوق → deposit / dir=in
+    // payType=out (زيادة دين)→ نقد يخرج الصندوق → withdrawal / dir=out
     if(isCash){
       const cashRef=doc(collection(db,"finance_transactions"));
       batch.set(cashRef,{
-        type: payType==="out" ? "deposit" : "withdrawal",
-        dir:  payType==="out" ? "in"      : "out",
+        type: payType==="in" ? "deposit" : "withdrawal",
+        dir:  payType==="in" ? "in"      : "out",
         amount, date,
         description: `دفعة تاجر (${merchant.name}) — ${autoDesc}`,
-        partyName: merchant.name, merchantId, merchantName: merchant.name,
+        // merchantId فارغ عمداً حتى لا تحسبه calcBalance في صفحة التجار مرتين
+        // (نفس اتفاقية saveFinTx في صفحة التجار)
+        partyName: merchant.name, merchantId:"", merchantName:"",
         employeeId:"", employeeName:"",
         finId, _active:true, sourcePage:"المالية",
         createdAt:serverTimestamp(), updatedAt:serverTimestamp(),
@@ -1533,7 +1535,7 @@ async function saveMerchantPay(){
 
     await batch.commit();
     toast("تم الحفظ — "+finId);
-    const typeLabel = payType==="out" ? "تسديد مستحقات" : "زيادة دين";
+    const typeLabel = payType==="in" ? "تسديد مستحقات" : "زيادة دين";
     writeAuditLog("إضافة","دفعة تاجر",`${merchant.name} — ${typeLabel} — ${amount} ج.م${isCash?" (نقدي)":""}`);
     closeMpModal();
   }catch(err){
