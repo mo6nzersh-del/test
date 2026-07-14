@@ -1305,8 +1305,15 @@ async function deleteTx(id){
   if(!confirm("هل تريد حذف هذه العملية؟")) return;
   try{
     const tx = allTx.find(t=>t.id===id);
-    await updateDoc(doc(db,"finance_transactions",id),{_active:false,deletedAt:serverTimestamp()});
-    toast("تم حذف العملية");
+    const finId = tx?.finId;
+    // نحذف جميع السجلات التي تحمل نفس finId (السجل الأصل + المرآة الكاش إن وُجدت)
+    const siblings = finId
+      ? allTx.filter(t=>t.finId===finId && t._active!==false)
+      : [{id}];
+    const batch = writeBatch(db);
+    siblings.forEach(s=>batch.update(doc(db,"finance_transactions",s.id),{_active:false,deletedAt:serverTimestamp()}));
+    await batch.commit();
+    toast(siblings.length>1 ? `تم حذف العملية (${siblings.length} سجلات مرتبطة)` : "تم حذف العملية");
     writeAuditLog("حذف","حركة مالية", tx ? `${tx.finId||"—"} — ${tx.type} — ${tx.amount||0} ج.م` : id);
   }catch(e){ console.error(e); toast("خطأ",true); }
 }
