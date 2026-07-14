@@ -6,6 +6,21 @@
     <title> تسجيل الدخول - أحمد وحمدي</title>
     <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- ضمان الأرقام اللاتينية فقط -->
+    <script>
+    (function(){
+      var _NF=Intl.NumberFormat;
+      function patchLocale(l){
+        if(!l)return"ar-EG-u-nu-latn";
+        if(typeof l==="string")return l.includes("nu-")?l:l.replace(/^ar(-EG)?/,"ar-EG-u-nu-latn");
+        if(Array.isArray(l))return l.map(patchLocale);
+        return"ar-EG-u-nu-latn";
+      }
+      Intl.NumberFormat=function(l,o){return new _NF(patchLocale(l),o)};
+      Object.assign(Intl.NumberFormat,_NF);
+      Intl.NumberFormat.prototype=_NF.prototype;
+    })();
+    </script>
     <script type="module" crossorigin src="/assets/main-Dl33upf7.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/auth-guard-DMMO1gWE.js">
     <link rel="stylesheet" crossorigin href="/assets/auth-guard-C6CJ8_8i.css">

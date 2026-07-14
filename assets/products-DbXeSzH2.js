@@ -4,6 +4,21 @@ import{f as compressImage}from"./image-utils-ix_Ztzsr.js";
 
 const BASE = "/";
 
+/* ─── alias map: email → اسم مستعار ─── */
+let emailToAlias = {};
+function resolveAlias(email) {
+  if (!email || email === "—") return email;
+  return emailToAlias[email] || email;
+}
+// يستمع إلى appUsers ويبني الخريطة فور أي تغيير
+onSnapshot(collection(db, "appUsers"), snap => {
+  emailToAlias = {};
+  snap.forEach(d => {
+    const { email, alias } = d.data();
+    if (email && alias) emailToAlias[email] = alias;
+  });
+});
+
 /* ─── state ─── */
 let currentUser = null;
 let warehouses = [];
@@ -682,6 +697,31 @@ function initLoadingForm() {
     renderLoadLines();
   });
 
+  // تحديث المظهر البصري لخيار الدفع
+  function updatePayStyle() {
+    const isPaid = document.getElementById("load-pay-paid").checked;
+    const labelPaid   = document.getElementById("pay-label-paid");
+    const labelUnpaid = document.getElementById("pay-label-unpaid");
+    const hint        = document.getElementById("pay-hint");
+    if (isPaid) {
+      labelPaid.style.background   = "#e8f5e9";
+      labelPaid.style.color        = "#1a6b3a";
+      labelUnpaid.style.background = "#f0f0f0";
+      labelUnpaid.style.color      = "#888";
+      hint.style.color             = "#1a6b3a";
+      hint.textContent             = "سيُسجَّل دفع فوري — لن يُضاف دين على التاجر";
+    } else {
+      labelUnpaid.style.background = "#fff4e5";
+      labelUnpaid.style.color      = "#a06a10";
+      labelPaid.style.background   = "#f0f0f0";
+      labelPaid.style.color        = "#888";
+      hint.style.color             = "#a06a10";
+      hint.textContent             = "سيُسجَّل دين على التاجر بقيمة الفاتورة";
+    }
+  }
+  document.getElementById("load-pay-paid").addEventListener("change", updatePayStyle);
+  document.getElementById("load-pay-unpaid").addEventListener("change", updatePayStyle);
+
   const form = document.getElementById("loading-form");
   const submitBtn = document.getElementById("loading-submit-btn");
   form.addEventListener("submit", async e => {
@@ -689,6 +729,7 @@ function initLoadingForm() {
     const whId = document.getElementById("load-warehouse").value;
     const merchantId = document.getElementById("load-merchant").value;
     const note = document.getElementById("load-note").value.trim();
+    const isPaid = document.getElementById("load-pay-paid").checked;
     if (!whId) { showToast("اختر المخزن", true); return; }
     if (!merchantId) { showToast("اختر التاجر", true); return; }
     const validLines = loadLines.filter(l => l.productId && l.qty > 0);
@@ -731,19 +772,72 @@ function initLoadingForm() {
         merchantId,
         merchantName: merchant?.name ?? "",
         amount: totalAmount,
-        type: "in",   // merchant owes us money (we expect to collect)
-        note: `تحميل من مخزن ${wh?.name ?? ""}${note ? " — " + note : ""}`,
+        type: "out",  // بيع = يُثبَّت كـ"out" حتى يُعامَل كدين على التاجر (balance يصبح سالباً = مديون)
+        note: `بيع من مخزن ${wh?.name ?? ""}${isPaid ? " — نقدي" : ""}${note ? " — " + note : ""}`,
         date: today,
         txId,
         opId,
         source: "loading",
+        paid: isPaid,
         createdAt: serverTimestamp(),
       });
+      // إذا تم الدفع فوراً: أضف حركة دفع تلقائية في finance_transactions تُلغي الدين
+      if (isPaid && totalAmount > 0) {
+        // قراءة الـ counter لتوليد finId تسلسلي صحيح (F-XXXX)
+        const counterRef = docRef(db, "counters", "finance_trans");
+        const counterSnap = await new Promise((res, rej) => {
+          const unsub = onSnapshot(counterRef, snap => { unsub(); res(snap); }, rej);
+        });
+        const newSeq   = (counterSnap.exists() ? counterSnap.data().seq : 0) + 1;
+        const payFinId = "F-" + String(newSeq).padStart(4, "0");
+        // تحديث الـ counter في نفس الـ batch
+        batch.set(counterRef, { seq: newSeq }, { merge: true });
+
+        const payTxId = `PY-${Date.now().toString(36).toUpperCase().slice(-6)}`;
+        const payRef  = docRef(collection(db, "finance_transactions"));
+        batch.set(payRef, {
+          type: "merchant",
+          dir: "in",          // dir="in" = دفع من التاجر = يُقلّل الدين
+          amount: totalAmount,
+          date: today,
+          merchantId,
+          merchantName: merchant?.name ?? "",
+          txId: payTxId,
+          opId,
+          finId: payFinId,
+          _active: true,
+          source: "auto-payment",
+          sourcePage: "المنتجات",
+          description: `دفع فوري — بيع نقدي من مخزن ${wh?.name ?? ""}${note ? " — " + note : ""}`,
+          affectsCash: true,
+          performedBy: currentUser?.email ?? "—",
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+        // يُسجَّل إيداع في الصندوق تلقائياً بنفس finId
+        const cashRef = docRef(collection(db, "finance_transactions"));
+        batch.set(cashRef, {
+          type: "deposit",
+          dir: "in",
+          amount: totalAmount,
+          date: today,
+          txId: `DP-${Date.now().toString(36).toUpperCase().slice(-6)}`,
+          opId,
+          finId: payFinId,
+          _active: true,
+          source: "auto-payment",
+          sourcePage: "المنتجات",
+          description: `إيداع نقدي — بيع للتاجر ${merchant?.name ?? ""}${note ? " — " + note : ""}`,
+          performedBy: currentUser?.email ?? "—",
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        });
+      }
       // activity log
       const logRef = docRef(collection(db, "activityLog"));
       batch.set(logRef, {
         type: "loading",
-        summary: `تحميل: ${wh?.name ?? ""} → ${merchant?.name ?? ""}`,
+        summary: `بيع: ${wh?.name ?? ""} → ${merchant?.name ?? ""}`,
         details: `${lineDetails.length} صنف — إجمالي: ${fmtMoney(totalAmount)}`,
         opId, note,
         performedBy: currentUser?.email ?? "—",
@@ -752,8 +846,8 @@ function initLoadingForm() {
       // سجل المراقبة الشامل (تظهر في صفحة السجل الشامل)
       const auditRef = docRef(collection(db, "auditLog"));
       batch.set(auditRef, {
-        action: "إضافة", entity: "عملية تحميل", page: "المنتجات",
-        details: `تحميل: ${wh?.name ?? ""} → ${merchant?.name ?? ""} — ${lineDetails.length} صنف — إجمالي: ${fmtMoney(totalAmount)}`,
+        action: "إضافة", entity: "عملية بيع", page: "المنتجات",
+        details: `بيع: ${wh?.name ?? ""} → ${merchant?.name ?? ""} — ${lineDetails.length} صنف — إجمالي: ${fmtMoney(totalAmount)}`,
         userEmail: currentUser?.email ?? "—",
         createdAt: serverTimestamp(),
       });
@@ -768,9 +862,9 @@ function initLoadingForm() {
       form.reset();
       loadLines = [{ id: ++loadLineCounter, productId: "", qty: 1, price: 0 }];
       renderLoadLines();
-      showToast("تمت عملية التحميل بنجاح");
+      showToast("تمت عملية البيع بنجاح");
     } catch (err) { console.error(err); showToast("حدث خطأ أثناء التنفيذ", true); }
-    finally { submitBtn.disabled = false; submitBtn.textContent = "تنفيذ عملية التحميل"; }
+    finally { submitBtn.disabled = false; submitBtn.textContent = "تنفيذ عملية البيع"; }
   });
 }
 
@@ -870,7 +964,7 @@ function loadLoadingRecords() {
         ? `<span class="op-serial-link" data-op-id="${esc(d.opId)}" data-op-kind="loading" title="عرض تفاصيل الحركة"># ${esc(d.opId.slice(0, 8).toUpperCase())}</span>`
         : "";
       row.innerHTML = `
-        <span class="record-badge loading">تحميل</span>
+        <span class="record-badge loading">بيع</span>
         <div class="record-main">
           <div class="title">${esc(d.warehouseName)} → ${esc(d.merchantName)} ${serialHtml}</div>
           <div class="meta">${d.lines?.length ?? 0} صنف · الإجمالي: ${fmtMoney(d.totalAmount)} · ${d.createdAt ? fmtDateTime(d.createdAt) : "الآن"}</div>
@@ -947,7 +1041,7 @@ function loadActivityLog() {
     let rowNum = snap.size; // newest = highest number
     snap.forEach(docSnap => {
       const d = docSnap.data();
-      const badgeMap = { production: ["log-prod","إنتاج"], transfer: ["log-transfer","تحويل"], loading: ["log-load","تحميل"] };
+      const badgeMap = { production: ["log-prod","إنتاج"], transfer: ["log-transfer","تحويل"], loading: ["log-load","بيع"] };
       const [cls, label] = badgeMap[d.type] ?? ["log-prod", d.type];
       const seqLabel = `OP-${String(rowNum).padStart(5, "0")}`;
       rowNum--;
@@ -971,7 +1065,7 @@ function loadActivityLog() {
           <div style="font-weight:700;font-size:13px">${esc(d.summary || "")}</div>
           <div style="font-size:12px;color:var(--muted)">${esc(d.details || "")}${d.note ? ` — <em>${esc(d.note)}</em>` : ""}</div>
         </td>
-        <td style="font-size:12.5px">${esc(d.performedBy || "—")}</td>
+        <td style="font-size:12.5px">${esc(resolveAlias(d.performedBy) || "—")}</td>
         <td class="log-time">${d.createdAt ? fmtDateTime(d.createdAt) : "—"}</td>`;
       tbody.appendChild(tr);
     });
@@ -1005,77 +1099,108 @@ function showInvoice(data) {
   // اعرض الرقم التسلسلي نفسه من سجل العمليات (OP-00006) بدل جزء من opId
   const shortId = data.seqLabel || (data.opId ? data.opId.slice(0, 8).toUpperCase() : "—");
 
-  let typeLabel = "", typeCls = "", bodyHtml = "", totalHtml = "";
+  let typeLabel = "", typeCls = "", bodyHtml = "", billToHtml = "";
 
   if (data.type === "production") {
     typeLabel = "عملية إنتاج"; typeCls = "inv-prod";
     const inputRows = (data.inputs || []).map(i =>
-      `<tr><td>${esc(i.productName)}</td><td>${fmtNum(i.qty)} ${esc(i.unit)}</td><td style="color:var(--danger)">استهلاك ←</td></tr>`).join("");
+      `<tr><td>${esc(i.productName)}</td><td style="text-align:center">${fmtNum(i.qty)} ${esc(i.unit)}</td><td style="color:#b91c1c;text-align:center">استهلاك</td></tr>`).join("");
     const outputRows = (data.outputs || []).map(o =>
-      `<tr><td>${esc(o.productName)}</td><td>${fmtNum(o.qty)} ${esc(o.unit)}</td><td style="color:var(--primary-dark)">إنتاج ←</td></tr>`).join("");
+      `<tr><td>${esc(o.productName)}</td><td style="text-align:center">${fmtNum(o.qty)} ${esc(o.unit)}</td><td style="color:#15803d;text-align:center">إنتاج</td></tr>`).join("");
+    billToHtml = `<div class="inv-doc-bill">
+      <div class="inv-doc-bill-label">المخازن</div>
+      <div class="inv-doc-bill-name">${esc(data.fromWarehouseName||"")}</div>
+      <div class="inv-doc-bill-detail">إلى مخزن: ${esc(data.toWarehouseName||"")}</div>
+    </div>`;
     bodyHtml = `
-      <div style="margin-bottom:10px">
-        <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px">📦 من مخزن: <strong style="color:var(--ink)">${esc(data.fromWarehouseName)}</strong></div>
-        <div style="font-size:12px;font-weight:700;color:var(--muted)">🏭 إلى مخزن: <strong style="color:var(--ink)">${esc(data.toWarehouseName)}</strong></div>
-      </div>
-      <table class="invoice-table">
-        <thead><tr><th>الصنف</th><th>الكمية</th><th>الحركة</th></tr></thead>
+      <table class="inv-doc-table">
+        <thead><tr><th>الصنف</th><th style="text-align:center">الكمية</th><th style="text-align:center">الحركة</th></tr></thead>
         <tbody>${inputRows}${outputRows}</tbody>
-      </table>`;
+      </table>
+      <div class="inv-doc-total-wrap"><table class="inv-doc-total-table">
+        <tr><td class="tot-lbl">إجمالي الأصناف</td><td class="tot-val">${(data.inputs||[]).length+(data.outputs||[]).length}</td></tr>
+      </table></div>`;
   } else if (data.type === "transfer") {
     typeLabel = "تحويل بين مخازن"; typeCls = "inv-transfer";
+    billToHtml = `<div class="inv-doc-bill">
+      <div class="inv-doc-bill-label">من</div>
+      <div class="inv-doc-bill-name">${esc(data.fromWarehouseName||"")}</div>
+      <div class="inv-doc-bill-detail">إلى: ${esc(data.toWarehouseName||"")}</div>
+    </div>`;
     bodyHtml = `
-      <div style="margin-bottom:14px">
-        <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px">من مخزن: <strong style="color:var(--ink)">${esc(data.fromWarehouseName)}</strong></div>
-        <div style="font-size:12px;font-weight:700;color:var(--muted)">إلى مخزن: <strong style="color:var(--ink)">${esc(data.toWarehouseName)}</strong></div>
-      </div>
-      <table class="invoice-table">
-        <thead><tr><th>الصنف</th><th>الكمية المحوّلة</th></tr></thead>
-        <tbody><tr><td>${esc(data.productName)}</td><td>${fmtNum(data.quantity)} ${esc(data.unit)}</td></tr></tbody>
-      </table>`;
+      <table class="inv-doc-table">
+        <thead><tr><th>الصنف</th><th style="text-align:center">الكمية المحوّلة</th></tr></thead>
+        <tbody><tr><td>${esc(data.productName)}</td><td style="text-align:center">${fmtNum(data.quantity)} ${esc(data.unit)}</td></tr></tbody>
+      </table>
+      <div class="inv-doc-total-wrap"><table class="inv-doc-total-table">
+        <tr><td class="tot-lbl">الكمية المحوّلة</td><td class="tot-val">${fmtNum(data.quantity)} ${esc(data.unit)}</td></tr>
+      </table></div>`;
   } else if (data.type === "loading") {
-    typeLabel = "عملية تحميل للتاجر"; typeCls = "inv-load";
+    typeLabel = "فاتورة بيع"; typeCls = "inv-load";
     const lineRows = (data.lines || []).map(l =>
-      `<tr><td>${esc(l.productName)}</td><td>${fmtNum(l.qty)} ${esc(l.unit)}</td><td>${fmtMoney(l.price)}</td><td style="font-weight:700">${fmtMoney(l.total)}</td></tr>`
-    ).join("");
-    totalHtml = `<div class="invoice-total-row"><span>الإجمالي المطلوب من التاجر</span><span>${fmtMoney(data.totalAmount)}</span></div>`;
+      `<tr>
+        <td>${esc(l.productName)}</td>
+        <td style="text-align:center">${fmtNum(l.qty)} ${esc(l.unit)}</td>
+        <td style="text-align:center">${fmtMoney(l.price)}</td>
+        <td style="text-align:center;font-weight:700">${fmtMoney(l.total)}</td>
+      </tr>`).join("");
+    billToHtml = `<div class="inv-doc-bill">
+      <div class="inv-doc-bill-label">إلى</div>
+      <div class="inv-doc-bill-name">${esc(data.merchantName||"")}</div>
+      <div class="inv-doc-bill-detail">من مخزن: ${esc(data.warehouseName||"")}</div>
+    </div>`;
     bodyHtml = `
-      <div style="margin-bottom:14px">
-        <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:6px">من مخزن: <strong style="color:var(--ink)">${esc(data.warehouseName)}</strong></div>
-        <div style="font-size:12px;font-weight:700;color:var(--muted)">إلى التاجر: <strong style="color:var(--ink)">${esc(data.merchantName)}</strong></div>
-      </div>
-      <table class="invoice-table">
-        <thead><tr><th>الصنف</th><th>الكمية</th><th>سعر الوحدة</th><th>الإجمالي</th></tr></thead>
+      <table class="inv-doc-table">
+        <thead><tr><th>الصنف</th><th style="text-align:center">الكمية</th><th style="text-align:center">سعر الوحدة</th><th style="text-align:center">الإجمالي</th></tr></thead>
         <tbody>${lineRows}</tbody>
-      </table>`;
+      </table>
+      <div class="inv-doc-total-wrap"><table class="inv-doc-total-table">
+        <tr><td class="tot-lbl">المجموع الفرعي</td><td class="tot-val">${fmtMoney(data.totalAmount)}</td></tr>
+        <tr><td class="tot-lbl"><strong>الإجمالي</strong></td><td class="tot-val"><strong>${fmtMoney(data.totalAmount)}</strong></td></tr>
+      </table></div>`;
   }
 
   const printNow = new Date().toLocaleString("ar-EG", { year:"numeric", month:"long", day:"numeric", hour:"2-digit", minute:"2-digit" });
   const modalTitle = document.getElementById("invoice-modal-title") || document.querySelector("#invoice-modal .modal-box-header h3");
   if (modalTitle) modalTitle.textContent = isReplay ? "معاينة الحركة" : "فاتورة العملية";
 
+  // تحديد بادج نوع العملية
+  const docTypeCls = data.type==="production"?"t-prod":data.type==="loading"?"t-load":"t-trans";
+
   content.innerHTML = `
-    <div class="invoice-header">
-      <div class="invoice-mark">أ</div>
-      <div class="invoice-company">أحمد وحمدي</div>
-      <div class="invoice-sub">نظام المحاسبة الداخلي${isReplay ? " — معاينة حركة سابقة" : ""}</div>
-    </div>
-    <div style="text-align:center;margin-bottom:14px">
-      <span class="invoice-type-badge ${typeCls}">${typeLabel}</span>
-    </div>
-    <div class="invoice-meta-row">
-      <div><span>رقم العملية: </span><strong>${data.seqLabel ? shortId : "#" + shortId}</strong></div>
-      <div><span>${isReplay ? "تمت الحركة في: " : "التاريخ: "}</span><strong>${now}</strong></div>
-      <div><span>نفّذها: </span><strong>${esc(data.performedBy || "—")}</strong></div>
-    </div>
-    ${bodyHtml}
-    ${totalHtml}
-    ${data.note ? `<div style="margin-top:12px;font-size:13px;color:var(--muted)">ملاحظة: <em>${esc(data.note)}</em></div>` : ""}
-    <div class="invoice-footer">
-      <div>${isReplay ? "تمت معاينتها بتاريخ: " : "طُبع بتاريخ: "}${printNow}</div>
-      <div class="invoice-sig">
-        <div class="invoice-sig-line"></div>
-        <div>التوقيع والختم</div>
+    <div class="inv-doc">
+      <!-- رأس الفاتورة -->
+      <div class="inv-doc-head">
+        <div class="inv-doc-logo-wrap">
+          <div class="inv-doc-brand">Ahmed And Hamdy</div>
+          <div class="inv-doc-brand-sub">نظام المحاسبة الداخلي${isReplay?" — معاينة حركة سابقة":""}</div>
+        </div>
+        <div class="inv-doc-nums">
+          <div class="inv-doc-num-row"><span>رقم الفاتورة</span><strong>${data.seqLabel?shortId:"#"+shortId}</strong></div>
+          <div class="inv-doc-num-row"><span>${isReplay?"تاريخ الحركة":"التاريخ"}</span><strong>${now}</strong></div>
+          <div class="inv-doc-num-row"><span>نفّذها</span><strong>${esc(resolveAlias(data.performedBy)||"—")}</strong></div>
+        </div>
+      </div>
+
+      <!-- نوع العملية -->
+      <span class="inv-doc-type-badge ${docTypeCls}">${typeLabel}</span>
+
+      <!-- بيانات الطرف الآخر -->
+      ${billToHtml}
+
+      <!-- جسم الفاتورة (جدول + إجمالي) -->
+      ${bodyHtml}
+
+      <!-- ملاحظة -->
+      ${data.note?`<div class="inv-doc-note">ملاحظة: ${esc(data.note)}</div>`:""}
+
+      <!-- تذييل -->
+      <div class="inv-doc-footer">
+        <div>${isReplay?"تمت معاينتها بتاريخ: ":"طُبع بتاريخ: "}${printNow}</div>
+        <div class="inv-doc-sig">
+          <div class="inv-doc-sig-line"></div>
+          <div>التوقيع والختم</div>
+        </div>
       </div>
     </div>`;
 

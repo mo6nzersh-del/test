@@ -7,6 +7,21 @@
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="stylesheet" href="/assets/auth-guard-C6CJ8_8i.css" />
+  <!-- ضمان الأرقام اللاتينية فقط -->
+  <script>
+  (function(){
+    var _NF=Intl.NumberFormat;
+    function patchLocale(l){
+      if(!l)return"ar-EG-u-nu-latn";
+      if(typeof l==="string")return l.includes("nu-")?l:l.replace(/^ar(-EG)?/,"ar-EG-u-nu-latn");
+      if(Array.isArray(l))return l.map(patchLocale);
+      return"ar-EG-u-nu-latn";
+    }
+    Intl.NumberFormat=function(l,o){return new _NF(patchLocale(l),o)};
+    Object.assign(Intl.NumberFormat,_NF);
+    Intl.NumberFormat.prototype=_NF.prototype;
+  })();
+  </script>
   <style>
     /* ── شريط التنقل بين الأشهر ── */
     .month-nav{display:flex;align-items:center;justify-content:space-between;gap:16px;
@@ -788,7 +803,11 @@ function renderNav(user) {
     { href:"employees.html", label:"الموظفين"  },
     { href:"finance.html",   label:"المالية"   },
   ];
-  document.getElementById("topbar").innerHTML = `
+  const current="employees.html";
+  const tabs=pages.map(p=>`<a href="/${p.href}" class="${p.href===current?"active":""}">${p.label}</a>`).join("");
+  const mLinks=pages.map(p=>`<a href="/${p.href}" class="mobile-nav-link${p.href===current?" active":""}">${p.label}</a>`).join("");
+  const topbar=document.getElementById("topbar");
+  topbar.innerHTML = `
     <div class="topbar-inner">
       <div class="brand">
         <img src="https://i.imgur.com/NsN1HgC.png" alt="logo"
@@ -796,13 +815,30 @@ function renderNav(user) {
           onerror="this.style.display='none'" />
         <span>Ahmed And hamdy</span>
       </div>
-      <nav class="nav-tabs">${pages.map(p=>`<a href="/${p.href}" class="${p.href==="employees.html"?"active":""}">${p.label}</a>`).join("")}</nav>
+      <nav class="nav-tabs">${tabs}</nav>
       <div class="user-chip">
         <span>${user.email??""}</span>
+        <button class="hamburger-btn" id="hamburger-btn" aria-label="القائمة" aria-expanded="false">
+          <span class="ham-line"></span><span class="ham-line"></span><span class="ham-line"></span>
+        </button>
         <button class="icon-btn" id="logout-btn">خروج</button>
       </div>
+    </div>
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay">
+      <nav class="mobile-nav-menu">${mLinks}</nav>
     </div>`;
   document.getElementById("logout-btn").addEventListener("click", ()=>signOut(auth).then(()=>location.href="/"));
+  const hBtn=document.getElementById("hamburger-btn");
+  const overlay=document.getElementById("mobile-nav-overlay");
+  hBtn.addEventListener("click",()=>{
+    const open=overlay.classList.toggle("open");
+    hBtn.setAttribute("aria-expanded",open?"true":"false");
+    hBtn.classList.toggle("active",open);
+  });
+  overlay.querySelectorAll(".mobile-nav-link").forEach(lnk=>lnk.addEventListener("click",()=>{
+    overlay.classList.remove("open");hBtn.classList.remove("active");hBtn.setAttribute("aria-expanded","false");
+  }));
+  document.addEventListener("click",ev=>{if(!topbar.contains(ev.target)){overlay.classList.remove("open");hBtn.classList.remove("active");hBtn.setAttribute("aria-expanded","false");}});
 }
 
 /* ── حالة عامة ── */

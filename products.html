@@ -6,6 +6,21 @@
     <title>المنتجات - Ahmed And hamdy</title>
     <meta name="robots" content="noindex, nofollow" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- ضمان الأرقام اللاتينية فقط -->
+    <script>
+    (function(){
+      var _NF=Intl.NumberFormat;
+      function patchLocale(l){
+        if(!l)return"ar-EG-u-nu-latn";
+        if(typeof l==="string")return l.includes("nu-")?l:l.replace(/^ar(-EG)?/,"ar-EG-u-nu-latn");
+        if(Array.isArray(l))return l.map(patchLocale);
+        return"ar-EG-u-nu-latn";
+      }
+      Intl.NumberFormat=function(l,o){return new _NF(patchLocale(l),o)};
+      Object.assign(Intl.NumberFormat,_NF);
+      Intl.NumberFormat.prototype=_NF.prototype;
+    })();
+    </script>
     <script type="module" crossorigin src="/assets/products-DbXeSzH2.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/auth-guard-DMMO1gWE.js">
     <link rel="modulepreload" crossorigin href="/assets/nav-C4LmEyvm.js">
@@ -48,27 +63,54 @@
       .prod-line-row{display:grid;grid-template-columns:2fr 1fr auto;gap:8px;align-items:center;margin-bottom:8px}
       .prod-line-row .line-hint{grid-column:1/-1;font-size:.75rem;color:var(--primary-dark);font-weight:600;padding:2px 4px}
       .prod-line-row .remove-line{background:var(--danger-soft);color:var(--danger);border:none;border-radius:7px;padding:7px 11px;font-weight:700;font-size:.8rem;cursor:pointer}
-      /* ── invoice (print) ── */
-      .invoice-box{font-family:Cairo,sans-serif;direction:rtl;max-width:640px;margin:0 auto}
-      .invoice-header{text-align:center;border-bottom:3px solid var(--primary);padding-bottom:16px;margin-bottom:16px}
-      .invoice-mark{width:50px;height:50px;border-radius:14px;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:#fff;font-size:22px;font-weight:800;display:flex;align-items:center;justify-content:center;margin:0 auto 8px}
-      .invoice-company{font-size:18px;font-weight:800;margin-bottom:2px}
-      .invoice-sub{font-size:12px;color:var(--muted)}
-      .invoice-meta-row{display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:14px;flex-wrap:wrap;gap:8px;background:var(--bg);padding:10px 14px;border-radius:8px}
-      .invoice-meta-row span{color:var(--muted)}
-      .invoice-meta-row strong{color:var(--ink)}
+      /* ══════════════════════════════════════
+         فاتورة احترافية — تصميم جديد
+      ══════════════════════════════════════ */
+      .inv-doc{font-family:Cairo,sans-serif;direction:rtl;max-width:680px;margin:0 auto;color:#111;background:#fff}
+      /* رأس الفاتورة */
+      .inv-doc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding-bottom:14px;margin-bottom:14px;border-bottom:2px solid #222}
+      .inv-doc-logo-wrap{display:flex;flex-direction:column;gap:3px}
+      .inv-doc-logo{width:90px;height:54px;object-fit:contain;border:1.5px dashed #bbb;border-radius:6px;padding:4px;background:#f8f8f8}
+      .inv-doc-brand{font-size:16px;font-weight:800;color:#111;margin-top:6px}
+      .inv-doc-brand-sub{font-size:11px;color:#777;margin-top:1px}
+      /* أرقام الفاتورة */
+      .inv-doc-nums{text-align:left;min-width:170px}
+      .inv-doc-num-row{display:flex;justify-content:space-between;gap:16px;font-size:12.5px;margin-bottom:5px}
+      .inv-doc-num-row span{color:#777}
+      .inv-doc-num-row strong{color:#111;font-weight:700}
+      /* قسم "إلى" */
+      .inv-doc-bill{margin-bottom:16px}
+      .inv-doc-bill-label{font-size:10.5px;font-weight:700;color:#777;letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px}
+      .inv-doc-bill-name{font-size:14.5px;font-weight:800;color:#111;margin-bottom:2px}
+      .inv-doc-bill-detail{font-size:12px;color:#555;line-height:1.65}
+      /* بادج النوع */
+      .inv-doc-type-badge{display:inline-block;font-size:11px;font-weight:700;border-radius:4px;padding:3px 10px;margin-bottom:12px;border:1px solid}
+      .inv-doc-type-badge.t-prod{background:#eef2ff;color:#3730a3;border-color:#c7d2fe}
+      .inv-doc-type-badge.t-load{background:#fdf4e3;color:#92400e;border-color:#fcd34d}
+      .inv-doc-type-badge.t-trans{background:#e8f0fb;color:#1e40af;border-color:#bfdbfe}
+      /* جدول الفاتورة */
+      .inv-doc-table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:0}
+      .inv-doc-table th{text-align:right;padding:9px 12px;background:#f5f5f5;font-size:12px;font-weight:700;color:#444;border:1px solid #ddd}
+      .inv-doc-table td{padding:9px 12px;border:1px solid #e0e0e0;vertical-align:middle;color:#111}
+      .inv-doc-table tr:nth-child(even) td{background:#fafafa}
+      /* إجمالي */
+      .inv-doc-total-wrap{border:1px solid #ddd;border-top:none;display:flex;justify-content:flex-end}
+      .inv-doc-total-table{border-collapse:collapse;min-width:260px}
+      .inv-doc-total-table td{padding:8px 12px;border-top:1px solid #e0e0e0;font-size:13px}
+      .inv-doc-total-table tr:last-child td{background:#f5f5f5;font-weight:800;font-size:14px;color:#111;border-top:2px solid #222}
+      .inv-doc-total-table .tot-lbl{color:#555}
+      .inv-doc-total-table .tot-val{text-align:left;font-family:monospace}
+      /* ملاحظة */
+      .inv-doc-note{margin-top:14px;padding:10px 14px;background:#f9f9f9;border-right:3px solid #bbb;font-size:12px;color:#555;border-radius:0 4px 4px 0}
+      /* تذييل */
+      .inv-doc-footer{margin-top:26px;padding-top:12px;border-top:1px dashed #ccc;display:flex;align-items:flex-end;justify-content:space-between;font-size:11px;color:#aaa}
+      .inv-doc-sig-line{width:110px;border-top:1px solid #666;margin-bottom:4px}
+      .inv-doc-sig{text-align:center;font-size:11px;color:#777}
+      /* توافق مع الكود القديم */
       .invoice-type-badge{display:inline-block;padding:5px 14px;border-radius:999px;font-size:12.5px;font-weight:700;margin-bottom:14px}
       .inv-prod{background:var(--primary-soft);color:var(--primary-dark)}
       .inv-transfer{background:#e8f0fb;color:#2a5bbf}
       .inv-load{background:#fdf4e3;color:#a06a10}
-      .invoice-table{width:100%;border-collapse:collapse;margin-bottom:14px;font-size:13px}
-      .invoice-table th{text-align:right;padding:7px 10px;background:var(--bg);font-size:12px;font-weight:700;color:var(--muted);border-bottom:1.5px solid var(--border)}
-      .invoice-table td{padding:8px 10px;border-bottom:1px solid var(--border)}
-      .invoice-table tr:last-child td{border-bottom:none}
-      .invoice-total-row{display:flex;justify-content:space-between;font-size:16px;font-weight:800;color:var(--primary-dark);border-top:2px solid var(--primary);padding-top:12px;margin-top:4px}
-      .invoice-footer{margin-top:18px;padding-top:14px;border-top:1px dashed var(--border);display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted)}
-      .invoice-sig{text-align:center}
-      .invoice-sig-line{width:120px;border-top:1px solid var(--ink);margin:28px auto 4px}
       /* ── record badges ── */
       .record-badge.production{background:var(--primary-soft);color:var(--primary-dark)}
       .record-badge.transfer{background:#e8f0fb;color:#2a5bbf}
@@ -110,23 +152,26 @@
       .remove-line:disabled{opacity:.4;cursor:not-allowed!important}
       /* ── print styles ── */
       @media print{
-        /* hide everything except the invoice content */
+        @page{size:A4 portrait;margin:0}
         body > *{display:none!important}
         #invoice-modal{
-          display:block!important;position:static!important;
-          background:none!important;padding:0!important;
-          overflow:visible!important;
+          display:block!important;position:fixed!important;
+          top:0!important;left:0!important;right:0!important;bottom:0!important;
+          background:#fff!important;padding:14mm 16mm!important;
+          overflow:visible!important;z-index:9999!important;
+          box-sizing:border-box!important;
         }
         #invoice-modal .modal-box{
           box-shadow:none!important;max-height:none!important;
           border:none!important;padding:0!important;
-          overflow:visible!important;
+          overflow:visible!important;background:#fff!important;
+          width:100%!important;max-width:100%!important;
         }
         #invoice-modal .modal-box-header,
         #receipt-print-btn-outer{display:none!important}
         #invoice-content{display:block!important}
-        body{background:#fff!important}
-        @page{margin:15mm}
+        body{background:#fff!important;margin:0!important;padding:0!important}
+        *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
       }
     </style>
   </head>
@@ -143,7 +188,7 @@
 
         <div class="section-tabs">
           <button type="button" class="active" id="tab-movements">الحركات</button>
-          <button type="button" id="tab-loading">عمليات التحميل</button>
+          <button type="button" id="tab-loading">عمليات البيع</button>
           <button type="button" id="tab-warehouses">المخازن والبضائع</button>
           <button type="button" id="tab-log">سجل العمليات</button>
         </div>
@@ -264,13 +309,28 @@
                 <label for="load-note">ملاحظات (اختياري)</label>
                 <input type="text" id="load-note" placeholder="مثال: دفعة يوليو..." />
               </div>
-              <button type="submit" class="btn" id="loading-submit-btn">تنفيذ عملية التحميل</button>
+              <!-- حالة الدفع -->
+              <div class="field" style="margin-bottom:18px">
+                <label style="display:block;margin-bottom:8px;font-weight:600">حالة الدفع</label>
+                <div style="display:flex;gap:0;border:1.5px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content">
+                  <label id="pay-label-unpaid" style="display:flex;align-items:center;gap:6px;padding:8px 20px;cursor:pointer;background:#fff4e5;color:#a06a10;font-weight:700;font-size:.92rem;border-left:1.5px solid var(--border)">
+                    <input type="radio" name="load_payment" value="unpaid" id="load-pay-unpaid" checked style="accent-color:#a06a10" />
+                    ⏳ غير مدفوع
+                  </label>
+                  <label id="pay-label-paid" style="display:flex;align-items:center;gap:6px;padding:8px 20px;cursor:pointer;background:#f0f0f0;color:#888;font-weight:600;font-size:.92rem">
+                    <input type="radio" name="load_payment" value="paid" id="load-pay-paid" style="accent-color:#1a6b3a" />
+                    ✅ تم الدفع
+                  </label>
+                </div>
+                <p id="pay-hint" style="margin:6px 0 0;font-size:.82rem;color:#a06a10">سيُسجَّل دين على التاجر بقيمة الفاتورة</p>
+              </div>
+              <button type="submit" class="btn" id="loading-submit-btn">تنفيذ عملية البيع</button>
             </form>
           </div>
 
           <!-- سجل سريع مكرر — تم إخفاؤه، السجل الكامل موجود فقط في تبويب "سجل العمليات" -->
           <div class="panel" style="display:none">
-            <h3>سجل عمليات التحميل</h3>
+            <h3>سجل عمليات البيع</h3>
             <div class="records-list" id="loading-records-list">
               <div class="empty-state">جارِ التحميل...</div>
             </div>

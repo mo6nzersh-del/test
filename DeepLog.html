@@ -523,7 +523,7 @@
       </div>
       <div class="panel">
         <div class="panel-header">
-          <h3>عمليات التحميل للتجار</h3>
+          <h3>عمليات البيع للتجار</h3>
           <span id="load-count" style="font-size:13px;color:var(--muted)"></span>
         </div>
         <div class="table-wrap">
@@ -612,6 +612,27 @@
 
     <!-- ══════════ TAB 7: ACCOUNT MANAGEMENT ══════════ -->
     <div class="section-view" id="view-accounts">
+      <!-- لوحة الاسم المستعار للمستخدم الحالي -->
+      <div class="panel" id="my-alias-panel">
+        <div class="panel-header"><h3>✏️ اسمك المستعار</h3></div>
+        <p style="font-size:12px;color:var(--muted);margin:-4px 0 12px">
+          اختر اسماً يظهر بدلاً من بريدك الإلكتروني في جميع السجلات والحركات.
+        </p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+          <div class="field" style="margin:0;flex:1;min-width:220px">
+            <label for="my-alias-email" style="font-size:13px">بريدك الإلكتروني</label>
+            <input type="text" id="my-alias-email" readonly
+              style="margin-top:4px;background:var(--bg);color:var(--muted);cursor:default" />
+          </div>
+          <div class="field" style="margin:0;flex:1;min-width:200px">
+            <label for="my-alias-input" style="font-size:13px">الاسم المستعار</label>
+            <input type="text" id="my-alias-input" autocomplete="off"
+              placeholder="مثال: أحمد" style="margin-top:4px" maxlength="40" />
+          </div>
+          <button type="button" class="btn small" id="my-alias-save-btn"
+            style="margin-top:20px">💾 حفظ الاسم</button>
+        </div>
+      </div>
       <div class="panel">
         <div class="panel-header"><h3>👤 إنشاء حساب جديد</h3></div>
         <p style="font-size:12px;color:var(--muted);margin:-4px 0 12px">
@@ -630,6 +651,11 @@
             <label for="account-name" style="font-size:13px">الاسم (اختياري)</label>
             <input type="text" id="account-name" autocomplete="off" placeholder="اسم الموظف" style="margin-top:4px" />
           </div>
+          <div class="field" style="margin:0;flex:1;min-width:180px">
+            <label for="account-alias" style="font-size:13px">الاسم المستعار</label>
+            <input type="text" id="account-alias" autocomplete="off"
+              placeholder="يُعرض بدل البريد في السجلات" style="margin-top:4px" maxlength="40" />
+          </div>
           <button type="submit" class="btn small" id="account-submit-btn" style="margin-top:20px">إنشاء الحساب</button>
         </form>
       </div>
@@ -643,8 +669,8 @@
         </p>
         <div class="table-wrap">
           <table class="data-table">
-            <thead><tr><th>البريد الإلكتروني</th><th>الاسم</th><th>أنشأه</th><th>التاريخ</th></tr></thead>
-            <tbody id="account-tbody"><tr><td colspan="4"><div class="empty-state">جارِ التحميل...</div></td></tr></tbody>
+            <thead><tr><th>البريد الإلكتروني</th><th>الاسم</th><th>الاسم المستعار</th><th>أنشأه</th><th>التاريخ</th><th></th></tr></thead>
+            <tbody id="account-tbody"><tr><td colspan="6"><div class="empty-state">جارِ التحميل...</div></td></tr></tbody>
           </table>
         </div>
       </div>
@@ -1144,7 +1170,7 @@ function renderAuditLog() {
       <td><span style="display:inline-block;padding:2px 9px;border-radius:99px;font-size:11.5px;font-weight:800;${actionStyle}">${esc(d.action || "—")}</span></td>
       <td style="font-size:12.5px;color:var(--muted)">${esc(d.entity || "—")}</td>
       <td style="font-size:13px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(d.details || '')}">${esc(d.details || "—")}</td>
-      <td style="font-size:12px;color:var(--muted);white-space:nowrap">🔑 ${esc(d.userEmail || "—")}</td>
+      <td style="font-size:12px;color:var(--muted);white-space:nowrap">🔑 ${esc(resolveAlias(d.userEmail) || "—")}</td>
       <td style="white-space:nowrap;font-size:12px">${fmtDateTime(d.createdAt)}</td>`;
     tbody.appendChild(tr);
   });
@@ -1177,7 +1203,7 @@ function loadDlActivity() {
       tr.innerHTML = `
         <td style="font-weight:700">${esc(d.action || "—")}</td>
         <td style="font-size:13px;color:var(--muted)">${esc(d.details || "—")}</td>
-        <td style="font-size:12.5px">${esc(d.performedBy || "—")}</td>
+        <td style="font-size:12.5px">${esc(resolveAlias(d.performedBy) || "—")}</td>
         <td style="white-space:nowrap;font-size:12.5px">${fmtDateTime(d.createdAt)}</td>`;
       tbody.appendChild(tr);
     });
@@ -1231,6 +1257,7 @@ function init() {
   loadFinanceTx();
   loadWarehouseOps();
   loadLoadingOps();
+  loadEmailToAlias();
   loadDlActivity();
   loadAuditLog();
   loadAccounts();
@@ -1238,6 +1265,10 @@ function init() {
   setupAuditFilters();
   loadOpeningBalance();
   document.getElementById("account-form").addEventListener("submit", handleCreateAccount);
+  document.getElementById("my-alias-save-btn").addEventListener("click", saveMyAlias);
+  document.getElementById("my-alias-input").addEventListener("input", () => {
+    document.getElementById("my-alias-input")._dirty = true;
+  });
   document.getElementById("save-opening").addEventListener("click", saveOpeningBalance);
 
   setupFinanceModal();
@@ -2157,22 +2188,103 @@ async function deleteProduct(id) {
 }
 
 /* ══════════════════════════════════════
+   خريطة الأسماء المستعارة — email → alias
+══════════════════════════════════════ */
+let emailToAlias = {};
+function resolveAlias(email) {
+  if (!email || email === "—") return email;
+  return emailToAlias[email] || email;
+}
+function loadEmailToAlias() {
+  onSnapshot(collection(db, "appUsers"), snap => {
+    emailToAlias = {};
+    snap.forEach(d => {
+      const { email, alias } = d.data();
+      if (email && alias) emailToAlias[email] = alias;
+    });
+    /* إعادة رسم السجلات التي تعتمد على الأسماء المستعارة */
+    renderAuditLog();
+  });
+}
+
+/* ══════════════════════════════════════
    إدارة الحسابات
 ══════════════════════════════════════ */
 function loadAccounts() {
+  /* تعبئة حقل البريد في لوحة "اسمي المستعار" */
+  const myEmailEl = document.getElementById("my-alias-email");
+  if (myEmailEl) myEmailEl.value = currentUser?.email ?? "";
+
   onSnapshot(query(collection(db, "appUsers"), orderBy("createdAt", "desc")), snap => {
-    const rows = snap.docs.map(d => d.data());
+    const rows = snap.docs.map(d => ({ _id: d.id, ...d.data() }));
     document.getElementById("account-count").textContent = rows.length ? `${rows.length} حساب` : "";
+
+    /* تحديث حقل الاسم المستعار الحالي للمستخدم المسجّل */
+    const myRow = rows.find(r => r.email === currentUser?.email);
+    const myAliasEl = document.getElementById("my-alias-input");
+    if (myAliasEl && myRow?.alias && !myAliasEl._dirty) myAliasEl.value = myRow.alias;
+
     const tbody = document.getElementById("account-tbody");
-    if (!rows.length) { tbody.innerHTML = `<tr><td colspan="4"><div class="empty-state">لا توجد حسابات مُنشأة من هذه الصفحة بعد</div></td></tr>`; return; }
+    if (!rows.length) {
+      tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state">لا توجد حسابات مُنشأة من هذه الصفحة بعد</div></td></tr>`;
+      return;
+    }
     tbody.innerHTML = rows.map(r => `
       <tr>
-        <td>${esc(r.email)}</td>
-        <td>${esc(r.name || "—")}</td>
-        <td>${esc(r.createdBy || "—")}</td>
-        <td>${fmtDateTime(r.createdAt)}</td>
+        <td style="font-size:13px">${esc(r.email)}</td>
+        <td style="font-size:13px">${esc(r.name || "—")}</td>
+        <td style="font-weight:700;color:var(--primary-dark)">${esc(r.alias || "—")}</td>
+        <td style="font-size:12px;color:var(--muted)">${esc(resolveAlias(r.createdBy) || "—")}</td>
+        <td style="font-size:12px;white-space:nowrap">${fmtDateTime(r.createdAt)}</td>
+        <td>
+          <button class="btn small alias-edit-btn" style="padding:3px 10px;font-size:12px"
+            data-doc-id="${esc(r._id)}" data-alias="${esc(r.alias||'')}">✏️ تعديل</button>
+        </td>
       </tr>`).join("");
+
+    /* event delegation — inline onclick لا يعمل في module scope */
+    tbody.querySelectorAll(".alias-edit-btn").forEach(btn => {
+      btn.addEventListener("click", () => editAccountAlias(btn.dataset.docId, btn.dataset.alias));
+    });
   }, err => console.error("loadAccounts failed", err));
+}
+
+async function editAccountAlias(docId, currentAlias) {
+  const newAlias = window.prompt("أدخل الاسم المستعار:", currentAlias || "");
+  if (newAlias === null) return;
+  try {
+    await updateDoc(doc(db, "appUsers", docId), { alias: newAlias.trim() });
+    toast("✅ تم تحديث الاسم المستعار");
+  } catch (err) { console.error(err); toast("حدث خطأ أثناء التحديث", true); }
+}
+
+async function saveMyAlias() {
+  const alias = (document.getElementById("my-alias-input")?.value ?? "").trim();
+  if (!alias) { toast("أدخل اسماً مستعاراً أولاً", true); return; }
+  const btn = document.getElementById("my-alias-save-btn");
+  btn.disabled = true; btn.textContent = "جارِ الحفظ...";
+  try {
+    /* بحث عن سجل المستخدم الحالي في appUsers */
+    const q = query(collection(db, "appUsers"), where("email", "==", currentUser.email));
+    const snap = await new Promise((res, rej) => {
+      const unsub = onSnapshot(q, s => { unsub(); res(s); }, rej);
+    });
+    if (!snap.empty) {
+      await updateDoc(snap.docs[0].ref, { alias });
+    } else {
+      /* إنشاء سجل جديد لمن لم يُنشأ حسابه من هذه الصفحة (المدير مثلاً) */
+      await addDoc(collection(db, "appUsers"), {
+        email: currentUser.email,
+        name:  currentUser.displayName || "",
+        alias,
+        createdBy:  currentUser.email,
+        createdAt:  serverTimestamp(),
+      });
+    }
+    document.getElementById("my-alias-input")._dirty = false;
+    toast("✅ تم حفظ الاسم المستعار");
+  } catch (err) { console.error(err); toast("حدث خطأ أثناء الحفظ", true); }
+  finally { btn.disabled = false; btn.textContent = "💾 حفظ الاسم"; }
 }
 
 /* ══════════════════════════════════════
@@ -2375,9 +2487,10 @@ async function permanentlyDeleteFinTx(id, btn) {
 
 async function handleCreateAccount(e) {
   e.preventDefault();
-  const email = document.getElementById("account-email").value.trim();
+  const email    = document.getElementById("account-email").value.trim();
   const password = document.getElementById("account-password").value;
-  const name = document.getElementById("account-name").value.trim();
+  const name     = document.getElementById("account-name").value.trim();
+  const alias    = document.getElementById("account-alias").value.trim();
   if (!email || password.length < 6) { toast("أدخل بريدًا صحيحًا وكلمة مرور 6 أحرف على الأقل", true); return; }
   const btn = document.getElementById("account-submit-btn");
   btn.disabled = true; btn.textContent = "جارِ الإنشاء...";
@@ -2385,7 +2498,7 @@ async function handleCreateAccount(e) {
     await createUserWithEmailAndPassword(secondaryAuth, email, password);
     await signOut(secondaryAuth); /* لضمان عدم بقاء جلسة نشطة على التطبيق الفرعي */
     await addDoc(collection(db, "appUsers"), {
-      email, name: name || "",
+      email, name: name || "", alias: alias || "",
       createdBy: currentUser?.email ?? "—",
       createdAt: serverTimestamp(),
     });
