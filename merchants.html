@@ -1139,8 +1139,16 @@ function renderUnifiedList(){
         await deleteDoc(doc(db,"merchantTransactions",btn.dataset.id));
         writeAuditLog("حذف","حركة تاجر",`${mer?.name||"—"} — ${src==="loading"?"تحميل":"مباشرة"}`);
       } else {
-        await updateDoc(doc(db,"finance_transactions",btn.dataset.id),{_active:false,deletedAt:serverTimestamp()});
-        writeAuditLog("حذف","حركة مالية للتاجر",`${mer?.name||"—"}`);
+        // نحذف جميع السجلات التي تحمل نفس finId (السجل الأصل + المرآة الكاش إن وُجدت)
+        const tx = finTxs.find(t=>t.id===btn.dataset.id);
+        const finId = tx?.finId;
+        const siblings = finId
+          ? finTxs.filter(t=>t.finId===finId && t._active!==false)
+          : [{id:btn.dataset.id}];
+        const batch = writeBatch(db);
+        siblings.forEach(s=>batch.update(doc(db,"finance_transactions",s.id),{_active:false,deletedAt:serverTimestamp()}));
+        await batch.commit();
+        writeAuditLog("حذف","حركة مالية للتاجر",`${mer?.name||"—"} — ${tx?.finId||"—"} (${siblings.length} سجل)`);
       }
       toast("تم الحذف");
     }catch(err){ console.error(err); toast("خطأ",true); }
