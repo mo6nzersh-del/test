@@ -23,24 +23,42 @@
   })();
   </script>
   <style>
-    /* ── سجل حركات التاجر ── */
-    .record-row{display:flex;align-items:center;gap:12px;padding:10px 14px;
-      border-bottom:1px solid var(--border)}
+    /* ══════════════════════════════════════════
+       سجل حركات التاجر — تخطيط سطح المكتب
+    ══════════════════════════════════════════ */
+    .record-row{
+      display:grid;
+      grid-template-columns:auto 1fr auto auto;
+      grid-template-areas:"badge main right acts";
+      align-items:center;gap:10px;
+      padding:11px 16px;border-bottom:1px solid var(--border);
+    }
     .record-row:last-child{border-bottom:none}
-    .record-badge{display:inline-flex;align-items:center;justify-content:center;
-      font-size:11.5px;font-weight:700;border-radius:6px;padding:3px 10px;
-      white-space:nowrap;min-width:60px}
-    .record-badge.in {background:#e7f5ec;color:#1a6b3a}
-    .record-badge.out{background:#fce8e5;color:#b3432f}
-    .record-main{flex:1}
-    .record-main .title{font-size:14px;font-weight:600;color:var(--ink)}
+    .tx-badge-wrap{grid-area:badge;display:flex;align-items:center}
+    .record-main{grid-area:main;min-width:0}
+    .record-main .title{font-size:14px;font-weight:600;color:var(--ink);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .record-main .meta{font-size:12px;color:var(--muted);margin-top:2px}
+    /* العمود الأيسر: المبلغ + الرصيد + ID */
+    .tx-right-col{grid-area:right;display:flex;flex-direction:column;
+      align-items:flex-end;gap:3px;min-width:90px;text-align:left}
     .record-amount{font-size:15px;font-weight:800;white-space:nowrap}
     .record-amount.in {color:#1a6b3a}
     .record-amount.out{color:#b3432f}
+    .bal-cell{font-size:11px;font-weight:700;white-space:nowrap;line-height:1.4}
+    .bal-cell .bal-lbl{font-weight:400;color:var(--muted);margin-right:3px}
+    .bal-cell.bal-pos{color:var(--primary-dark,#2a5bbf)}
+    .bal-cell.bal-neg{color:var(--danger,#b3432f)}
+    .bal-cell.bal-na{font-size:10px;color:var(--muted);font-weight:600}
+    /* أزرار الحركة */
+    .tx-actions-col{grid-area:acts;display:flex;flex-direction:column;
+      align-items:center;gap:4px}
     .delete-btn{border:none;background:transparent;color:var(--muted);
       font-size:12px;padding:4px 8px;border-radius:6px;cursor:pointer}
     .delete-btn:hover{background:var(--danger-soft);color:var(--danger)}
+    /* بطاقات الإحصائيات (سطح المكتب) */
+    .record-badge{display:inline-flex;align-items:center;justify-content:center;
+      font-size:11.5px;font-weight:700;border-radius:6px;padding:3px 10px;white-space:nowrap}
 
     /* ── بطاقات الإحصائيات ── */
     .mer-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:20px}
@@ -151,6 +169,85 @@
     /* ── فلتر بار ── */
     .filter-bar{display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;margin-bottom:14px}
     .filter-bar .field{margin:0}
+
+    /* ══════════════════════════════════════════
+       تخطيط ملف التاجر — الجوال (≤ 900px)
+    ══════════════════════════════════════════ */
+    @media(max-width:900px){
+      /* رأس صفحة التاجر */
+      .detail-header{flex-direction:column;align-items:flex-start;gap:8px}
+      .detail-info h2{font-size:20px}
+      .info-grid{grid-template-columns:1fr 1fr;gap:8px}
+
+      /* بطاقات الإحصائيات الثلاث — عمود واحد */
+      .mer-stats{grid-template-columns:1fr!important;gap:8px!important}
+      .mer-stat{padding:14px 16px}
+      .mer-stat .msv{font-size:22px}
+      .mer-stat .msk{font-size:12px}
+      .mer-stat .mss{font-size:11px}
+
+      /* رأس كشف الحساب — أزرار مرتبة */
+      .panel-header{flex-direction:column;align-items:stretch;gap:10px}
+      .panel-header h3{font-size:15px}
+      .panel-header > div{display:grid!important;
+        grid-template-columns:1fr auto auto;gap:8px;align-items:center}
+      #add-fin-tx-btn{grid-column:1/-1;padding:10px 14px!important;
+        font-size:13px!important;justify-content:center}
+
+      /* فلتر بار — تخلص من الـ padding الجانبي الزائد */
+      .filter-bar{padding:0 12px 12px!important;gap:6px}
+      .filter-bar .field{flex:1 1 130px}
+      .filter-bar input[type=date]{font-size:12.5px;padding:7px 8px}
+      .filter-bar .btn{padding:8px 10px;font-size:12px}
+
+      /* ══ صفوف الحركات — تخطيط بطاقة ══ */
+      .record-row{
+        grid-template-columns:auto 1fr auto;
+        grid-template-areas:
+          "badge main  acts"
+          ".     right right";
+        gap:4px 8px;
+        padding:10px 12px;
+      }
+      .record-main .title{
+        font-size:13.5px;white-space:normal;
+        overflow:visible;text-overflow:unset;
+      }
+      .record-main .meta{font-size:11px}
+      /* الصف السفلي: المبلغ + الرصيد + ID */
+      .tx-right-col{
+        grid-area:right;
+        flex-direction:row;
+        align-items:center;
+        justify-content:flex-start;
+        gap:10px;min-width:0;
+        padding-top:2px;
+      }
+      .record-amount{font-size:14px}
+      .bal-cell{font-size:10.5px}
+      .tx-right-col .rec-id{font-size:9.5px;padding:1px 5px}
+      /* أزرار الحركة — عمودياً */
+      .tx-actions-col{flex-direction:row;gap:2px;align-self:start}
+      .tx-row-box3-toggle{padding:3px 6px;font-size:12px}
+      .delete-btn{padding:3px 6px;font-size:11px}
+
+      /* نافذة تفاصيل الحركة الداخلية */
+      .tx-row-box3-detail{padding:10px 12px 14px}
+      .tx-row-box3-detail .mer-stats{grid-template-columns:1fr!important}
+      .tx-row-box3-detail .mer-stat{padding:10px 12px}
+      .tx-row-box3-detail .mer-stat .msv{font-size:17px}
+    }
+
+    @media(max-width:500px){
+      .info-grid{grid-template-columns:1fr}
+      .mer-stat .msv{font-size:20px}
+      .panel-header > div{grid-template-columns:1fr auto}
+      #add-fin-tx-btn{grid-column:1/-1}
+      #export-csv-btn{grid-column:1/2}
+      #print-stmt-btn{grid-column:2/3}
+      .filter-bar{padding:0 8px 10px!important}
+      .record-row{padding:9px 10px}
+    }
 
     /* ── toggle group ── */
     .toggle-group{display:flex;gap:0;border:1.5px solid var(--border);border-radius:8px;overflow:hidden}
@@ -377,7 +474,7 @@ import { getAuth, onAuthStateChanged, signOut }
                             from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {
   getFirestore, collection, doc,
-  addDoc, updateDoc, deleteDoc,
+  addDoc, updateDoc, deleteDoc, getDocs,
   query, where, orderBy, onSnapshot,
   serverTimestamp, runTransaction, writeBatch
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -799,9 +896,38 @@ function renderList(){
 }
 
 async function deleteMer(id){
-  if(!confirm("هل تريد حذف هذا التاجر؟")) return;
-  try{ await deleteDoc(doc(db,"merchants",id)); toast("تم حذف التاجر"); }
-  catch(err){ console.error(err); toast("خطأ",true); }
+  const mer=merchants.find(m=>m.id===id);
+  const merName=mer?.name??"التاجر";
+
+  // احسب عدد الحركات أولاً
+  const [mSnap,fSnap]=await Promise.all([
+    getDocs(query(collection(db,"merchantTransactions"),where("merchantId","==",id))),
+    getDocs(query(collection(db,"finance_transactions"),where("merchantId","==",id))),
+  ]);
+  const total=mSnap.size+fSnap.size;
+  const msg=total>0
+    ? `هل تريد حذف التاجر "${merName}" نهائياً؟\n\nسيتم حذف ${total} حركة مرتبطة به من قاعدة البيانات.\n\nهذا الإجراء لا يمكن التراجع عنه.`
+    : `هل تريد حذف التاجر "${merName}" نهائياً؟\n\nهذا الإجراء لا يمكن التراجع عنه.`;
+  if(!confirm(msg)) return;
+
+  try{
+    // Firebase writeBatch يقبل 500 عملية كحد أقصى لكل دفعة
+    const CHUNK=490;
+    const allDocs=[
+      ...mSnap.docs.map(d=>d.ref),
+      ...fSnap.docs.map(d=>d.ref),
+    ];
+    // احذف الحركات على دفعات
+    for(let i=0;i<allDocs.length;i+=CHUNK){
+      const batch=writeBatch(db);
+      allDocs.slice(i,i+CHUNK).forEach(ref=>batch.delete(ref));
+      await batch.commit();
+    }
+    // احذف التاجر نفسه
+    await deleteDoc(doc(db,"merchants",id));
+    toast(`تم حذف التاجر و ${allDocs.length} حركة مرتبطة به`);
+    writeAuditLog("حذف","تاجر",`${merName} — ${allDocs.length} حركة`);
+  }catch(err){ console.error(err); toast("خطأ أثناء الحذف",true); }
 }
 
 /* ── صفحة التفاصيل ── */
@@ -997,40 +1123,42 @@ function renderUnifiedStats(){
     ...merchantTxs.filter(t=>t.merchantId===currentMerId).map(t=>({dir:t.type,amount:t.amount||0})),
     ...finTxs.filter(t=>t.merchantId===currentMerId&&t.type==="merchant").map(t=>({dir:t.dir,amount:t.amount||0})),
   ];
-  const totalIn =allFull.filter(t=>t.dir==="in") .reduce((s,t)=>s+t.amount,0);
-  const totalOut=allFull.filter(t=>t.dir==="out").reduce((s,t)=>s+t.amount,0);
-  const net=totalIn-totalOut;
+  // dir="out" = بيع/تحميل = مسحوبات (ما أخذه التاجر)
+  // dir="in"  = دفعة/سداد = مدفوعات (ما دفعه التاجر)
+  const salesAmt   =allFull.filter(t=>t.dir==="out").reduce((s,t)=>s+t.amount,0);
+  const paymentsAmt=allFull.filter(t=>t.dir==="in") .reduce((s,t)=>s+t.amount,0);
+  const net=salesAmt-paymentsAmt; // موجب = التاجر مدين
 
-  const filtIn =all.filter(t=>t.dir==="in") .reduce((s,t)=>s+t.amount,0);
-  const filtOut=all.filter(t=>t.dir==="out").reduce((s,t)=>s+t.amount,0);
+  const filtSales   =all.filter(t=>t.dir==="out").reduce((s,t)=>s+t.amount,0);
+  const filtPayments=all.filter(t=>t.dir==="in") .reduce((s,t)=>s+t.amount,0);
   const isFiltered=document.getElementById("filter-from").value||document.getElementById("filter-to").value;
-  const inCount =allFull.filter(t=>t.dir==="in").length;
-  const outCount=allFull.filter(t=>t.dir==="out").length;
+  const salesCount   =allFull.filter(t=>t.dir==="out").length;
+  const paymentsCount=allFull.filter(t=>t.dir==="in").length;
   document.getElementById("mer-unified-stats").innerHTML=`
     <div class="mer-stat stat-in">
       <div class="msk">📦 إجمالي مسحوبات هذا التاجر${isFiltered?" (الفترة)":""}</div>
-      <div class="msv" style="color:#1a6b3a">${fmt(isFiltered?filtIn:totalIn)}</div>
+      <div class="msv" style="color:#1a6b3a">${fmt(isFiltered?filtSales:salesAmt)}</div>
       <div class="mss">
-        <strong style="color:#1a6b3a">${inCount} عملية تحميل</strong>
+        <strong style="color:#1a6b3a">${salesCount} عملية تحميل</strong>
         <br/>البضائع التي أخذها التاجر من المخزن — هذا ما يدين به
       </div>
     </div>
     <div class="mer-stat stat-net">
       <div class="msk">💳 إجمالي مدفوعات التاجر${isFiltered?" (الفترة)":""}</div>
-      <div class="msv" style="color:#1a4bbf">${fmt(isFiltered?filtOut:totalOut)}</div>
+      <div class="msv" style="color:#1a4bbf">${fmt(isFiltered?filtPayments:paymentsAmt)}</div>
       <div class="mss">
-        <strong style="color:#1a4bbf">${outCount} دفعة</strong>
+        <strong style="color:#1a4bbf">${paymentsCount} دفعة</strong>
         <br/>المبالغ التي دفعها التاجر فعلياً حتى الآن
       </div>
     </div>
     <div class="mer-stat stat-out">
       <div class="msk">💰 المبلغ المستحق على هذا التاجر</div>
-      <div class="msv" style="color:${net<=0?"#b3432f":"#1a6b3a"}">
+      <div class="msv" style="color:${net>=0?"#b3432f":"#1a6b3a"}">
         ${fmt(Math.abs(net))}
       </div>
       <div class="mss">
-        <strong style="color:${net<=0?"#b3432f":"#1a6b3a"}">
-          ${net<=0?"⚠️ على التاجر سداد هذا المبلغ":"✅ رصيد دائن — التاجر دفع أكثر"}
+        <strong style="color:${net>=0?"#b3432f":"#1a6b3a"}">
+          ${net>=0?"⚠️ على التاجر سداد هذا المبلغ":"✅ رصيد دائن — التاجر دفع أكثر"}
         </strong>
         <br/>${allFull.length} عملية إجمالاً (مسحوبات − مدفوعات)
       </div>
@@ -1131,21 +1259,25 @@ function renderUnifiedList(){
       :` data-mer-tx-id="${t.id}" title="انقر لعرض تفاصيل الحركة"`;
     const pageOrigin=t.sourcePage?` · من صفحة ${esc(t.sourcePage)}`:"";
     const balCell=t._src==="finance-other"
-      ?`<div style="font-size:10.5px;color:var(--muted);font-weight:600;white-space:nowrap;min-width:80px;text-align:left">لا تُحتسب في مستحقات التاجر</div>`
-      :`<div style="font-size:11px;color:${bal>=0?"var(--primary-dark)":"var(--danger)"};font-weight:700;white-space:nowrap;min-width:80px;text-align:left">
-        ${fmt(Math.abs(bal))}<br/><span style="font-weight:400;color:var(--muted)">${bal>=0?"رصيد":"عليه"}</span>
+      ?`<div class="bal-cell bal-na">لا تُحتسب في المستحقات</div>`
+      :`<div class="bal-cell ${bal>=0?"bal-pos":"bal-neg"}">
+        ${fmt(Math.abs(bal))}<span class="bal-lbl">${bal>=0?"رصيد":"عليه"}</span>
       </div>`;
     div.innerHTML=`
-      <span class="${recIdCls}" style="min-width:62px;text-align:center"${recIdAttr}>${esc(t.seqId)}</span>
-      ${typeBadge}
+      <span class="tx-badge-wrap">${typeBadge}</span>
       <div class="record-main">
         <div class="title">${esc(t.note)||(isIn?"دفعة واردة":"دفعة صادرة")}</div>
         <div class="meta">${dateDisp}${pageOrigin}</div>
       </div>
-      <div class="record-amount ${isIn?"in":"out"}">${fmt(t.amount)}</div>
-      ${balCell}
-      ${t._src==="finance-other"?"":`<button class="tx-row-box3-toggle" data-toggle="${t.id}" title="عرض الصناديق قبل وبعد هذه الحركة">📊</button>`}
-      <button class="delete-btn" data-id="${t.id}" data-src="${t._src}">🗑️</button>`;
+      <div class="tx-right-col">
+        <div class="record-amount ${isIn?"in":"out"}">${fmt(t.amount)}</div>
+        ${balCell}
+        <span class="${recIdCls}"${recIdAttr}>${esc(t.seqId)}</span>
+      </div>
+      <div class="tx-actions-col">
+        ${t._src==="finance-other"?`<span></span>`:`<button class="tx-row-box3-toggle" data-toggle="${t.id}" title="عرض الصناديق">📊</button>`}
+        <button class="delete-btn" data-id="${t.id}" data-src="${t._src}">🗑️</button>
+      </div>`;
     list.appendChild(div);
 
     const b3=box3ById[t.id];
