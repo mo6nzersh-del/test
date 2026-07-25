@@ -33,23 +33,66 @@
       .warehouse-section-title{font-weight:700;font-size:1rem;color:var(--ink);display:flex;align-items:center;gap:8px}
       .warehouse-section-title .wh-count{font-size:.78rem;font-weight:500;color:var(--muted);background:var(--border);border-radius:20px;padding:1px 9px}
       .warehouse-section-body{padding:16px 18px}
-      .wh-products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
-      .wh-product-card{border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--surface)}
-      .wh-product-img{width:100%;height:120px;object-fit:cover;display:block;background:var(--bg)}
-      .wh-product-img-placeholder{width:100%;height:120px;background:var(--bg);display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:2rem}
-      .wh-product-info{padding:10px 12px 12px}
-      .wh-product-name{font-weight:700;font-size:.92rem;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-      .wh-product-serial{font-size:.72rem;color:var(--muted);margin-bottom:5px;font-family:monospace}
-      .wh-product-desc{font-size:.76rem;color:var(--muted);margin-bottom:7px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-      .wh-product-meta{display:flex;justify-content:space-between;align-items:flex-end;gap:6px;flex-wrap:wrap}
-      .wh-product-qty{font-size:.82rem;font-weight:700;color:var(--ink)}
-      .wh-product-qty span{font-weight:400;color:var(--muted);font-size:.75rem}
-      .wh-product-price{font-size:.84rem;font-weight:700;color:var(--primary)}
-      .wh-product-actions{display:flex;gap:5px;margin-top:9px;padding-top:8px;border-top:1px solid var(--border)}
-      .wh-product-actions button{flex:1;padding:5px 0;border:none;border-radius:5px;cursor:pointer;font-size:.76rem;font-family:inherit}
-      .wh-product-actions .edit-btn{background:var(--bg);color:var(--ink)}
-      .wh-product-actions .del-btn{background:#fee2e2;color:#dc2626}
+      /* ══ قائمة المنتجات — عرض صفوف أفقية ══ */
+      .wh-products-grid{display:flex;flex-direction:column;gap:0;border-radius:10px;overflow:hidden;border:1px solid var(--border)}
+      .wh-product-card{
+        display:grid;
+        grid-template-columns:2.4rem 1fr auto auto;
+        align-items:center;
+        gap:6px 14px;
+        padding:11px 16px;
+        background:var(--surface);
+        border-bottom:1px solid var(--border);
+        border-inline-start:3px solid var(--primary,#1a6b3a);
+        transition:background .12s;
+      }
+      .wh-product-card:last-child{border-bottom:none}
+      .wh-product-card:hover{background:var(--bg)}
+      .wh-product-card.visiting{border-inline-start-color:#d97706}
+      /* الأيقونة */
+      .wpc-icon{font-size:20px;text-align:center;line-height:1;flex-shrink:0}
+      /* المعلومات */
+      .wpc-info{min-width:0}
+      .wpc-name{font-weight:800;font-size:.91rem;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      .wpc-serial{font-size:.68rem;font-family:monospace;font-weight:700;color:var(--muted);margin-top:1px}
+      .wpc-desc{font-size:.72rem;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+      /* بادج الكمية */
+      .wpc-qty-badge{
+        display:flex;flex-direction:column;align-items:center;justify-content:center;
+        background:var(--primary-soft,#eef7f2);border-radius:8px;
+        padding:5px 10px;min-width:54px;text-align:center;flex-shrink:0;
+      }
+      .wpc-qty-num{font-size:1.05rem;font-weight:900;color:var(--ink);line-height:1.1}
+      .wpc-qty-unit{font-size:.64rem;font-weight:600;color:var(--muted);margin-top:1px;white-space:nowrap}
+      /* السعر والتعديل */
+      .wpc-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
+      .wpc-price{font-size:.82rem;font-weight:700;color:var(--primary-dark,#1a6b3a);white-space:nowrap}
+      .wpc-edit-btn{
+        border:1px solid var(--border);border-radius:6px;
+        background:var(--surface);color:var(--muted);
+        font-family:inherit;font-size:.7rem;font-weight:700;
+        padding:3px 9px;cursor:pointer;white-space:nowrap;
+        transition:background .12s,color .12s;
+      }
+      .wpc-edit-btn:hover{background:var(--primary-soft);color:var(--primary-dark)}
       .wh-empty-products{text-align:center;padding:20px 0;color:var(--muted);font-size:.86rem}
+      /* ══ خيارات حالة الدفع ══ */
+      .pay-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+      .pay-opt{
+        display:flex;align-items:center;gap:10px;
+        padding:13px 14px;border:2px solid var(--border);
+        border-radius:12px;cursor:pointer;background:var(--surface);
+        transition:border-color .15s,background .15s;
+      }
+      .pay-opt input[type="radio"]{display:none}
+      .pay-opt-icon{font-size:22px;flex-shrink:0;line-height:1}
+      .pay-opt-title{font-weight:800;font-size:.9rem;color:var(--ink)}
+      .pay-opt-sub{font-size:.72rem;color:var(--muted);margin-top:2px;line-height:1.4}
+      .pay-opt.sel-unpaid{border-color:#d97706;background:#fffbeb}
+      .pay-opt.sel-unpaid .pay-opt-title{color:#a06a10}
+      .pay-opt.sel-paid{border-color:var(--primary,#1a6b3a);background:#f0faf4}
+      .pay-opt.sel-paid .pay-opt-title{color:var(--primary-dark,#1a6b3a)}
+      @media(max-width:500px){.pay-options{grid-template-columns:1fr}}
       /* ── op-type toggle ── */
       .op-type-group{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
       .op-type-btn{flex:1;min-width:120px;padding:12px 10px;border:2px solid var(--border);border-radius:10px;background:var(--surface);font-family:inherit;font-weight:700;font-size:.88rem;color:var(--muted);cursor:pointer;text-align:center;transition:all .15s}
@@ -117,14 +160,17 @@
       .record-badge.loading{background:#fdf4e3;color:#a06a10}
       /* ── log table ── */
       .log-table{width:100%;border-collapse:collapse}
-      .log-table th{text-align:right;font-size:12px;color:var(--muted);font-weight:700;padding:7px 10px;border-bottom:1.5px solid var(--border)}
-      .log-table td{padding:9px 10px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:top}
+      .log-table th{text-align:right;font-size:12px;color:var(--muted);font-weight:700;padding:8px 12px;border-bottom:2px solid var(--border);background:var(--bg)}
+      .log-table td{padding:10px 12px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle}
+      .log-table tbody tr:hover td{background:var(--bg)}
       .log-table tr:last-child td{border-bottom:none}
-      .log-badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11px;font-weight:700;white-space:nowrap}
+      .log-badge{display:inline-block;padding:3px 10px;border-radius:7px;font-size:11px;font-weight:700;white-space:nowrap}
       .log-prod{background:var(--primary-soft);color:var(--primary-dark)}
       .log-transfer{background:#e8f0fb;color:#2a5bbf}
       .log-load{background:#fdf4e3;color:#a06a10}
       .log-time{font-size:11px;color:var(--muted);font-family:monospace}
+      /* ── بطاقات سجل العمليات على الهاتف ── */
+      .mob-log-list{display:none}
       /* ── clickable serial numbers → operation preview ── */
       .log-serial-link{transition:opacity .15s}
       .log-serial-link:hover{opacity:.75}
@@ -150,6 +196,45 @@
         font-weight:700!important;font-size:.8rem!important;cursor:pointer!important;
         white-space:nowrap!important}
       .remove-line:disabled{opacity:.4;cursor:not-allowed!important}
+      /* ══ تجاوب الهاتف والشاشات المتوسطة ══ */
+      @media(max-width:900px){
+        /* المخازن */
+        .warehouse-section-header{padding:11px 14px}
+        .warehouse-section-body{padding:12px 14px}
+        .wh-products-grid{grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px}
+        .wpc-qty-num{font-size:1.4rem}
+        /* سجل العمليات */
+        #log-table-wrap{display:none}
+        .mob-log-list{
+          display:flex;flex-direction:column;gap:8px;padding:12px;
+        }
+        .mob-log-card{
+          background:var(--surface);border:1px solid var(--border);
+          border-radius:12px;padding:12px 14px;
+          display:flex;flex-direction:column;gap:8px;
+          box-shadow:0 1px 4px rgba(0,0,0,.05);
+        }
+        .mlc-head{display:flex;align-items:center;gap:8px}
+        .mlc-serial{
+          font-family:monospace;font-size:11px;font-weight:700;
+          background:var(--bg);border:1px solid var(--border);
+          border-radius:5px;padding:2px 7px;color:var(--muted);white-space:nowrap;
+        }
+        .mlc-serial.clickable{
+          color:var(--primary-dark);background:var(--primary-soft);
+          border-color:var(--primary);cursor:pointer;text-decoration:underline;
+          transition:opacity .15s;
+        }
+        .mlc-serial.clickable:hover{opacity:.75}
+        .mlc-summary{font-size:13px;font-weight:700;color:var(--ink);line-height:1.4}
+        .mlc-details{font-size:11.5px;color:var(--muted);line-height:1.4;margin-top:2px}
+        .mlc-foot{
+          display:flex;align-items:center;justify-content:space-between;
+          gap:8px;padding-top:7px;border-top:1px solid var(--border);
+        }
+        .mlc-by{font-size:11.5px;color:var(--muted);font-weight:600}
+        .mlc-time{font-size:11px;color:var(--muted);font-family:monospace;white-space:nowrap}
+      }
       /* ── print styles ── */
       @media print{
         @page{size:A4 portrait;margin:0}
@@ -173,10 +258,182 @@
         body{background:#fff!important;margin:0!important;padding:0!important}
         *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
       }
-    </style>
+    
+      /* ══ شاشة التحميل ══ */
+      #page-loader {
+        position: fixed; inset: 0; z-index: 9999;
+        background: linear-gradient(145deg, #1a6b3a, #2d9f5f);
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        gap: 20px;
+        transition: opacity .35s ease;
+      }
+      #page-loader.pl-hide { opacity: 0; pointer-events: none; }
+      .pl-logo {
+        width: 90px; height: 90px; border-radius: 22px;
+        background: rgba(255,255,255,.18);
+        border: 2px solid rgba(255,255,255,.35);
+        display: flex; align-items: center; justify-content: center;
+        overflow: hidden;
+      }
+      .pl-logo-img {
+        width: 100%; height: 100%;
+        object-fit: contain;
+        padding: 10px;
+      }
+      .pl-logo-fallback {
+        display: none;
+        font-size: 26px; font-weight: 900; color: #fff;
+        letter-spacing: 1px;
+      }
+      .pl-spinner {
+        width: 36px; height: 36px;
+        border: 3.5px solid rgba(255,255,255,.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: pl-spin .75s linear infinite;
+      }
+      @keyframes pl-spin { to { transform: rotate(360deg); } }
+      .pl-text {
+        color: rgba(255,255,255,.8);
+        font-size: 14px; font-weight: 600;
+        letter-spacing: .3px;
+      }
+
+      /* ══ أزرار تعديل المخزون وسجل الحركات ══ */
+      .wh-adj-btn {
+        display:inline-flex;align-items:center;gap:5px;
+        padding:6px 13px;border:none;border-radius:8px;
+        background:var(--primary,#1a6b3a);color:#fff;
+        font-family:inherit;font-size:.8rem;font-weight:700;
+        cursor:pointer;white-space:nowrap;
+        transition:background .13s,transform .1s;
+      }
+      .wh-adj-btn:hover{background:#155c31;transform:translateY(-1px)}
+      .wh-adj-btn:active{transform:translateY(0)}
+      .wh-log-btn {
+        display:inline-flex;align-items:center;gap:5px;
+        padding:6px 13px;border:1.5px solid var(--border);border-radius:8px;
+        background:var(--surface);color:var(--ink);
+        font-family:inherit;font-size:.8rem;font-weight:700;
+        cursor:pointer;white-space:nowrap;
+        transition:background .13s,border-color .13s;
+      }
+      .wh-log-btn:hover{background:var(--bg);border-color:var(--primary,#1a6b3a);color:var(--primary,#1a6b3a)}
+
+      /* ══ تجاوب أزرار المخزن على الهاتف ══ */
+      @media(max-width:600px){
+        .warehouse-section-header{flex-wrap:wrap;padding:10px 12px;gap:8px}
+        .warehouse-section-title{flex:1;min-width:0;font-size:.88rem}
+        .warehouse-section-actions{
+          display:flex;flex-wrap:wrap;gap:6px;width:100%;
+        }
+        .wh-adj-btn, .wh-log-btn{
+          flex:1;justify-content:center;
+          font-size:.78rem;padding:9px 8px;border-radius:10px;
+          min-width:0;
+        }
+        /* إخفاء الأيقونات على الهاتف */
+        .wh-title-icon,.btn-icon{display:none}
+        /* إخفاء عمود أيقونة المنتج وضبط الشبكة */
+        .wpc-icon{display:none}
+        .wh-product-card{
+          grid-template-columns:1fr auto auto;
+          padding:9px 12px;gap:5px 10px;
+        }
+        /* تصغير النصوص قليلاً */
+        .wpc-name{font-size:.82rem}
+        .wpc-serial{font-size:.62rem}
+        .wpc-desc{font-size:.65rem}
+        .wpc-qty-num{font-size:1.1rem!important}
+        .wpc-qty-unit{font-size:.58rem}
+        .wpc-qty-badge{padding:4px 8px;min-width:46px}
+        .wpc-price{font-size:.74rem}
+        .wpc-edit-btn{font-size:.64rem;padding:3px 7px}
+        .warehouse-section-title .wh-count{font-size:.72rem}
+      }
+
+      /* ══ spinner زر الحفظ ══ */
+      @keyframes whadj-spin{ to{transform:rotate(360deg)} }
+      .whadj-spinner{
+        display:inline-block;width:16px;height:16px;vertical-align:middle;
+        border:2.5px solid rgba(255,255,255,.35);border-top-color:#fff;
+        border-radius:50%;animation:whadj-spin .65s linear infinite;
+      }
+
+      /* ══ مودال تعديل المخزون ══ */
+      #wh-adjust-modal .adj-type-group{display:flex;gap:8px;margin-bottom:18px}
+      #wh-adjust-modal .adj-type-btn{
+        flex:1;padding:12px 10px;border:2px solid var(--border);border-radius:10px;
+        background:var(--surface);font-family:inherit;font-weight:700;font-size:.88rem;
+        color:var(--muted);cursor:pointer;text-align:center;transition:all .15s;
+      }
+      #wh-adjust-modal .adj-type-btn.add.active{border-color:#1a6b3a;background:#f0faf4;color:#1a6b3a}
+      #wh-adjust-modal .adj-type-btn.consume.active{border-color:#dc2626;background:#fff5f5;color:#dc2626}
+      #wh-adjust-modal .adj-type-btn:hover{border-color:var(--primary,#1a6b3a)}
+
+      /* ══ مودال سجل حركات المخزن ══ */
+      .wh-log-empty{text-align:center;padding:28px;color:var(--muted);font-size:.9rem}
+      .wh-adj-table{width:100%;border-collapse:collapse}
+      .wh-adj-table th{
+        text-align:right;font-size:11.5px;color:var(--muted);font-weight:700;
+        padding:9px 14px;border-bottom:2px solid var(--border);background:var(--bg);
+        white-space:nowrap;
+      }
+      .wh-adj-table td{
+        padding:10px 14px;border-bottom:1px solid var(--border);
+        font-size:13px;vertical-align:middle;
+      }
+      .wh-adj-table tbody tr:hover td{background:var(--bg)}
+      .wh-adj-table tr:last-child td{border-bottom:none}
+      .whadj-badge{
+        display:inline-block;padding:3px 10px;border-radius:7px;
+        font-size:11.5px;font-weight:700;white-space:nowrap;
+      }
+      .whadj-add{background:#dcfce7;color:#15803d}
+      .whadj-consume{background:#fee2e2;color:#dc2626}
+      .whadj-bal{display:flex;align-items:center;gap:6px;font-size:12px;white-space:nowrap}
+      .whadj-bal-before{color:var(--muted);font-weight:600}
+      .whadj-bal-arrow{color:var(--muted);font-size:10px}
+      .whadj-bal-after{font-weight:800;color:var(--ink)}
+      .whadj-txid{
+        font-family:monospace;font-size:11px;font-weight:700;
+        background:var(--bg);border:1px solid var(--border);
+        border-radius:5px;padding:2px 7px;color:var(--muted);
+        white-space:nowrap;cursor:default;
+      }
+      @media(max-width:700px){
+        #wh-log-modal .wh-adj-table-wrap{display:none}
+        #wh-log-modal .wh-adj-cards{display:flex!important}
+      }
+      .wh-adj-cards{display:none;flex-direction:column;gap:8px;padding:12px}
+      .wh-adj-card{
+        background:var(--surface);border:1px solid var(--border);
+        border-radius:12px;padding:12px 14px;
+        box-shadow:0 1px 4px rgba(0,0,0,.05);
+      }
+      .wh-adj-card-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+      .wh-adj-card-body{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:6px}
+      .wh-adj-card-bal{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);margin-bottom:4px}
+      .wh-adj-card-foot{
+        display:flex;align-items:center;justify-content:space-between;
+        padding-top:7px;border-top:1px solid var(--border);
+        font-size:11px;color:var(--muted);
+      }
+</style>
   </head>
   <body>
-    <div id="app">
+    <!-- ══ شاشة التحميل ══ -->
+<div id="page-loader">
+  <div class="pl-logo">
+    <img src="https://i.imgur.com/NsN1HgC.png" alt="logo" class="pl-logo-img"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <span class="pl-logo-fallback">AH</span>
+  </div>
+  <div class="pl-spinner"></div>
+  <div class="pl-text">جارِ التحميل…</div>
+</div>
+<div id="app">
       <header id="topbar" class="topbar"></header>
       <main class="page">
         <div class="page-header">
@@ -311,18 +568,26 @@
               </div>
               <!-- حالة الدفع -->
               <div class="field" style="margin-bottom:18px">
-                <label style="display:block;margin-bottom:8px;font-weight:600">حالة الدفع</label>
-                <div style="display:flex;gap:0;border:1.5px solid var(--border);border-radius:8px;overflow:hidden;width:fit-content">
-                  <label id="pay-label-unpaid" style="display:flex;align-items:center;gap:6px;padding:8px 20px;cursor:pointer;background:#fff4e5;color:#a06a10;font-weight:700;font-size:.92rem;border-left:1.5px solid var(--border)">
-                    <input type="radio" name="load_payment" value="unpaid" id="load-pay-unpaid" checked style="accent-color:#a06a10" />
-                    ⏳ غير مدفوع
+                <label style="display:block;margin-bottom:10px;font-weight:700;font-size:.93rem">حالة الدفع</label>
+                <div class="pay-options">
+                  <label class="pay-opt pay-opt-unpaid sel-unpaid" id="pay-label-unpaid">
+                    <input type="radio" name="load_payment" value="unpaid" id="load-pay-unpaid" checked />
+                    <span class="pay-opt-icon">⏳</span>
+                    <div>
+                      <div class="pay-opt-title">غير مدفوع</div>
+                      <div class="pay-opt-sub">يُسجَّل دين على التاجر</div>
+                    </div>
                   </label>
-                  <label id="pay-label-paid" style="display:flex;align-items:center;gap:6px;padding:8px 20px;cursor:pointer;background:#f0f0f0;color:#888;font-weight:600;font-size:.92rem">
-                    <input type="radio" name="load_payment" value="paid" id="load-pay-paid" style="accent-color:#1a6b3a" />
-                    ✅ تم الدفع
+                  <label class="pay-opt pay-opt-paid" id="pay-label-paid">
+                    <input type="radio" name="load_payment" value="paid" id="load-pay-paid" />
+                    <span class="pay-opt-icon">✅</span>
+                    <div>
+                      <div class="pay-opt-title">تم الدفع</div>
+                      <div class="pay-opt-sub">لا يُضاف دين على التاجر</div>
+                    </div>
                   </label>
                 </div>
-                <p id="pay-hint" style="margin:6px 0 0;font-size:.82rem;color:#a06a10">سيُسجَّل دين على التاجر بقيمة الفاتورة</p>
+                <p id="pay-hint" style="margin:8px 0 0;font-size:.82rem;color:#a06a10">سيُسجَّل دين على التاجر بقيمة الفاتورة</p>
               </div>
               <button type="submit" class="btn" id="loading-submit-btn">تنفيذ عملية البيع</button>
             </form>
@@ -357,7 +622,7 @@
               <h3>سجل جميع العمليات</h3>
               <span id="log-count" style="color:var(--muted);font-size:.85rem"></span>
             </div>
-            <div class="table-wrap">
+            <div class="table-wrap" id="log-table-wrap">
               <table class="log-table">
                 <thead>
                   <tr>
@@ -372,6 +637,10 @@
                   <tr><td colspan="5"><div class="empty-state">جارِ التحميل...</div></td></tr>
                 </tbody>
               </table>
+            </div>
+            <!-- بطاقات الهاتف للسجل (≤900px) -->
+            <div id="mob-log-list" class="mob-log-list">
+              <div class="empty-state">جارِ التحميل...</div>
             </div>
           </div>
         </div>
@@ -496,5 +765,488 @@
       </div>
     </div>
 
-  </body>
+  
+<!-- ══ مراقب شاشة التحميل ══ -->
+<script>
+(function(){
+  var loader = document.getElementById("page-loader");
+  var app    = document.getElementById("app");
+  if (!loader || !app) return;
+  function hideLdr(){
+    loader.classList.add("pl-hide");
+    setTimeout(function(){ loader.style.display = "none"; }, 380);
+  }
+  var obs = new MutationObserver(function(){
+    if (app.style.visibility !== "hidden"){
+      hideLdr(); obs.disconnect();
+    }
+  });
+  obs.observe(app, { attributes: true, attributeFilter: ["style"] });
+  setTimeout(function(){
+    obs.disconnect(); hideLdr();
+    if (app.style.visibility === "hidden") app.style.visibility = "visible";
+  }, 3500);
+})();
+</script>
+
+
+    <!-- ══ مودال تعديل مخزون المخزن ══ -->
+    <div class="modal-overlay" id="wh-adjust-modal">
+      <div class="modal-box" style="max-width:440px">
+        <div class="modal-box-header">
+          <h3 id="wh-adj-modal-title">تعديل مخزون</h3>
+          <button type="button" class="modal-close" id="wh-adj-close">&times;</button>
+        </div>
+        <form id="wh-adj-form">
+          <input type="hidden" id="wh-adj-wh-id" />
+          <div class="adj-type-group">
+            <button type="button" class="adj-type-btn add active" data-type="add" id="adj-btn-add">
+              ➕ إضافة<br><small style="font-weight:400">زيادة كمية في المخزن</small>
+            </button>
+            <button type="button" class="adj-type-btn consume" data-type="consume" id="adj-btn-consume">
+              ➖ استهلاك<br><small style="font-weight:400">خصم كمية من المخزن</small>
+            </button>
+          </div>
+          <input type="hidden" id="wh-adj-type" value="add" />
+          <div class="field">
+            <label for="wh-adj-product">الصنف <span style="color:#dc2626">*</span></label>
+            <select id="wh-adj-product" required>
+              <option value="">اختر صنفاً</option>
+            </select>
+          </div>
+          <div id="wh-adj-current-wrap" style="margin:-6px 0 14px;font-size:12.5px;color:var(--muted);display:none">
+            الكمية الحالية: <strong id="wh-adj-current-qty" style="color:var(--ink)">—</strong>
+          </div>
+          <div class="field">
+            <label for="wh-adj-qty">الكمية <span style="color:#dc2626">*</span></label>
+            <input type="number" id="wh-adj-qty" min="0.001" step="0.001" value="1" required />
+          </div>
+          <div class="field">
+            <label for="wh-adj-note">ملاحظة (اختياري)</label>
+            <input type="text" id="wh-adj-note" placeholder="مثال: جرد شهري، تلف، كسر..." />
+          </div>
+          <button type="submit" class="btn" id="wh-adj-submit-btn">تنفيذ التعديل</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ══ مودال سجل حركات المخزن ══ -->
+    <div class="modal-overlay" id="wh-log-modal">
+      <div class="modal-box" style="max-width:760px;max-height:88vh;display:flex;flex-direction:column">
+        <div class="modal-box-header" style="flex-shrink:0">
+          <h3 id="wh-log-modal-title">سجل حركات المخزن</h3>
+          <button type="button" class="modal-close" id="wh-log-close">&times;</button>
+        </div>
+        <div style="overflow-y:auto;flex:1;padding:0" id="wh-log-body">
+          <div class="wh-log-empty">جارِ التحميل…</div>
+        </div>
+      </div>
+    </div>
+
+
+<script type="module">
+/* ════════════════════════════════════════════════════════════════════
+   تعديل مخزون المخازن + سجل حركات كل مخزن
+   — يستخدم Firebase app الرئيسي (نفس جلسة المستخدم المسجّل)
+════════════════════════════════════════════════════════════════════ */
+import { initializeApp, getApps, getApp }
+  from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import {
+  getFirestore, collection, addDoc, onSnapshot,
+  query, where, orderBy, doc, updateDoc, serverTimestamp, getDoc
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+import { getAuth }
+  from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+
+/* ── Firebase init: استخدم التطبيق الرئيسي إن وُجد، وإلا أنشئ واحداً ── */
+const FB_CFG = {
+  apiKey:            "AIzaSyDQsaNVskKiV2cwPVlJDixpTD1S-Dhp7gs",
+  authDomain:        "reta-and-hamd.firebaseapp.com",
+  projectId:         "reta-and-hamd",
+  storageBucket:     "reta-and-hamd.firebasestorage.app",
+  messagingSenderId: "220767743863",
+  appId:             "1:220767743863:web:2ecd37bd5830a39ec1bb72",
+};
+/* الأولوية: التطبيق الافتراضي [DEFAULT] → أي تطبيق موجود → تهيئة جديدة */
+const _app = (()=>{
+  const apps = getApps();
+  if(!apps.length) return initializeApp(FB_CFG);
+  const def = apps.find(a=>a.name==="[DEFAULT]");
+  return def || apps[0];
+})();
+const _db   = getFirestore(_app);
+const _auth = getAuth(_app);
+
+/* ── helpers ── */
+function _esc(v){ const d=document.createElement("div"); d.textContent=v??""; return d.innerHTML; }
+function _num(v){ return new Intl.NumberFormat("ar-EG",{maximumFractionDigits:3}).format(v||0); }
+function _dt(ts){
+  const d = ts?.toDate ? ts.toDate() : (ts instanceof Date ? ts : new Date(ts));
+  return d.toLocaleString("ar-EG",{year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"});
+}
+function _txId(){ return "WA-"+Date.now().toString(36).toUpperCase()+"-"+Math.random().toString(36).slice(2,7).toUpperCase(); }
+function _toast(msg, err){
+  const t = document.createElement("div");
+  t.style.cssText="position:fixed;bottom:80px;right:50%;transform:translateX(50%);z-index:9999;"
+    +"padding:10px 20px;border-radius:10px;font-family:Cairo,sans-serif;font-weight:700;font-size:14px;"
+    +"background:"+(err?"#dc2626":"#1a6b3a")+";color:#fff;box-shadow:0 4px 20px rgba(0,0,0,.2);"
+    +"pointer-events:none;";
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 3200);
+}
+
+/* ── state ── */
+let _adjWhId  = null;
+let _adjType  = "add";
+let _logWhId  = null;
+let _logUnsub = null;
+
+/* ══════════════════════════════════
+   قراءة منتجات مخزن من الـ DOM
+   (المنتجات مرسومة بالفعل — لا نحتاج Firestore)
+══════════════════════════════════ */
+function _loadWhProducts(warehouseId, cb){
+  const section = document.querySelector('.warehouse-section[data-wh-id="'+warehouseId+'"]');
+  if(!section){ cb([]); return; }
+  const prods = [];
+  section.querySelectorAll(".wh-product-card").forEach(card=>{
+    /* ابحث عن أي عنصر يحمل data-prod-id داخل البطاقة */
+    const marker = card.querySelector("[data-prod-id]");
+    if(!marker) return;
+    const prodId = marker.dataset.prodId;
+    if(!prodId) return;
+    /* الاسم: خذ النصوص المباشرة فقط (تجنب بادجات مثل "زائر") */
+    const nameEl = card.querySelector(".wpc-name");
+    let name = "";
+    if(nameEl) nameEl.childNodes.forEach(n=>{ if(n.nodeType===3) name+=n.textContent; });
+    name = name.trim() || nameEl?.textContent?.trim() || "?";
+    /* الكمية بأرقام لاتينية */
+    const qtyText = (card.querySelector(".wpc-qty-num")?.textContent||"0")
+                      .trim().replace(/,/g,"").replace(/[٠-٩]/g, d=>"٠١٢٣٤٥٦٧٨٩".indexOf(d));
+    const qty = parseFloat(qtyText) || 0;
+    const unit = card.querySelector(".wpc-qty-unit")?.textContent?.trim() || "";
+    prods.push({ id:prodId, name, quantity:qty, quantityType:unit });
+  });
+  cb(prods);
+}
+
+/* ══════════════════════════════════
+   حقن الأزرار في رأس كل مخزن
+══════════════════════════════════ */
+function _injectBtns(section){
+  if(section.dataset.adjInjected) return;
+  section.dataset.adjInjected="1";
+  const whId = section.dataset.whId;
+  if(!whId) return;
+  const actDiv = section.querySelector(".warehouse-section-actions");
+  if(!actDiv) return;
+
+  const adjBtn = document.createElement("button");
+  adjBtn.type="button"; adjBtn.className="wh-adj-btn"; adjBtn.dataset.whId=whId;
+  adjBtn.innerHTML="<span class='btn-icon'>⚡</span> تعديل مخزون";
+  adjBtn.title="إضافة أو استهلاك من هذا المخزن";
+
+  const logBtn = document.createElement("button");
+  logBtn.type="button"; logBtn.className="wh-log-btn"; logBtn.dataset.whId=whId;
+  logBtn.innerHTML="<span class='btn-icon'>📋</span> سجل الحركات";
+  logBtn.title="سجل حركات هذا المخزن";
+
+  adjBtn.addEventListener("click", ()=>_openAdj(whId, section));
+  logBtn.addEventListener("click", ()=>_openLog(whId, section));
+
+  actDiv.prepend(logBtn);
+  actDiv.prepend(adjBtn);
+}
+
+function _watchContainer(){
+  const c = document.getElementById("warehouses-container");
+  if(!c){ setTimeout(_watchContainer,400); return; }
+  c.querySelectorAll(".warehouse-section").forEach(_injectBtns);
+  new MutationObserver(muts=>{
+    muts.forEach(m=>m.addedNodes.forEach(n=>{
+      if(n.nodeType!==1) return;
+      if(n.classList?.contains("warehouse-section")) _injectBtns(n);
+      n.querySelectorAll?.(".warehouse-section").forEach(_injectBtns);
+    }));
+  }).observe(c,{childList:true,subtree:true});
+}
+
+/* ══════════════════════════════════
+   مودال تعديل المخزون
+══════════════════════════════════ */
+function _openAdj(whId, section){
+  _adjWhId = whId;
+  const whName = _whNameFromSection(section);
+  document.getElementById("wh-adj-modal-title").textContent = "تعديل مخزون — " + whName;
+  document.getElementById("wh-adj-wh-id").value = whId;
+  document.getElementById("wh-adj-form").reset();
+  document.getElementById("wh-adj-qty").value="1";
+  document.getElementById("wh-adj-current-wrap").style.display="none";
+  _setAdjType("add");
+
+  const prodSel = document.getElementById("wh-adj-product");
+  prodSel.innerHTML='<option value="">جارِ التحميل…</option>';
+  document.getElementById("wh-adjust-modal").classList.add("open");
+
+  _loadWhProducts(whId, prods=>{
+    prodSel.innerHTML='<option value="">اختر صنفاً</option>';
+    if(prods.length===0){
+      prodSel.innerHTML='<option value="">لا توجد منتجات في هذا المخزن</option>';
+    } else {
+      prods.forEach(p=>{
+        const o=document.createElement("option");
+        o.value=p.id; o.dataset.qty=p.quantity??0;
+        o.dataset.unit=p.quantityType||""; o.dataset.name=p.name||"";
+        o.textContent=p.name+" ("+_num(p.quantity||0)+" "+(p.quantityType||"")+")";
+        prodSel.appendChild(o);
+      });
+    }
+  });
+}
+
+function _setAdjType(t){
+  _adjType=t;
+  document.getElementById("wh-adj-type").value=t;
+  document.getElementById("adj-btn-add").classList.toggle("active",t==="add");
+  document.getElementById("adj-btn-consume").classList.toggle("active",t==="consume");
+}
+
+function _closeAdj(){
+  document.getElementById("wh-adjust-modal").classList.remove("open");
+  _adjWhId=null;
+}
+
+function _initAdjModal(){
+  const modal = document.getElementById("wh-adjust-modal");
+  document.getElementById("wh-adj-close").addEventListener("click",_closeAdj);
+  modal.addEventListener("click",e=>{ if(e.target===modal) _closeAdj(); });
+
+  document.querySelectorAll(".adj-type-btn").forEach(btn=>{
+    btn.addEventListener("click",()=>_setAdjType(btn.dataset.type));
+  });
+
+  document.getElementById("wh-adj-product").addEventListener("change",()=>{
+    const opt=document.getElementById("wh-adj-product").selectedOptions[0];
+    const wrap=document.getElementById("wh-adj-current-wrap");
+    if(opt?.value){
+      document.getElementById("wh-adj-current-qty").textContent=
+        _num(opt.dataset.qty||0)+" "+(opt.dataset.unit||"");
+      wrap.style.display="block";
+    } else { wrap.style.display="none"; }
+  });
+
+  document.getElementById("wh-adj-form").addEventListener("submit", async e=>{
+    e.preventDefault();
+    const whId   = document.getElementById("wh-adj-wh-id").value;
+    const prodId = document.getElementById("wh-adj-product").value;
+    const qty    = Number(document.getElementById("wh-adj-qty").value)||0;
+    const note   = document.getElementById("wh-adj-note").value.trim();
+    const type   = _adjType;
+    if(!prodId){ _toast("اختر صنفاً",true); return; }
+    if(qty<=0){ _toast("أدخل كمية صحيحة",true); return; }
+
+    const opt    = document.getElementById("wh-adj-product").selectedOptions[0];
+    const qtyBefore = Number(opt?.dataset.qty||0);
+    const qtyAfter  = type==="add" ? qtyBefore+qty : Math.max(0,qtyBefore-qty);
+    const prodName  = opt?.dataset.name||"";
+    const prodUnit  = opt?.dataset.unit||"";
+
+    if(type==="consume" && qty>qtyBefore){
+      _toast("الكمية المطلوبة ("+_num(qty)+") أكبر من المتوفر ("+_num(qtyBefore)+")",true);
+      return;
+    }
+
+    const btn=document.getElementById("wh-adj-submit-btn");
+    btn.disabled=true; btn.innerHTML='<span class="whadj-spinner"></span> جارِ الحفظ…';
+    try {
+      /* اسم المخزن */
+      const whSnap = await getDoc(doc(_db,"warehouses",whId));
+      const whName = whSnap.exists() ? whSnap.data().name : whId;
+
+      const performedBy = _auth.currentUser?.email || "—";
+      const tid = _txId();
+
+      await updateDoc(doc(_db,"products",prodId),{
+        quantity: qtyAfter, updatedAt: serverTimestamp()
+      });
+
+      await addDoc(collection(_db,"warehouseAdjustments"),{
+        warehouseId:whId, warehouseName:whName,
+        productId:prodId, productName:prodName, productUnit:prodUnit,
+        type, qty, qtyBefore, qtyAfter,
+        note, txId:tid,
+        performedBy, createdAt:serverTimestamp()
+      });
+
+      await addDoc(collection(_db,"auditLog"),{
+        action: type==="add"?"إضافة":"استهلاك",
+        entity:"تعديل مخزون", page:"المنتجات",
+        details:(type==="add"?"إضافة ":"استهلاك ")+_num(qty)+" "+prodUnit
+          +" من "+prodName+" في "+whName
+          +" | قبل: "+_num(qtyBefore)+" | بعد: "+_num(qtyAfter),
+        userEmail:performedBy, createdAt:serverTimestamp()
+      }).catch(()=>{});
+
+      /* ── تحديث DOM فوراً دون إعادة تحميل ── */
+      try{
+        const whSection = document.querySelector('.warehouse-section[data-wh-id="'+whId+'"]');
+        if(whSection){
+          whSection.querySelectorAll('.wh-product-card').forEach(function(card){
+            /* ابحث عن أي عنصر يحمل data-prod-id مطابق داخل البطاقة */
+            const marker = card.querySelector('[data-prod-id="'+prodId+'"]');
+            if(marker){
+              const qtyEl = card.querySelector('.wpc-qty-num');
+              if(qtyEl) qtyEl.textContent = _num(qtyAfter);
+            }
+          });
+        }
+      }catch(_e){ /* تحديث DOM اختياري — لا نوقف التنفيذ */ }
+      /* تحديث data-qty على الـ option حتى يكون الفتح التالي صحيحاً */
+      try{ if(opt) opt.dataset.qty = String(qtyAfter); }catch(_e){}
+
+      _toast(type==="add"?"تمت الإضافة بنجاح ✓":"تم الاستهلاك بنجاح ✓");
+      _closeAdj();
+    } catch(err){
+      console.error(err); _toast("حدث خطأ أثناء الحفظ",true);
+    } finally {
+      btn.disabled=false; btn.textContent="تنفيذ التعديل";
+    }
+  });
+}
+
+/* ══════════════════════════════════
+   مودال سجل حركات المخزن
+══════════════════════════════════ */
+function _whNameFromSection(section){
+  const titleEl = section.querySelector(".warehouse-section-title");
+  if(!titleEl) return "المخزن";
+  // النص الأول (Node نصي مباشر) بعد الأيقونة
+  let name="";
+  titleEl.childNodes.forEach(n=>{ if(n.nodeType===3) name+=n.textContent; });
+  return name.replace("🏪","").trim() || titleEl.textContent.replace("🏪","").replace(/d+ منتج/,"").trim();
+}
+
+function _openLog(whId, section){
+  _logWhId=whId;
+  const whName=_whNameFromSection(section);
+  document.getElementById("wh-log-modal-title").textContent="📋 سجل حركات — "+whName;
+  document.getElementById("wh-log-modal").classList.add("open");
+  if(_logUnsub){ _logUnsub(); _logUnsub=null; }
+
+  const body=document.getElementById("wh-log-body");
+  body.innerHTML='<div class="wh-log-empty">جارِ التحميل…</div>';
+
+  /* ملاحظة: تجنبنا orderBy مع where لأن ذلك يتطلب Composite Index في Firestore
+     — نجلب بـ where فقط ثم نرتب على الجهاز */
+  const q=query(
+    collection(_db,"warehouseAdjustments"),
+    where("warehouseId","==",whId)
+  );
+  _logUnsub=onSnapshot(q, snap=>{
+    /* رتّب تنازلياً بـ createdAt على الجهاز */
+    const docs = snap.docs.slice().sort((a,b)=>{
+      const ta = a.data().createdAt?.toMillis?.() ?? 0;
+      const tb = b.data().createdAt?.toMillis?.() ?? 0;
+      return tb - ta;
+    });
+    if(docs.length===0){
+      body.innerHTML='<div class="wh-log-empty">لا توجد حركات تعديل لهذا المخزن بعد</div>';
+      return;
+    }
+    let trows="", cards="", rowNum=docs.length;
+    docs.forEach(ds=>{
+      const d=ds.data();
+      const seq="WA-"+String(rowNum).padStart(4,"0"); rowNum--;
+      const bcls=d.type==="add"?"whadj-add":"whadj-consume";
+      const blbl=d.type==="add"?"➕ إضافة":"➖ استهلاك";
+      const ts=d.createdAt?_dt(d.createdAt):"—";
+      const qtyStr=_num(d.qty)+" "+_esc(d.productUnit||"");
+      const bef=_num(d.qtyBefore||0)+" "+_esc(d.productUnit||"");
+      const aft=_num(d.qtyAfter||0)+" "+_esc(d.productUnit||"");
+      const afterColor=d.type==="add"?"#15803d":"#dc2626";
+      const noteHtml=d.note?'<br><span style="font-size:11px;color:var(--muted)">📝 '+_esc(d.note)+'</span>':"";
+      const txLabel=d.txId||seq;
+
+      trows+=`<tr>
+        <td><span class="whadj-txid">${_esc(txLabel)}</span></td>
+        <td><span class="whadj-badge ${bcls}">${blbl}</span></td>
+        <td style="font-weight:700;color:var(--ink)">${_esc(d.productName||"—")}</td>
+        <td style="font-weight:800">${qtyStr}</td>
+        <td>
+          <div class="whadj-bal">
+            <span class="whadj-bal-before">${bef}</span>
+            <span class="whadj-bal-arrow">&rarr;</span>
+            <span class="whadj-bal-after" style="color:${afterColor}">${aft}</span>
+          </div>
+        </td>
+        <td style="font-size:11.5px;color:var(--muted);font-family:monospace;white-space:nowrap">${ts}</td>
+      </tr>`;
+
+      cards+=`<div class="wh-adj-card">
+        <div class="wh-adj-card-head">
+          <span class="whadj-txid">${_esc(txLabel)}</span>
+          <span class="whadj-badge ${bcls}">${blbl}</span>
+        </div>
+        <div class="wh-adj-card-body">${_esc(d.productName||"—")}: ${qtyStr}${noteHtml}</div>
+        <div class="wh-adj-card-bal">
+          <span>قبل:</span><strong>${bef}</strong>
+          <span style="margin:0 4px">&rarr;</span>
+          <span>بعد:</span><strong style="color:${afterColor}">${aft}</strong>
+        </div>
+        <div class="wh-adj-card-foot">
+          <span>👤 ${_esc(d.performedBy||"—")}</span>
+          <span style="font-family:monospace">${ts}</span>
+        </div>
+      </div>`;
+    });
+
+    body.innerHTML=`
+      <div class="wh-adj-table-wrap" style="overflow-x:auto">
+        <table class="wh-adj-table">
+          <thead><tr>
+            <th>معرّف الحركة</th>
+            <th>النوع</th>
+            <th>المنتج</th>
+            <th>الكمية</th>
+            <th>الرصيد قبل → بعد</th>
+            <th>الوقت</th>
+          </tr></thead>
+          <tbody>${trows}</tbody>
+        </table>
+      </div>
+      <div class="wh-adj-cards">${cards}</div>`;
+  }, err=>{ console.error(err); body.innerHTML='<div class="wh-log-empty">حدث خطأ أثناء تحميل السجل</div>'; });
+}
+
+function _closeLog(){
+  document.getElementById("wh-log-modal").classList.remove("open");
+  if(_logUnsub){ _logUnsub(); _logUnsub=null; }
+  _logWhId=null;
+}
+
+function _initLogModal(){
+  const modal=document.getElementById("wh-log-modal");
+  document.getElementById("wh-log-close").addEventListener("click",_closeLog);
+  modal.addEventListener("click",e=>{ if(e.target===modal) _closeLog(); });
+}
+
+/* ══════════════════════════════════
+   Bootstrap
+══════════════════════════════════ */
+document.addEventListener("DOMContentLoaded",()=>{
+  _initAdjModal();
+  _initLogModal();
+  _watchContainer();
+
+  /* Escape يغلق أي مودال مفتوح */
+  document.addEventListener("keydown", e=>{
+    if(e.key!=="Escape") return;
+    if(document.getElementById("wh-adjust-modal").classList.contains("open")) _closeAdj();
+    if(document.getElementById("wh-log-modal").classList.contains("open"))    _closeLog();
+  });
+});
+</script>
+
+</body>
 </html>
