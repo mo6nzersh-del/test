@@ -63,6 +63,24 @@ function fmtDateTimeLong(ts) {
   return d.toLocaleString("ar-EG", { year: "numeric", month: "long", day: "numeric", hour: "2-digit", minute: "2-digit" });
 }
 
+/* select editable number values on interaction so typing replaces them immediately */
+function initNumberInputSelection() {
+  function selectIfEditableNumber(target) {
+    if (!(target instanceof HTMLInputElement) ||
+        target.type !== "number" ||
+        target.readOnly ||
+        target.disabled) return;
+    target.select();
+  }
+
+  document.addEventListener("focusin", event => {
+    selectIfEditableNumber(event.target);
+  });
+  document.addEventListener("click", event => {
+    selectIfEditableNumber(event.target);
+  });
+}
+
 /* serial ID: W{warehouseIndex}-{5-digit sequence} — always auto-generated */
 function generateSerial(warehouseId) {
   const idx = warehouses.findIndex(w => w.id === warehouseId);
@@ -75,6 +93,7 @@ function generateSerial(warehouseId) {
 /* ─── init ─── */
 initPage(user => {
   currentUser = user;
+  initNumberInputSelection();
   initTabs();
   initWarehouseContainerDelegation();
   initWarehouseModal();
@@ -170,7 +189,7 @@ function buildWarehouseSection(wh, whProducts) {
   const badge = whProducts.length > 0 ? `<span class="wh-count">${whProducts.length} منتج</span>` : "";
   section.innerHTML = `
     <div class="warehouse-section-header">
-      <div class="warehouse-section-title">🏪 ${esc(wh.name)} ${badge}</div>
+      <div class="warehouse-section-title"><span class="wh-title-icon">🏪</span> ${esc(wh.name)} ${badge}</div>
       <div class="warehouse-section-actions" style="display:flex;gap:8px">
         <button type="button" class="btn small" data-wh-add="${wh.id}">+ إضافة منتج</button>
       </div>
@@ -186,23 +205,25 @@ function buildWarehouseSection(wh, whProducts) {
 }
 
 function buildProductCardHTML(p) {
-  const img = p.imageUrl
-    ? `<img class="wh-product-img" src="${p.imageUrl}" alt="${esc(p.name)}" />`
-    : `<div class="wh-product-img-placeholder">📦</div>`;
+  const ICONS = ["📦","🏷️","🗃️","📋","🧺","🛒","📌","🗂️"];
+  const icon = p.imageUrl
+    ? `<img style="width:22px;height:22px;object-fit:cover;border-radius:4px" src="${p.imageUrl}" alt="" />`
+    : ICONS[(p.name || "").charCodeAt(0) % ICONS.length] || "📦";
   return `
-    <div class="wh-product-card">
-      ${img}
-      <div class="wh-product-info">
-        <div class="wh-product-name" title="${esc(p.name)}">${esc(p.name)} ${p.isVisiting ? `<span class="wh-product-visiting-badge" title="صنف زائر من مخزن آخر — نفس المعرّف الأصلي">زائر</span>` : ""}</div>
-        ${p.serialId ? `<div class="wh-product-serial"># ${esc(p.serialId)}</div>` : ""}
-        ${p.description ? `<div class="wh-product-desc">${esc(p.description)}</div>` : ""}
-        <div class="wh-product-meta">
-          <div class="wh-product-qty">${fmtNum(p.quantity || 0)} <span>${esc(p.quantityType || "")}</span></div>
-          <div class="wh-product-price">${p.price ? fmtMoney(p.price) : "—"}</div>
-        </div>
-        <div class="wh-product-actions">
-          <button type="button" class="edit-btn edit-prod-btn" data-prod-id="${p.id}">تعديل</button>
-        </div>
+    <div class="wh-product-card${p.isVisiting ? " visiting" : ""}">
+      <span class="wpc-icon">${icon}</span>
+      <div class="wpc-info">
+        <div class="wpc-name" title="${esc(p.name)}">${esc(p.name)}${p.isVisiting ? ` <span class="wh-product-visiting-badge" title="صنف زائر من مخزن آخر — نفس المعرّف الأصلي">زائر</span>` : ""}</div>
+        ${p.serialId ? `<div class="wpc-serial"># ${esc(p.serialId)}</div>` : ""}
+        ${p.description ? `<div class="wpc-desc">${esc(p.description)}</div>` : ""}
+      </div>
+      <div class="wpc-qty-badge">
+        <span class="wpc-qty-num">${fmtNum(p.quantity || 0)}</span>
+        <span class="wpc-qty-unit">${esc(p.quantityType || "")}</span>
+      </div>
+      <div class="wpc-right">
+        <div class="wpc-price">${p.price ? fmtMoney(p.price) : "—"}</div>
+        <button type="button" class="wpc-edit-btn edit-prod-btn" data-prod-id="${p.id}">تعديل</button>
       </div>
     </div>`;
 }
@@ -704,19 +725,15 @@ function initLoadingForm() {
     const labelUnpaid = document.getElementById("pay-label-unpaid");
     const hint        = document.getElementById("pay-hint");
     if (isPaid) {
-      labelPaid.style.background   = "#e8f5e9";
-      labelPaid.style.color        = "#1a6b3a";
-      labelUnpaid.style.background = "#f0f0f0";
-      labelUnpaid.style.color      = "#888";
-      hint.style.color             = "#1a6b3a";
-      hint.textContent             = "سيُسجَّل دفع فوري — لن يُضاف دين على التاجر";
+      labelPaid.className   = "pay-opt pay-opt-paid sel-paid";
+      labelUnpaid.className = "pay-opt pay-opt-unpaid";
+      hint.style.color      = "#1a6b3a";
+      hint.textContent      = "سيُسجَّل دفع فوري — لن يُضاف دين على التاجر";
     } else {
-      labelUnpaid.style.background = "#fff4e5";
-      labelUnpaid.style.color      = "#a06a10";
-      labelPaid.style.background   = "#f0f0f0";
-      labelPaid.style.color        = "#888";
-      hint.style.color             = "#a06a10";
-      hint.textContent             = "سيُسجَّل دين على التاجر بقيمة الفاتورة";
+      labelUnpaid.className = "pay-opt pay-opt-unpaid sel-unpaid";
+      labelPaid.className   = "pay-opt pay-opt-paid";
+      hint.style.color      = "#a06a10";
+      hint.textContent      = "سيُسجَّل دين على التاجر بقيمة الفاتورة";
     }
   }
   document.getElementById("load-pay-paid").addEventListener("change", updatePayStyle);
@@ -1029,16 +1046,19 @@ function bindDeleteBtns(container, colName) {
 ══════════════════════════════════════ */
 function loadActivityLog() {
   const tbody = document.getElementById("log-table-body");
+  const mobList = document.getElementById("mob-log-list");
   const countEl = document.getElementById("log-count");
   const q = query(collection(db, "activityLog"), orderBy("createdAt", "desc"));
   onSnapshot(q, snap => {
     if (countEl) countEl.textContent = `${snap.size} عملية`;
     if (snap.empty) {
       tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">لا توجد عمليات مسجلة بعد</div></td></tr>';
+      if (mobList) mobList.innerHTML = '<div class="empty-state">لا توجد عمليات مسجلة بعد</div>';
       return;
     }
     tbody.innerHTML = "";
-    let rowNum = snap.size; // newest = highest number
+    if (mobList) mobList.innerHTML = "";
+    let rowNum = snap.size;
     snap.forEach(docSnap => {
       const d = docSnap.data();
       const badgeMap = { production: ["log-prod","إنتاج"], transfer: ["log-transfer","تحويل"], loading: ["log-load","بيع"] };
@@ -1047,15 +1067,19 @@ function loadActivityLog() {
       rowNum--;
       const kind = d.type === "loading" ? "loading" : "movement";
       const canPreview = !!d.opId;
-      // خزّن الرقم التسلسلي على السجل المخزّن مؤقتاً لاستخدامه لاحقاً في المعاينة
       if (canPreview) {
         const cache = kind === "loading" ? loadingRecordsCache : movementsRecordsCache;
         if (cache[d.opId]) cache[d.opId].seqLabel = seqLabel;
       }
+      const opAttrs = canPreview
+        ? `data-op-id="${esc(d.opId)}" data-op-kind="${kind}" data-seq-label="${esc(seqLabel)}" title="عرض تفاصيل الحركة كما تمت"`
+        : "";
+
+      // ── صف الجدول (سطح المكتب) ──
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>
-          <span class="${canPreview ? "log-serial-link" : ""}" ${canPreview ? `data-op-id="${esc(d.opId)}" data-op-kind="${kind}" data-seq-label="${esc(seqLabel)}" title="عرض تفاصيل الحركة كما تمت"` : ""}
+          <span class="${canPreview ? "log-serial-link" : ""}" ${opAttrs}
             style="font-family:monospace;font-size:11px;font-weight:700;color:${canPreview ? "var(--primary-dark)" : "var(--muted)"};
             background:var(--bg);border-radius:5px;padding:3px 6px;border:1px solid var(--border);
             white-space:nowrap;${canPreview ? "cursor:pointer;text-decoration:underline;" : ""}">${seqLabel}</span>
@@ -1068,11 +1092,34 @@ function loadActivityLog() {
         <td style="font-size:12.5px">${esc(resolveAlias(d.performedBy) || "—")}</td>
         <td class="log-time">${d.createdAt ? fmtDateTime(d.createdAt) : "—"}</td>`;
       tbody.appendChild(tr);
+
+      // ── بطاقة الهاتف ──
+      if (mobList) {
+        const card = document.createElement("div");
+        card.className = "mob-log-card";
+        const detailsTxt = [d.details, d.note ? `(${d.note})` : ""].filter(Boolean).join(" — ");
+        card.innerHTML = `
+          <div class="mlc-head">
+            <span class="mlc-serial${canPreview ? " clickable log-serial-link" : ""}" ${opAttrs}>${seqLabel}</span>
+            <span class="log-badge ${cls}">${label}</span>
+          </div>
+          <div>
+            <div class="mlc-summary">${esc(d.summary || "")}</div>
+            ${detailsTxt ? `<div class="mlc-details">${esc(detailsTxt)}</div>` : ""}
+          </div>
+          <div class="mlc-foot">
+            <span class="mlc-by">👤 ${esc(resolveAlias(d.performedBy) || "—")}</span>
+            <span class="mlc-time">${d.createdAt ? fmtDateTime(d.createdAt) : "—"}</span>
+          </div>`;
+        mobList.appendChild(card);
+      }
     });
-    /* حذف سجلات النشاط أصبح متاحاً فقط من صفحة DeepLog، لذلك لا يوجد زر حذف هنا */
-    tbody.querySelectorAll(".log-serial-link[data-op-id]").forEach(el => {
+    /* حذف سجلات النشاط أصبح متاحاً فقط من صفحة DeepLog */
+    const bindPreview = root => root.querySelectorAll(".log-serial-link[data-op-id]").forEach(el => {
       el.addEventListener("click", () => openOperationPreview(el.dataset.opId, el.dataset.opKind, el.dataset.seqLabel));
     });
+    bindPreview(tbody);
+    if (mobList) bindPreview(mobList);
   }, err => { console.error(err); tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">حدث خطأ</div></td></tr>'; });
 }
 
