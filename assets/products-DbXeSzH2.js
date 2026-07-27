@@ -1,4 +1,5 @@
 import{r as initPage,u as updateDoc,a as docRef,d as db,s as serverTimestamp,b as addDoc,c as collection,q as query,o as orderBy,e as onSnapshot,f as deleteDoc,k as writeBatch}from"./auth-guard-DMMO1gWE.js";
+import{getDocs,where}from"https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 import{r as renderNav,s as showToast,f as formatDate}from"./nav-C4LmEyvm.js";
 import{f as compressImage}from"./image-utils-ix_Ztzsr.js";
 
@@ -753,6 +754,24 @@ function initLoadingForm() {
     if (validLines.length === 0) { showToast("أضف صنفاً واحداً على الأقل", true); return; }
     submitBtn.disabled = true; submitBtn.innerHTML = '<span class="spinner"></span>';
     try {
+      // ── حساب رصيد التاجر قبل العملية ──
+      let balanceBefore = 0;
+      try {
+        const [merTxSnap, finTxSnap] = await Promise.all([
+          getDocs(query(collection(db, "merchantTransactions"), where("merchantId", "==", merchantId))),
+          getDocs(query(collection(db, "finance_transactions"), where("merchantId", "==", merchantId), where("type", "==", "merchant"))),
+        ]);
+        const directBal = merTxSnap.docs.reduce((s, d) => {
+          const t = d.data();
+          return s + (t.type === "out" ? -t.amount : t.amount);
+        }, 0);
+        const finBal = finTxSnap.docs.reduce((s, d) => {
+          const t = d.data();
+          return s + (t.dir === "in" ? t.amount : -t.amount);
+        }, 0);
+        balanceBefore = directBal + finBal;
+      } catch (_balErr) { /* ignore balance fetch errors */ }
+
       const batch = writeBatch(db);
       const opId = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
       const wh = warehouses.find(w => w.id === whId);
@@ -771,6 +790,8 @@ function initLoadingForm() {
         });
         lineDetails.push({ productId: prod.id, productName: prod.name, qty: line.qty, unit: prod.quantityType || "", price: line.price, total: lineTotal });
       }
+      // الرصيد بعد: إذا مدفوع يتعادل الدين مع الدفعة الفورية، وإذا غير مدفوع ينخفض الرصيد بقيمة الفاتورة
+      const balanceAfter = isPaid ? balanceBefore : balanceBefore - totalAmount;
       // loading operation record
       const opRef = docRef(collection(db, "loadingOperations"));
       batch.set(opRef, {
@@ -778,6 +799,9 @@ function initLoadingForm() {
         warehouseId: whId, warehouseName: wh?.name ?? "",
         merchantId, merchantName: merchant?.name ?? "",
         lines: lineDetails, totalAmount, note,
+        paid: isPaid,
+        balanceBefore,
+        balanceAfter,
         performedBy: currentUser?.email ?? "—",
         createdAt: serverTimestamp(),
       });
@@ -874,6 +898,9 @@ function initLoadingForm() {
         warehouseName: wh?.name ?? "",
         merchantName: merchant?.name ?? "",
         lines: lineDetails, totalAmount, note,
+        paid: isPaid,
+        balanceBefore,
+        balanceAfter,
         performedBy: currentUser?.email ?? "—",
       });
       form.reset();
@@ -1196,6 +1223,23 @@ function showInvoice(data) {
       <div class="inv-doc-bill-name">${esc(data.merchantName||"")}</div>
       <div class="inv-doc-bill-detail">من مخزن: ${esc(data.warehouseName||"")}</div>
     </div>`;
+
+    // حالة الدفع
+    const paidLabel = data.paid === true
+      ? '<span style="color:#15803d;font-weight:800">✅ مدفوعة نقداً</span>'
+      : data.paid === false
+      ? '<span style="color:#a06a10;font-weight:800">⏳ غير مدفوعة — دَين على التاجر</span>'
+      : '<span style="color:#888">—</span>';
+
+    // رصيد التاجر قبل / بعد
+    function fmtBal(v) {
+      if (typeof v !== "number") return '<span style="color:#888">—</span>';
+      const abs = fmtMoney(Math.abs(v));
+      if (v > 0) return `${abs} <span style="font-size:11px;color:#15803d;font-weight:700">(دائن)</span>`;
+      if (v < 0) return `${abs} <span style="font-size:11px;color:#b91c1c;font-weight:700">(مدين)</span>`;
+      return `${abs} <span style="font-size:11px;color:#888">(متعادل)</span>`;
+    }
+
     bodyHtml = `
       <table class="inv-doc-table">
         <thead><tr><th>الصنف</th><th style="text-align:center">الكمية</th><th style="text-align:center">سعر الوحدة</th><th style="text-align:center">الإجمالي</th></tr></thead>
@@ -1204,6 +1248,9 @@ function showInvoice(data) {
       <div class="inv-doc-total-wrap"><table class="inv-doc-total-table">
         <tr><td class="tot-lbl">المجموع الفرعي</td><td class="tot-val">${fmtMoney(data.totalAmount)}</td></tr>
         <tr><td class="tot-lbl"><strong>الإجمالي</strong></td><td class="tot-val"><strong>${fmtMoney(data.totalAmount)}</strong></td></tr>
+        <tr><td class="tot-lbl" style="border-top:2px solid #ddd;padding-top:10px">حالة الدفع</td><td class="tot-val" style="border-top:2px solid #ddd;padding-top:10px">${paidLabel}</td></tr>
+        <tr><td class="tot-lbl">رصيد التاجر قبل العملية</td><td class="tot-val">${fmtBal(data.balanceBefore)}</td></tr>
+        <tr style="background:#f0f9f4"><td class="tot-lbl"><strong>رصيد التاجر بعد العملية</strong></td><td class="tot-val"><strong>${fmtBal(data.balanceAfter)}</strong></td></tr>
       </table></div>`;
   }
 
