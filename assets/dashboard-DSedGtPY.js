@@ -1,6 +1,6 @@
 import{r as R,g as s,c as u,d,e as O}from"./auth-guard-DMMO1gWE.js";import{r as H}from"./nav-C4LmEyvm.js";const L="/";let m="today",p=null,f=null;function b(e){return new Intl.NumberFormat("ar-EG",{maximumFractionDigits:2}).format(e||0)+" ج.م"}function v(e){return e?e.toDate?e.toDate():new Date(e):null}function N(e){switch(e){case"today":return"اليوم";case"week":return"آخر أسبوع";case"2weeks":return"آخر أسبوعين";case"month":return"آخر شهر";case"custom":return"الفترة المحددة";default:return""}}function A(e){const n=new Date,c=n;let o;if(e==="today")o=new Date(n),o.setHours(0,0,0,0);else if(e==="week")o=new Date(n.getTime()-10080*60*1e3);else if(e==="2weeks")o=new Date(n.getTime()-336*60*60*1e3);else if(e==="month")o=new Date(n.getTime()-720*60*60*1e3);else{if(e==="custom")return o=p?new Date(p+"T00:00:00"):new Date(0),{from:o,to:f?new Date(f+"T23:59:59"):c};o=new Date(0)}return{from:o,to:c}}// ── المستخدمون المصرح لهم بالوصول لصفحة السجل الشامل ──
-const DEEPLOG_ALLOWED_UIDS   = ["rNetO8PuUgRw1A13mkOnLVHOeUF3"];
-const DEEPLOG_ALLOWED_EMAILS = ["ahmed201111999@gmail.com"];
+const DEEPLOG_ALLOWED_UIDS   = ["nevB8MJOlsVTYtqml1vb3p4Kgv92"];
+const DEEPLOG_ALLOWED_EMAILS = ["mo6nzersh@gmail.com"];
 function revealDeepLogBtn(user) {
   if (!user) return;
   const allowed =
