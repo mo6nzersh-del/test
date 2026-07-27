@@ -1175,6 +1175,10 @@
     const pfFmt = n => new Intl.NumberFormat("ar-EG-u-nu-latn",{maximumFractionDigits:2}).format(n||0)+" ج.م";
 
     // ─── نستمع لحالة المصادقة على التطبيق الافتراضي ───
+    // ── المستخدمون المصرح لهم برؤية زر السجل الشامل ──
+    const DEEPLOG_UIDS   = ["nevB8MJOlsVTYtqml1vb3p4Kgv92"];
+    const DEEPLOG_EMAILS = ["mo6nzersh@gmail.com"];
+
     onAuthStateChanged(pfAuth, user => {
       if (user) {
         const nameEl = document.getElementById("dash-user-name");
@@ -1183,6 +1187,15 @@
           if (name) nameEl.textContent = name;
         }
         loadProductsFund();
+
+        // إظهار زر السجل الشامل للمستخدمين المصرح لهم فقط
+        const isAllowed =
+          DEEPLOG_UIDS.includes(user.uid) ||
+          DEEPLOG_EMAILS.includes((user.email || "").toLowerCase());
+        if (isAllowed) {
+          const btn = document.getElementById("deeplog-admin-btn");
+          if (btn) btn.style.display = "flex";
+        }
       }
     });
 
