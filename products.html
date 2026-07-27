@@ -238,7 +238,19 @@
       /* ── print styles ── */
       @media print{
         @page{size:A4 portrait;margin:0}
+        /* إخفاء كل شيء */
         body > *{display:none!important}
+        /* إخفاء صريح لعناصر position:fixed قد تتجاهل display:none في بعض متصفحات الهاتف */
+        #page-loader{display:none!important;opacity:0!important;visibility:hidden!important}
+        #bottom-nav{display:none!important;opacity:0!important;visibility:hidden!important}
+        .modal-overlay:not(#invoice-modal){display:none!important}
+        /* إعادة تعيين خلفية الصفحة بالكامل */
+        html{background:#fff!important;background-image:none!important}
+        body{
+          background:#fff!important;background-image:none!important;
+          margin:0!important;padding:0!important;
+        }
+        /* إظهار نافذة الفاتورة فقط */
         #invoice-modal{
           display:block!important;position:fixed!important;
           top:0!important;left:0!important;right:0!important;bottom:0!important;
@@ -252,10 +264,10 @@
           overflow:visible!important;background:#fff!important;
           width:100%!important;max-width:100%!important;
         }
+        #invoice-modal .modal-overlay-bg{display:none!important}
         #invoice-modal .modal-box-header,
         #receipt-print-btn-outer{display:none!important}
         #invoice-content{display:block!important}
-        body{background:#fff!important;margin:0!important;padding:0!important}
         *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
       }
     
@@ -859,14 +871,15 @@ import { getAuth }
   from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
 /* ── Firebase init: استخدم التطبيق الرئيسي إن وُجد، وإلا أنشئ واحداً ── */
-const FB_CFG = {
-  apiKey:            "AIzaSyDQsaNVskKiV2cwPVlJDixpTD1S-Dhp7gs",
-  authDomain:        "reta-and-hamd.firebaseapp.com",
-  projectId:         "reta-and-hamd",
-  storageBucket:     "reta-and-hamd.firebasestorage.app",
-  messagingSenderId: "220767743863",
-  appId:             "1:220767743863:web:2ecd37bd5830a39ec1bb72",
-};
+const app = initializeApp({
+  apiKey:            "AIzaSyCzBhGHQ7O9BDg5D5eFXrFLhCCauFPEkWQ",
+  authDomain:        "test-reta-e4928.firebaseapp.com",
+  projectId:         "test-reta-e4928",
+  storageBucket:     "test-reta-e4928.firebasestorage.app",
+  messagingSenderId: "686928049289",
+  appId:             "1:686928049289:web:f4e733cc58e0ef36e84258",
+  measurementId:     "G-T62EFF5591"
+});
 /* الأولوية: التطبيق الافتراضي [DEFAULT] → أي تطبيق موجود → تهيئة جديدة */
 const _app = (()=>{
   const apps = getApps();

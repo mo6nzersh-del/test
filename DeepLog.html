@@ -407,9 +407,60 @@
       .section-tabs, .filters-bar, .trash-filters,
       .row-actions, .panel-header .btn { display:none!important }
     }
-  </style>
+  
+      /* ══ شاشة التحميل ══ */
+      #page-loader {
+        position: fixed; inset: 0; z-index: 9999;
+        background: linear-gradient(145deg, #1a6b3a, #2d9f5f);
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        gap: 20px;
+        transition: opacity .35s ease;
+      }
+      #page-loader.pl-hide { opacity: 0; pointer-events: none; }
+      .pl-logo {
+        width: 90px; height: 90px; border-radius: 22px;
+        background: rgba(255,255,255,.18);
+        border: 2px solid rgba(255,255,255,.35);
+        display: flex; align-items: center; justify-content: center;
+        overflow: hidden;
+      }
+      .pl-logo-img {
+        width: 100%; height: 100%;
+        object-fit: contain;
+        padding: 10px;
+      }
+      .pl-logo-fallback {
+        display: none;
+        font-size: 26px; font-weight: 900; color: #fff;
+        letter-spacing: 1px;
+      }
+      .pl-spinner {
+        width: 36px; height: 36px;
+        border: 3.5px solid rgba(255,255,255,.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: pl-spin .75s linear infinite;
+      }
+      @keyframes pl-spin { to { transform: rotate(360deg); } }
+      .pl-text {
+        color: rgba(255,255,255,.8);
+        font-size: 14px; font-weight: 600;
+        letter-spacing: .3px;
+      }
+</style>
 </head>
 <body>
+<!-- ══ شاشة التحميل ══ -->
+<div id="page-loader">
+  <div class="pl-logo">
+    <img src="https://i.imgur.com/NsN1HgC.png" alt="logo" class="pl-logo-img"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <span class="pl-logo-fallback">AH</span>
+  </div>
+  <div class="pl-spinner"></div>
+  <div class="pl-text">جارِ التحميل…</div>
+</div>
 <div id="app">
   <main class="page">
     <div class="dl-header">
@@ -849,7 +900,7 @@
         <select id="fin-f-employee" style="margin-top:4px"><option value="">— اختر الموظف —</option></select>
       </div>
       <div class="field" id="fin-deduct-month-field" style="display:none">
-        <label for="fin-f-deduct-month">شهر الخصم من الراتب *</label>
+        <label for="fin-f-deduct-month">شهر الخصم -�ن الراتب *</label>
         <select id="fin-f-deduct-month" style="margin-top:4px"><option value="">— اختر شهر الخصم —</option></select>
       </div>
       <div class="field" id="fin-merchant-field" style="display:none">
@@ -973,12 +1024,13 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app = initializeApp({
-  apiKey:            "AIzaSyDQsaNVskKiV2cwPVlJDixpTD1S-Dhp7gs",
-  authDomain:        "reta-and-hamd.firebaseapp.com",
-  projectId:         "reta-and-hamd",
-  storageBucket:     "reta-and-hamd.firebasestorage.app",
-  messagingSenderId: "220767743863",
-  appId:             "1:220767743863:web:2ecd37bd5830a39ec1bb72"
+  apiKey:            "AIzaSyCzBhGHQ7O9BDg5D5eFXrFLhCCauFPEkWQ",
+  authDomain:        "test-reta-e4928.firebaseapp.com",
+  projectId:         "test-reta-e4928",
+  storageBucket:     "test-reta-e4928.firebasestorage.app",
+  messagingSenderId: "686928049289",
+  appId:             "1:686928049289:web:f4e733cc58e0ef36e84258",
+  measurementId:     "G-T62EFF5591"
 });
 const auth = getAuth(app);
 const db   = getFirestore(app);
@@ -2522,5 +2574,29 @@ async function handleCreateAccount(e) {
   }
 }
 </script>
+
+<!-- ══ مراقب شاشة التحميل ══ -->
+<script>
+(function(){
+  var loader = document.getElementById("page-loader");
+  var app    = document.getElementById("app");
+  if (!loader || !app) return;
+  function hideLdr(){
+    loader.classList.add("pl-hide");
+    setTimeout(function(){ loader.style.display = "none"; }, 380);
+  }
+  var obs = new MutationObserver(function(){
+    if (app.style.visibility !== "hidden"){
+      hideLdr(); obs.disconnect();
+    }
+  });
+  obs.observe(app, { attributes: true, attributeFilter: ["style"] });
+  setTimeout(function(){
+    obs.disconnect(); hideLdr();
+    if (app.style.visibility === "hidden") app.style.visibility = "visible";
+  }, 3500);
+})();
+</script>
+
 </body>
 </html>

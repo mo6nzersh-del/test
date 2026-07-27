@@ -34,6 +34,9 @@
     .stat-card .sc-label{font-size:12.5px;color:var(--muted);font-weight:600}
     .stat-card .sc-val{font-size:22px;font-weight:800;color:var(--ink)}
     .stat-card .sc-sub{font-size:11.5px;color:var(--muted)}
+    /* الأيقونة والنص — بشكل inline على الحاسوب */
+    .sc-icon{display:inline;font-style:normal}
+    .sc-text{display:inline}
     .stat-balance{border-top:3px solid var(--primary)}
     .stat-balance .sc-val{color:var(--primary-dark)}
     .stat-in   {border-top:3px solid #4caf7d}
@@ -345,6 +348,15 @@
     .dir-hint.out{background:#fce8e5;color:#b3432f}
     .dir-hint.custom{background:#f2f2f2;color:#555}
 
+    /* ── قفل نوع العملية في وضع التعديل ── */
+    .type-selector.locked{pointer-events:none;opacity:.55;position:relative;user-select:none}
+    .type-selector.locked::after{
+      content:"لا يمكن تغيير نوع العملية بعد الحفظ";
+      position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+      font-size:11.5px;font-weight:700;color:#666;
+      background:rgba(255,255,255,.6);border-radius:10px;
+    }
+
     @media print{
       *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
       #topbar,.page-header,.quick-actions,.filters-bar,.row-actions,.modal-overlay,.btn{display:none!important}
@@ -356,9 +368,187 @@
       .data-table th,.data-table td{border:1px solid #ccc!important;padding:5px 8px!important}
       .data-table th{background:#f0f0f0!important}
     }
-  </style>
+
+    /* ══════════════════════════════════════
+       بطاقات الهاتف — سجل الحركات المالية
+    ══════════════════════════════════════ */
+    .mob-tx-list{display:none}
+    @media(max-width:900px){
+      /* ══ بطاقات الإحصائيات — تصميم الهاتف ══ */
+      .stats-grid{grid-template-columns:1fr 1fr!important;gap:10px!important}
+      .stat-card{
+        padding:12px 12px 14px!important;
+        gap:0!important;
+        border-top-width:3px!important;
+      }
+      .stat-card .sc-label{
+        display:flex;align-items:center;gap:8px;
+        margin-bottom:10px;
+      }
+      .sc-icon{
+        display:flex!important;align-items:center;justify-content:center;
+        width:40px;height:40px;border-radius:11px;
+        font-size:20px;flex-shrink:0;
+        background:rgba(0,0,0,.06);
+      }
+      .sc-text{
+        display:block!important;
+        font-size:11.5px;color:var(--muted);font-weight:600;line-height:1.35;
+      }
+      .stat-card .sc-val{font-size:26px!important;font-weight:900!important;line-height:1.1}
+      .stat-card .sc-sub{font-size:10.5px;margin-top:4px;color:var(--muted)}
+      /* لون خلفية الأيقونة لكل نوع بطاقة */
+      .stat-balance .sc-icon{background:#e8f5e9}
+      .stat-in      .sc-icon{background:#e8f5e9}
+      .stat-out     .sc-icon{background:#fdecea}
+      .stat-adv     .sc-icon{background:#e8eeff}
+      .stat-pf-inv  .sc-icon{background:#e8ecf5}
+      .stat-pf-dues .sc-icon{background:#fdf3dc}
+      .stat-pf-total .sc-icon{background:#e8f5e9}
+      .stat-pf-wh   .sc-icon{background:#f0eeff}
+
+      /* إخفاء الجدول وإظهار البطاقات */
+      .table-wrap{display:none}
+      .mob-tx-list{display:flex;flex-direction:column;gap:8px;margin-top:4px}
+
+      /* البطاقة الأساسية */
+      .mob-tx-card{
+        background:var(--surface);
+        border:1px solid var(--border);
+        border-radius:14px;
+        padding:14px 14px 10px;
+        box-shadow:0 1px 5px rgba(0,0,0,.06);
+        display:flex;flex-direction:column;gap:9px;
+        transition:box-shadow .15s;
+      }
+      .mob-tx-card:active{box-shadow:0 2px 10px rgba(0,0,0,.1)}
+
+      /* سطر الرأس: المعرف + التاريخ */
+      .mob-tx-head{
+        display:flex;align-items:center;
+        justify-content:space-between;gap:8px;
+      }
+      .mob-tx-date{
+        font-size:11.5px;color:var(--muted);white-space:nowrap;
+      }
+
+      /* سطر المنتصف: الشارة + الاتجاه ← المبلغ */
+      .mob-tx-mid{
+        display:flex;align-items:center;
+        justify-content:space-between;gap:8px;flex-wrap:wrap;
+      }
+      .mob-tx-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap;flex:1;min-width:0}
+      .mob-tx-dir{font-size:12px;font-weight:700;white-space:nowrap}
+      .mob-tx-dir.in{color:#1a6b3a}
+      .mob-tx-dir.out{color:#b3432f}
+
+      /* المبلغ الكبير */
+      .mob-tx-amount{
+        font-size:19px;font-weight:900;
+        white-space:nowrap;letter-spacing:-.4px;
+      }
+      .mob-tx-amount.in{color:#1a6b3a}
+      .mob-tx-amount.out{color:#b3432f}
+
+      /* الجهة والوصف */
+      .mob-tx-meta{
+        font-size:12px;color:var(--muted);
+        display:flex;flex-direction:column;gap:2px;
+      }
+      .mob-tx-meta .mob-meta-row{display:flex;gap:4px;align-items:baseline}
+      .mob-tx-meta .mob-meta-lbl{font-size:11px;font-weight:700;color:var(--muted);flex-shrink:0}
+      .mob-tx-meta .mob-meta-val{color:var(--ink);font-size:12.5px;font-weight:600;
+        overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+      .mob-tx-meta .link-cell{color:var(--primary-dark);font-weight:700;cursor:pointer}
+      .mob-tx-meta .link-cell:hover{text-decoration:underline}
+
+      /* شريط الأزرار السفلي */
+      .mob-tx-actions-row{
+        display:flex;gap:6px;padding-top:8px;
+        border-top:1px solid var(--border);align-items:center;
+      }
+      .mob-tx-actions-row .mob-btn-edit,
+      .mob-tx-actions-row .mob-btn-del{
+        flex:1;padding:7px 0;border-radius:9px;
+        font-family:inherit;font-size:12px;font-weight:700;
+        cursor:pointer;text-align:center;
+        border:1px solid var(--border);
+        background:var(--surface);color:var(--ink);
+        transition:background .12s;
+      }
+      .mob-tx-actions-row .mob-btn-del{
+        color:#b3432f;border-color:#f0b3a8;background:#fff5f5;
+      }
+      .mob-tx-actions-row .mob-btn-stat{
+        border:1px solid var(--border);background:var(--surface);
+        border-radius:9px;padding:7px 11px;cursor:pointer;
+        font-size:14px;color:var(--muted);line-height:1;
+        transition:background .12s,color .12s;
+      }
+      .mob-tx-actions-row .mob-btn-stat.active{
+        background:var(--primary-soft,#eef2fb);
+        color:var(--primary-dark,#2a5bbf);
+        border-color:var(--primary,#4a7dd4);
+      }
+
+      /* صندوق الأرصدة القابل للطي */
+      .mob-tx-box4{display:none;padding-top:6px}
+      .mob-tx-box4.open{display:block}
+    }
+  
+      /* ══ شاشة التحميل ══ */
+      #page-loader {
+        position: fixed; inset: 0; z-index: 9999;
+        background: linear-gradient(145deg, #1a6b3a, #2d9f5f);
+        display: flex; flex-direction: column;
+        align-items: center; justify-content: center;
+        gap: 20px;
+        transition: opacity .35s ease;
+      }
+      #page-loader.pl-hide { opacity: 0; pointer-events: none; }
+      .pl-logo {
+        width: 90px; height: 90px; border-radius: 22px;
+        background: rgba(255,255,255,.18);
+        border: 2px solid rgba(255,255,255,.35);
+        display: flex; align-items: center; justify-content: center;
+        overflow: hidden;
+      }
+      .pl-logo-img {
+        width: 100%; height: 100%;
+        object-fit: contain;
+        padding: 10px;
+      }
+      .pl-logo-fallback {
+        display: none;
+        font-size: 26px; font-weight: 900; color: #fff;
+        letter-spacing: 1px;
+      }
+      .pl-spinner {
+        width: 36px; height: 36px;
+        border: 3.5px solid rgba(255,255,255,.3);
+        border-top-color: #fff;
+        border-radius: 50%;
+        animation: pl-spin .75s linear infinite;
+      }
+      @keyframes pl-spin { to { transform: rotate(360deg); } }
+      .pl-text {
+        color: rgba(255,255,255,.8);
+        font-size: 14px; font-weight: 600;
+        letter-spacing: .3px;
+      }
+</style>
 </head>
 <body>
+<!-- ══ شاشة التحميل ══ -->
+<div id="page-loader">
+  <div class="pl-logo">
+    <img src="https://i.imgur.com/NsN1HgC.png" alt="logo" class="pl-logo-img"
+      onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <span class="pl-logo-fallback">AH</span>
+  </div>
+  <div class="pl-spinner"></div>
+  <div class="pl-text">جارِ التحميل…</div>
+</div>
 <div id="app">
   <header id="topbar" class="topbar"></header>
   <main class="page">
@@ -375,22 +565,22 @@
     <h3 class="fund-title">💰 صندوق الكاش</h3>
     <div class="stats-grid">
       <div class="stat-card stat-balance">
-        <div class="sc-label">💰 رصيد الصندوق الحالي</div>
+        <div class="sc-label"><span class="sc-icon">💰</span><span class="sc-text">رصيد الصندوق الحالي</span></div>
         <div class="sc-val" id="stat-balance">—</div>
         <div class="sc-sub" id="stat-balance-sub">جارِ الحساب...</div>
       </div>
       <div class="stat-card stat-in">
-        <div class="sc-label">📥 إجمالي الإيداعات</div>
+        <div class="sc-label"><span class="sc-icon">📥</span><span class="sc-text">إجمالي الإيداعات</span></div>
         <div class="sc-val" id="stat-in">—</div>
         <div class="sc-sub" id="stat-in-sub">—</div>
       </div>
       <div class="stat-card stat-out">
-        <div class="sc-label">📤 إجمالي المسحوبات</div>
+        <div class="sc-label"><span class="sc-icon">📤</span><span class="sc-text">إجمالي المسحوبات</span></div>
         <div class="sc-val" id="stat-out">—</div>
         <div class="sc-sub" id="stat-out-sub">—</div>
       </div>
       <div class="stat-card stat-adv">
-        <div class="sc-label">👤 إجمالي السلف</div>
+        <div class="sc-label"><span class="sc-icon">👤</span><span class="sc-text">إجمالي السلف</span></div>
         <div class="sc-val" id="stat-adv">—</div>
         <div class="sc-sub" id="stat-adv-sub">—</div>
       </div>
@@ -400,22 +590,22 @@
     <h3 class="fund-title">📦 صندوق المنتجات</h3>
     <div class="stats-grid">
       <div class="stat-card stat-pf-inv">
-        <div class="sc-label">🏬 قيمة المخزون بالمخازن</div>
+        <div class="sc-label"><span class="sc-icon">🏬</span><span class="sc-text">قيمة المخزون بالمخازن</span></div>
         <div class="sc-val" id="stat-pf-inventory">—</div>
         <div class="sc-sub">كمية × سعر لكل منتج</div>
       </div>
       <div class="stat-card stat-pf-dues" id="dues-card-btn" title="انقر لعرض تفاصيل مستحقات التجار">
-        <div class="sc-label">🤝 مستحقات التجار <span style="font-size:10px;opacity:.6">← تفاصيل</span></div>
+        <div class="sc-label"><span class="sc-icon">🤝</span><span class="sc-text">مستحقات التجار <span style="font-size:10px;opacity:.6">← تفاصيل</span></span></div>
         <div class="sc-val" id="stat-pf-dues">—</div>
         <div class="sc-sub" id="stat-pf-dues-sub">بضاعة أُرسلت ولم تُدفع بعد</div>
       </div>
       <div class="stat-card stat-pf-total">
-        <div class="sc-label">📦 إجمالي صندوق المنتجات</div>
+        <div class="sc-label"><span class="sc-icon">📦</span><span class="sc-text">إجمالي صندوق المنتجات</span></div>
         <div class="sc-val" id="stat-pf-total">—</div>
         <div class="sc-sub">قيمة المخزون + مستحقات التجار</div>
       </div>
       <div class="stat-card stat-pf-wh">
-        <div class="sc-label">🏪 قيمة مخزن محدد (بدون بناء)</div>
+        <div class="sc-label"><span class="sc-icon">🏪</span><span class="sc-text">قيمة مخزن محدد (بدون بناء)</span></div>
         <div class="sc-val" id="stat-pf-wh-value">—</div>
         <div class="sc-sub" id="stat-pf-wh-count">كمية × سعر لمنتجات المخزن</div>
         <select class="wh-inline-select" id="wh-finance-select" disabled>
@@ -467,6 +657,10 @@
           </tbody>
         </table>
       </div>
+      <!-- بطاقات الهاتف (تظهر فقط على شاشات ≤ 640px) -->
+      <div id="mob-tx-list" class="mob-tx-list">
+        <div class="empty-state">جارِ التحميل...</div>
+      </div>
     </div>
 
   </main>
@@ -493,7 +687,7 @@
     <div class="mp-type-opt sel-out selected" id="mp-opt-out">
       <input type="radio" name="mp-pay-type" value="in" id="mp-radio-out" checked />
       <div>
-        <div class="mp-type-label">💳 التاجر دفع نقداً — تسديد مستحقات</div>
+        <div class="mp-type-label">💳 التاجر دفع نقداً — تسديد مستح �ات</div>
         <div class="mp-type-sub">(يقلل دينه)</div>
       </div>
     </div>
@@ -692,12 +886,14 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app = initializeApp({
-  apiKey:            "AIzaSyDQsaNVskKiV2cwPVlJDixpTD1S-Dhp7gs",
-  authDomain:        "reta-and-hamd.firebaseapp.com",
-  projectId:         "reta-and-hamd",
-  storageBucket:     "reta-and-hamd.firebasestorage.app",
-  messagingSenderId: "220767743863",
-  appId:             "1:220767743863:web:2ecd37bd5830a39ec1bb72"
+  apiKey:            "AIzaSyCzBhGHQ7O9BDg5D5eFXrFLhCCauFPEkWQ",
+  authDomain:        "test-reta-e4928.firebaseapp.com",
+  projectId:         "test-reta-e4928",
+  storageBucket:     "test-reta-e4928.firebasestorage.app",
+  messagingSenderId: "686928049289",
+  appId:             "1:686928049289:web:f4e733cc58e0ef36e84258",
+  measurementId:     "G-T62EFF5591"
+});:             "1:220767743863:web:2ecd37bd5830a39ec1bb72"
 });
 const auth = getAuth(app);
 const db   = getFirestore(app);
@@ -1079,7 +1275,7 @@ function renderTxBalanceBox(tx){
   if(!balCtx){ box.style.display="none"; box.innerHTML=""; return; }
   const card=(icon,label,val)=>`
     <div class="stat-card ${val>=0?"stat-balance":"stat-out"}" style="width:100%">
-      <div class="sc-label">${icon} ${label}</div>
+      <div class="sc-label"><span class="sc-icon">${icon}</span><span class="sc-text">${label}</span></div>
       <div class="sc-val" style="color:${val>=0?"var(--primary-dark)":"var(--danger,#c0392b)"}">${fmt(Math.abs(val))}</div>
       <div class="sc-sub">${val>=0?"":"⚠️ عجز في الصندوق"}</div>
     </div>`;
@@ -1382,11 +1578,14 @@ function renderTable(){
 
   document.getElementById("tx-count").textContent=`${rows.length} عملية`;
   const tbody=document.getElementById("tx-tbody");
+  const mobList=document.getElementById("mob-tx-list");
   if(!rows.length){
     tbody.innerHTML='<tr><td colspan="8"><div class="empty-state">لا توجد عمليات مطابقة</div></td></tr>';
+    mobList.innerHTML='<div class="empty-state">لا توجد عمليات مطابقة</div>';
     return;
   }
   tbody.innerHTML="";
+  mobList.innerHTML="";
 
   // ── حساب أرصدة صناديق الكاش (الرصيد/الإيداعات/المسحوبات/السلف) قبل وبعد كل حركة، على كامل التاريخ بلا فلتر ──
   const fullCashTx=[...allTx.filter(t=>t.type!=="merchant")].sort((a,b)=>{
@@ -1460,7 +1659,42 @@ function renderTable(){
       dtr.innerHTML=`<td colspan="8">${detailHtml}</td>`;
       tbody.appendChild(dtr);
     }
+
+    // ── بطاقة الهاتف ──
+    const mobPartyCell=linkedMerchantId
+      ?`<span class="link-cell" data-merchant-id="${linkedMerchantId}">${esc(party)}</span>`
+      :(t.employeeId
+        ?`<span class="link-cell" data-employee-id="${t.employeeId}">${esc(party)}</span>`
+        :esc(party));
+    const hasMeta=party!=="—"||t.description;
+    const card=document.createElement("div");
+    card.className="mob-tx-card";
+    card.innerHTML=`
+      <div class="mob-tx-head">
+        <span class="rec-id" data-tx-id="${t.id}" title="انقر لعرض التفاصيل">${esc(t.finId||"—")}</span>
+        <span class="mob-tx-date">${esc(fmtDate(t.date))}</span>
+      </div>
+      <div class="mob-tx-mid">
+        <div class="mob-tx-badges">
+          <span class="type-badge ${cfg.badge}">${esc(cfg.label)}</span>
+          <span class="mob-tx-dir ${t.dir==="in"?"in":"out"}">${t.dir==="in"?"↙ إيداع":"↗ سحب"}</span>
+        </div>
+        <div class="mob-tx-amount ${t.dir==="in"?"in":"out"}">${fmt(t.amount)}</div>
+      </div>
+      ${hasMeta?`<div class="mob-tx-meta">
+        ${party!=="—"?`<div class="mob-meta-row"><span class="mob-meta-lbl">الجهة:</span><span class="mob-meta-val">${mobPartyCell}</span></div>`:""}
+        ${t.description?`<div class="mob-meta-row"><span class="mob-meta-lbl">الوصف:</span><span class="mob-meta-val">${esc(t.description)}</span></div>`:""}
+      </div>`:""}
+      <div class="mob-tx-actions-row">
+        <button class="mob-btn-stat" data-toggle="${t.id}" title="أرصدة قبل/بعد">📊</button>
+        <button class="mob-btn-edit" data-id="${t.id}">تعديل</button>
+        <button class="mob-btn-del"  data-id="${t.id}">حذف</button>
+      </div>
+      <div class="mob-tx-box4" id="mob-box4-${t.id}">${detailHtml}</div>`;
+    mobList.appendChild(card);
   });
+
+  // ── أحداث الجدول (سطح المكتب) ──
   tbody.querySelectorAll(".link-cell[data-merchant-id]").forEach(el=>
     el.addEventListener("click",()=>{ window.location.href=`/merchants.html?id=${encodeURIComponent(el.dataset.merchantId)}`; }));
   tbody.querySelectorAll(".link-cell[data-employee-id]").forEach(el=>
@@ -1469,16 +1703,32 @@ function renderTable(){
     btn.addEventListener("click",()=>openModal(allTx.find(t=>t.id===btn.dataset.id))));
   tbody.querySelectorAll(".del").forEach(btn=>
     btn.addEventListener("click",()=>deleteTx(btn.dataset.id)));
-  // ── النقر على رقم الحركة → عرض التفاصيل ──
   tbody.querySelectorAll(".rec-id[data-tx-id]").forEach(el=>
     el.addEventListener("click",()=>openTxDetail(allTx.find(t=>t.id===el.dataset.txId))));
-  // ── إظهار/إخفاء أرصدة الصناديق قبل/بعد الحركة ──
   tbody.querySelectorAll(".tx-row-box4-toggle").forEach(btn=>btn.addEventListener("click",()=>{
     const row=document.getElementById("tx-row-box4-"+btn.dataset.toggle);
     if(!row) return;
     const showing=row.style.display!=="none";
     row.style.display=showing?"none":"table-row";
     btn.classList.toggle("active",!showing);
+  }));
+
+  // ── أحداث بطاقات الهاتف ──
+  mobList.querySelectorAll(".link-cell[data-merchant-id]").forEach(el=>
+    el.addEventListener("click",()=>{ window.location.href=`/merchants.html?id=${encodeURIComponent(el.dataset.merchantId)}`; }));
+  mobList.querySelectorAll(".link-cell[data-employee-id]").forEach(el=>
+    el.addEventListener("click",()=>{ window.location.href=`/employees.html?id=${encodeURIComponent(el.dataset.employeeId)}`; }));
+  mobList.querySelectorAll(".mob-btn-edit").forEach(btn=>
+    btn.addEventListener("click",()=>openModal(allTx.find(t=>t.id===btn.dataset.id))));
+  mobList.querySelectorAll(".mob-btn-del").forEach(btn=>
+    btn.addEventListener("click",()=>deleteTx(btn.dataset.id)));
+  mobList.querySelectorAll(".rec-id[data-tx-id]").forEach(el=>
+    el.addEventListener("click",()=>openTxDetail(allTx.find(t=>t.id===el.dataset.txId))));
+  mobList.querySelectorAll(".mob-btn-stat").forEach(btn=>btn.addEventListener("click",()=>{
+    const box=document.getElementById("mob-box4-"+btn.dataset.toggle);
+    if(!box) return;
+    const open=box.classList.toggle("open");
+    btn.classList.toggle("active",open);
   }));
 }
 
@@ -1550,7 +1800,9 @@ function openModal(tx=null,preType=null){
   document.getElementById("tx-del-btn").style.display="none";
   document.querySelectorAll(".type-opt").forEach(o=>o.classList.remove("selected"));
 
+  const typeSel=document.getElementById("type-selector");
   if(tx){
+    typeSel.classList.add("locked");
     editTxId=tx.id;
     document.getElementById("f-amount").value =tx.amount??0;
     document.getElementById("f-desc").value   =tx.description??"";
@@ -1563,8 +1815,9 @@ function openModal(tx=null,preType=null){
     selectType(tx.type);
     // يُعاد بناء قائمة الشهر بعد selectType مع القيمة المحفوظة
     if(tx.type==="advance") buildDeductMonthSelect(tx.deductMonth??"");
-  } else if(preType){
-    selectType(preType);
+  } else {
+    typeSel.classList.remove("locked");
+    if(preType) selectType(preType);
   }
   document.getElementById("tx-modal").classList.add("open");
 }
@@ -1889,5 +2142,29 @@ async function saveTx(e){
     cntEl.textContent = `${ps.length} منتج — ${wh?.name??""}`;
   }
 </script>
+
+<!-- ══ مراقب شاشة التحميل ══ -->
+<script>
+(function(){
+  var loader = document.getElementById("page-loader");
+  var app    = document.getElementById("app");
+  if (!loader || !app) return;
+  function hideLdr(){
+    loader.classList.add("pl-hide");
+    setTimeout(function(){ loader.style.display = "none"; }, 380);
+  }
+  var obs = new MutationObserver(function(){
+    if (app.style.visibility !== "hidden"){
+      hideLdr(); obs.disconnect();
+    }
+  });
+  obs.observe(app, { attributes: true, attributeFilter: ["style"] });
+  setTimeout(function(){
+    obs.disconnect(); hideLdr();
+    if (app.style.visibility === "hidden") app.style.visibility = "visible";
+  }, 3500);
+})();
+</script>
+
 </body>
 </html>
