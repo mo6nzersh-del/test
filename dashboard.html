@@ -1034,6 +1034,19 @@
             </div>
             <div class="sc-label">الموظفون</div>
           </a>
+          <!-- زر إداري مخفي — يظهر فقط للمستخدمين المصرح لهم عبر JS -->
+          <a id="deeplog-admin-btn"
+             class="shortcut-card"
+             href="/DeepLog.html"
+             style="display:none;
+                    background:linear-gradient(135deg,#1e1b4b 0%,#312e81 100%);
+                    border-color:#4338ca;
+                    box-shadow:0 4px 18px rgba(67,56,202,.35);">
+            <div class="sc-icon" style="background:rgba(255,255,255,.13);font-size:22px;width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;">
+              🔐
+            </div>
+            <div class="sc-label" style="color:#c7d2fe;font-size:11px;">السجل الشامل</div>
+          </a>
         </div>
 
       </main><!-- /page -->
@@ -1146,15 +1159,14 @@
     import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
     // ─── نستخدم التطبيق الافتراضي الذي هيَّأه auth-guard مسبقاً ───
-const app = initializeApp({
-  apiKey:            "AIzaSyCzBhGHQ7O9BDg5D5eFXrFLhCCauFPEkWQ",
-  authDomain:        "test-reta-e4928.firebaseapp.com",
-  projectId:         "test-reta-e4928",
-  storageBucket:     "test-reta-e4928.firebasestorage.app",
-  messagingSenderId: "686928049289",
-  appId:             "1:686928049289:web:f4e733cc58e0ef36e84258",
-  measurementId:     "G-T62EFF5591"
-});
+    const PF_CFG = {
+      apiKey:            "AIzaSyDQsaNVskKiV2cwPVlJDixpTD1S-Dhp7gs",
+      authDomain:        "reta-and-hamd.firebaseapp.com",
+      projectId:         "reta-and-hamd",
+      storageBucket:     "reta-and-hamd.firebasestorage.app",
+      messagingSenderId: "220767743863",
+      appId:             "1:220767743863:web:2ecd37bd5830a39ec1bb72"
+    };
 
     const pfApp = getApps().length > 0 ? getApp() : initializeApp(PF_CFG);
     const pfAuth = getAuth(pfApp);
