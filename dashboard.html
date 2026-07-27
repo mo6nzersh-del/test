@@ -771,8 +771,8 @@
           <!-- شريط التطبيق العلوي -->
           <div class="app-bar">
             <div class="app-bar-brand">
-              <img src="https://i.imgur.com/NsN1HgC.png" alt="logo"
-                style="height:38px;object-fit:contain;border-radius:8px;background:rgba(255,255,255,.2);padding:3px 6px;border:1.5px solid rgba(255,255,255,.3);flex-shrink:0;"
+              <img id="dash-logo-press" src="https://i.imgur.com/NsN1HgC.png" alt="logo"
+                style="height:38px;object-fit:contain;border-radius:8px;background:rgba(255,255,255,.2);padding:3px 6px;border:1.5px solid rgba(255,255,255,.3);flex-shrink:0;cursor:pointer;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;"
                 onerror="this.style.display='none';document.getElementById('brand-fallback').style.display='flex'">
               <div id="brand-fallback" style="display:none;width:40px;height:40px;border-radius:10px;background:rgba(255,255,255,.22);border:1.5px solid rgba(255,255,255,.3);align-items:center;justify-content:center;font-size:14px;font-weight:900;color:#fff;flex-shrink:0;">AH</div>
               <div>
@@ -1034,19 +1034,6 @@
             </div>
             <div class="sc-label">الموظفون</div>
           </a>
-          <!-- زر إداري مخفي — يظهر فقط للمستخدمين المصرح لهم عبر JS -->
-          <a id="deeplog-admin-btn"
-             class="shortcut-card"
-             href="/DeepLog.html"
-             style="display:none;
-                    background:linear-gradient(135deg,#1e1b4b 0%,#312e81 100%);
-                    border-color:#4338ca;
-                    box-shadow:0 4px 18px rgba(67,56,202,.35);">
-            <div class="sc-icon" style="background:rgba(255,255,255,.13);font-size:22px;width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;">
-              🔐
-            </div>
-            <div class="sc-label" style="color:#c7d2fe;font-size:11px;">السجل الشامل</div>
-          </a>
         </div>
 
       </main><!-- /page -->
@@ -1086,6 +1073,48 @@
       </nav>
 
     </div><!-- /app -->
+
+    <!-- ══ الضغط المطوّل على اللوجو للوصول لصفحة السجل الشامل (10 ثوانٍ) ══ -->
+    <script>
+    (function(){
+      var HOLD_MS = 10000; // 10 ثوانٍ
+      var timer = null;
+      var startedAt = 0;
+
+      function startHold(e) {
+        e.preventDefault();
+        startedAt = Date.now();
+        timer = setTimeout(function(){
+          window.location.href = "/DeepLog.html";
+        }, HOLD_MS);
+      }
+
+      function cancelHold() {
+        if (timer) { clearTimeout(timer); timer = null; }
+      }
+
+      function bindLogo() {
+        var el = document.getElementById("dash-logo-press");
+        if (!el) return;
+        // موبايل
+        el.addEventListener("touchstart",  startHold,  { passive: false });
+        el.addEventListener("touchend",    cancelHold, { passive: true  });
+        el.addEventListener("touchcancel", cancelHold, { passive: true  });
+        // ديسكتوب
+        el.addEventListener("mousedown",   startHold);
+        el.addEventListener("mouseup",     cancelHold);
+        el.addEventListener("mouseleave",  cancelHold);
+        // منع قائمة السياق عند الضغط المطوّل
+        el.addEventListener("contextmenu", function(e){ e.preventDefault(); });
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", bindLogo);
+      } else {
+        bindLogo();
+      }
+    })();
+    </script>
 
     <!-- ══ مراقب شاشة التحميل ══ -->
     <script>
@@ -1175,10 +1204,6 @@
     const pfFmt = n => new Intl.NumberFormat("ar-EG-u-nu-latn",{maximumFractionDigits:2}).format(n||0)+" ج.م";
 
     // ─── نستمع لحالة المصادقة على التطبيق الافتراضي ───
-    // ── المستخدمون المصرح لهم برؤية زر السجل الشامل ──
-    const DEEPLOG_UIDS   = ["nevB8MJOlsVTYtqml1vb3p4Kgv92"];
-    const DEEPLOG_EMAILS = ["mo6nzersh@gmail.com"];
-
     onAuthStateChanged(pfAuth, user => {
       if (user) {
         const nameEl = document.getElementById("dash-user-name");
@@ -1187,15 +1212,6 @@
           if (name) nameEl.textContent = name;
         }
         loadProductsFund();
-
-        // إظهار زر السجل الشامل للمستخدمين المصرح لهم فقط
-        const isAllowed =
-          DEEPLOG_UIDS.includes(user.uid) ||
-          DEEPLOG_EMAILS.includes((user.email || "").toLowerCase());
-        if (isAllowed) {
-          const btn = document.getElementById("deeplog-admin-btn");
-          if (btn) btn.style.display = "flex";
-        }
       }
     });
 
