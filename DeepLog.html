@@ -6,7 +6,7 @@
   <title>السجل الشامل - Ahmed And hamdy</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="stylesheet" href="/assets/auth-guard-C6CJ8_8i.css" />
+  <link rel="stylesheet" href="/assets/auth-guard.css" />
   <style>
     body{background:var(--bg)}
     .rec-id{cursor:pointer;font-family:monospace;font-weight:800;color:var(--primary-dark,#2a5bbf);text-decoration:underline dotted;text-underline-offset:3px}
@@ -225,6 +225,8 @@
       border-color:var(--primary); color:var(--primary-dark)
     }
     .mob-tab-item.mob-tab-blue { border-color:#1a3a6b; color:#1a3a6b; background:#eef2fb }
+    .mob-tab-item.mob-tab-green { border-color:#047857; color:#047857; background:#d1fae5 }
+    .mob-tab-item.mob-tab-green.mob-active { background:#047857; color:#fff }
     .mob-tab-item.mob-tab-blue.mob-active { background:#1a3a6b; color:#fff }
     .mob-tab-item.mob-tab-red  { border-color:#b3432f; color:#b3432f; background:#fce8e5 }
     .mob-tab-item.mob-tab-red.mob-active  { background:#b3432f; color:#fff }
@@ -480,6 +482,7 @@
       <button type="button" id="tab-auditlog" style="background:linear-gradient(135deg,#1a3a6b,#2a5bbf);color:#fff;border-color:#1a3a6b;font-weight:800">🔍 سجل المراقبة الشامل</button>
       <button type="button" id="tab-accounts">👤 إدارة الحسابات</button>
       <button type="button" id="tab-trash" style="background:linear-gradient(135deg,#b3432f,#e07070);color:#fff;border-color:#b3432f;font-weight:800">🗑️ سلة المحذوفات</button>
+      <button type="button" id="tab-export" style="background:linear-gradient(135deg,#047857,#059669);color:#fff;border-color:#047857;font-weight:800">📤 التصدير والنسخ الاحتياطي</button>
     </div>
 
     <!-- ══ منيو التبويبات (هاتف فقط) ══ -->
@@ -501,6 +504,7 @@
           <button type="button" class="mob-tab-item mob-tab-blue" data-key="auditlog">🔍 سجل المراقبة الشامل</button>
           <button type="button" class="mob-tab-item" data-key="accounts">👤 إدارة الحسابات</button>
           <button type="button" class="mob-tab-item mob-tab-red" data-key="trash">🗑️ سلة المحذوفات</button>
+          <button type="button" class="mob-tab-item mob-tab-green" data-key="export">📤 التصدير والنسخ الاحتياطي</button>
         </div>
       </div>
     </div>
@@ -847,6 +851,85 @@
   </main>
 </div>
 
+
+    <!-- ══════════ TAB 9: EXPORT & BACKUP ══════════ -->
+    <div class="section-view" id="view-export">
+      <div class="panel" id="export-status-panel">
+        <div class="panel-header"><h3>📊 حالة التصدير</h3></div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-bottom:4px">
+          <div class="stmt-card"><div class="k">آخر تصدير ناجح</div><div class="v" id="exp-last-time" style="font-size:14px">—</div></div>
+          <div class="stmt-card"><div class="k">عدد السجلات المُصدَّرة</div><div class="v" id="exp-last-count" style="font-size:14px">—</div></div>
+          <div class="stmt-card"><div class="k">التصدير التلقائي القادم</div><div class="v" id="exp-next-time" style="font-size:14px">—</div></div>
+          <div class="stmt-card"><div class="k">حالة الاتصال بالهدف</div><div class="v" id="exp-conn-status" style="font-size:13px">جارٍ الفحص...</div></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><h3>⚙️ إعدادات التصدير التلقائي</h3></div>
+        <p style="font-size:12px;color:var(--muted);margin:-4px 0 16px">
+          يتم التصدير <strong>تلقائياً</strong> في الساعة المحددة، ولا يُصدَّر إلا البيانات الجديدة منذ آخر تصدير (تصدير تدريجي).
+          الوقت الافتراضي هو <strong>2:00 صباحاً</strong> لأنه وقت هادئ بلا معاملات.
+        </p>
+        <div style="display:flex;align-items:center;flex-wrap:wrap;gap:16px;padding:14px;background:var(--bg);border-radius:12px;margin-bottom:14px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px;font-weight:700">
+            <input type="checkbox" id="exp-auto-enable" style="width:18px;height:18px;cursor:pointer" />
+            تفعيل التصدير التلقائي اليومي
+          </label>
+          <div style="display:flex;align-items:center;gap:8px">
+            <label style="font-size:13px;font-weight:700;color:var(--muted)">وقت التصدير:</label>
+            <input type="time" id="exp-auto-time" value="02:00" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;background:var(--surface);color:var(--ink)" />
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <label style="font-size:13px;font-weight:700;color:var(--muted)">تكرار كل:</label>
+            <select id="exp-auto-interval" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:var(--surface);color:var(--ink)">
+              <option value="24">24 ساعة (يومي)</option>
+              <option value="48" selected>48 ساعة (كل يومين)</option>
+              <option value="168">أسبوع</option>
+            </select>
+          </div>
+          <button type="button" class="btn small" id="exp-save-settings">💾 حفظ الإعدادات</button>
+        </div>
+        <p style="font-size:11.5px;color:var(--muted)">⚠️ يجب أن تكون الصفحة مفتوحة في المتصفح حتى يعمل التصدير التلقائي.</p>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><h3>🚀 التصدير اليدوي</h3></div>
+        <p style="font-size:12px;color:var(--muted);margin:-4px 0 14px">
+          <strong>تدريجي</strong> = يُضيف فقط البيانات الجديدة منذ آخر تصدير. &nbsp;
+          <strong>كامل</strong> = يُصدّر كل البيانات من البداية.
+        </p>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px">
+          <button type="button" class="btn" id="exp-manual-incremental-btn">📤 تصدير تدريجي (الجديد فقط)</button>
+          <button type="button" class="btn outline" id="exp-manual-full-btn">🔄 تصدير كامل (كل البيانات)</button>
+          <button type="button" class="btn outline" id="exp-reset-cursor-btn" style="color:#b3432f;border-color:#b3432f">↩ إعادة ضبط المؤشر</button>
+        </div>
+        <div id="exp-progress-wrap" style="display:none;margin-bottom:14px">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--muted);margin-bottom:6px">
+            <span id="exp-progress-label">جارٍ التصدير...</span>
+            <span id="exp-progress-pct">0%</span>
+          </div>
+          <div style="background:var(--border);border-radius:99px;height:8px;overflow:hidden">
+            <div id="exp-progress-bar" style="background:linear-gradient(90deg,#047857,#059669);height:100%;width:0%;transition:width .3s;border-radius:99px"></div>
+          </div>
+        </div>
+        <div id="exp-result-box" style="display:none;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:700"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><h3>📋 المجموعات المُصدَّرة</h3></div>
+        <div id="exp-collections-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:4px"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-header">
+          <h3>📜 سجل عمليات التصدير</h3>
+          <button type="button" class="btn small outline" id="exp-clear-log-btn">مسح السجل</button>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead><tr><th>الوقت</th><th>النوع</th><th>عدد السجلات</th><th>المجموعات</th><th>الحالة</th></tr></thead>
+            <tbody id="exp-log-tbody"><tr><td colspan="5"><div class="empty-state">لم يتم أي تصدير بعد</div></td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
 <!-- ═══════ نافذة تفاصيل الحركة المالية ═══════ -->
 <div class="modal-overlay" id="tx-detail-modal">
   <div class="modal-box" style="max-width:500px">
@@ -1082,6 +1165,7 @@ function switchTab(key) {
     auditlog:    { btn: document.getElementById("tab-auditlog"),    view: document.getElementById("view-auditlog") },
     accounts:    { btn: document.getElementById("tab-accounts"),    view: document.getElementById("view-accounts") },
     trash:       { btn: document.getElementById("tab-trash"),       view: document.getElementById("view-trash") },
+    export:      { btn: document.getElementById("tab-export"),      view: document.getElementById("view-export") },
   };
   Object.values(tabs).forEach(({ btn, view }) => {
     btn.classList.remove("active");
@@ -1099,6 +1183,11 @@ function switchTab(key) {
     tabs[key].btn.style.background = "linear-gradient(135deg,#b3432f,#e07070)";
     tabs[key].btn.style.color = "#fff";
     tabs[key].btn.style.borderColor = "#b3432f";
+  }
+  if (key === "export") {
+    tabs[key].btn.style.background = "linear-gradient(135deg,#047857,#059669)";
+    tabs[key].btn.style.color = "#fff";
+    tabs[key].btn.style.borderColor = "#047857";
   }
   tabs[key].btn.classList.add("active"); tabs[key].view.classList.add("active");
 
@@ -1300,6 +1389,7 @@ function init() {
   document.getElementById("tab-auditlog").addEventListener("click", () => switchTab("auditlog"));
   document.getElementById("tab-accounts").addEventListener("click", () => switchTab("accounts"));
   document.getElementById("tab-trash").addEventListener("click", () => switchTab("trash"));
+  document.getElementById("tab-export").addEventListener("click", () => switchTab("export"));
 
   loadEmployees();
   loadMerchants();
@@ -1313,6 +1403,7 @@ function init() {
   loadAuditLog();
   loadAccounts();
   loadTrash();
+  setupExportPanel();
   setupAuditFilters();
   loadOpeningBalance();
   document.getElementById("account-form").addEventListener("submit", handleCreateAccount);
@@ -2534,6 +2625,291 @@ async function permanentlyDeleteFinTx(id, btn) {
     btn.disabled = false;
     btn.textContent = "🗑 حذف نهائي";
   }
+}
+
+/* ══════════════════════════════════════
+   تبويب التصدير والنسخ الاحتياطي
+   ════════════════════════════════════ */
+const BACKUP_FB_CONFIG = {
+  apiKey:            "AIzaSyCzBhGHQ7O9BDg5D5eFXrFLhCCauFPEkWQ",
+  authDomain:        "test-reta-e4928.firebaseapp.com",
+  projectId:         "test-reta-e4928",
+  storageBucket:     "test-reta-e4928.firebasestorage.app",
+  messagingSenderId: "686928049289",
+  appId:             "1:686928049289:web:f4e733cc58e0ef36e84258"
+};
+
+const EXPORT_COLS_CFG = [
+  { name:"finance_transactions",  ts:"createdAt",  label:"الحركات المالية",    icon:"💰" },
+  { name:"merchantTransactions",  ts:"createdAt",  label:"حركات التجار",        icon:"🤝" },
+  { name:"products",              ts:"createdAt",  label:"المنتجات",             icon:"📦" },
+  { name:"merchants",             ts:"createdAt",  label:"التجار",              icon:"🏪" },
+  { name:"employees",             ts:"createdAt",  label:"الموظفون",            icon:"👤" },
+  { name:"warehouses",            ts:"createdAt",  label:"المخازن",             icon:"🏗️" },
+  { name:"warehouseOperations",   ts:"createdAt",  label:"حركات المخازن",       icon:"🔄" },
+  { name:"loadingOperations",     ts:"createdAt",  label:"عمليات التحميل",      icon:"🚚" },
+  { name:"auditLog",              ts:"createdAt",  label:"سجل المراقبة",        icon:"🔍" },
+  { name:"deeplogPageActivity",   ts:"createdAt",  label:"نشاط DeepLog",        icon:"📋" },
+  { name:"appUsers",              ts:"createdAt",  label:"المستخدمون",          icon:"👥" },
+  { name:"finance_settings",      ts:null,          label:"إعدادات المالية",     icon:"⚙️" },
+  { name:"counters",              ts:null,          label:"العدادات",            icon:"🔢" },
+];
+
+const LS_CURSOR   = "deeplog_export_cursor";
+const LS_SETTINGS = "deeplog_export_settings";
+const LS_LOG      = "deeplog_export_log";
+const LS_LASTINFO = "deeplog_last_export_info";
+
+let exportAutoTimer = null;
+let backupDb = null;
+
+async function initBackupDb() {
+  if (backupDb) return true;
+  try {
+    const { getApps, initializeApp } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js");
+    const { getFirestore } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+    const apps = getApps();
+    const existing = apps.find(a => a.name === "backup-db");
+    const bApp = existing || initializeApp(BACKUP_FB_CONFIG, "backup-db");
+    backupDb = getFirestore(bApp);
+    setConnStatus("✅ متصل بقاعدة النسخ الاحتياطي", "#1a6b3a");
+    return true;
+  } catch(e) {
+    setConnStatus("❌ خطأ في الاتصال: " + e.message, "#b3432f");
+    return false;
+  }
+}
+
+function setConnStatus(msg, color) {
+  const el = document.getElementById("exp-conn-status");
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = color || "";
+}
+
+function getExpCursor()     { try { return Number(localStorage.getItem(LS_CURSOR)||"0"); } catch(e){return 0;} }
+function setExpCursor(ts)   { localStorage.setItem(LS_CURSOR, String(ts)); refreshExpUI(); }
+function resetExpCursor()   { localStorage.removeItem(LS_CURSOR); refreshExpUI(); }
+function getExpSettings()   { try { return JSON.parse(localStorage.getItem(LS_SETTINGS)||"{}"); } catch(e){return {};} }
+function getExpLog()        { try { return JSON.parse(localStorage.getItem(LS_LOG)||"[]"); } catch(e){return [];} }
+function addToExpLog(entry) {
+  const log = getExpLog();
+  log.unshift(entry);
+  if (log.length > 50) log.length = 50;
+  localStorage.setItem(LS_LOG, JSON.stringify(log));
+  renderExpLog();
+}
+
+function loadExpSettings() {
+  const s = getExpSettings();
+  const cb = document.getElementById("exp-auto-enable");
+  const tm = document.getElementById("exp-auto-time");
+  const iv = document.getElementById("exp-auto-interval");
+  if (cb) cb.checked    = s.autoEnabled ?? false;
+  if (tm) tm.value      = s.autoTime ?? "02:00";
+  if (iv) iv.value      = String(s.autoInterval ?? "48");
+}
+
+function saveExpSettings() {
+  const settings = {
+    autoEnabled:  document.getElementById("exp-auto-enable")?.checked ?? false,
+    autoTime:     document.getElementById("exp-auto-time")?.value ?? "02:00",
+    autoInterval: document.getElementById("exp-auto-interval")?.value ?? "48",
+  };
+  localStorage.setItem(LS_SETTINGS, JSON.stringify(settings));
+  toast("✅ تم حفظ إعدادات التصدير");
+  scheduleAutoExport(settings);
+}
+
+function scheduleAutoExport(settings) {
+  if (exportAutoTimer) { clearTimeout(exportAutoTimer); exportAutoTimer = null; }
+  const nextEl = document.getElementById("exp-next-time");
+  if (!settings || !settings.autoEnabled) {
+    if (nextEl) nextEl.textContent = "معطّل";
+    return;
+  }
+  const [h, m] = (settings.autoTime || "02:00").split(":").map(Number);
+  const now = new Date();
+  let next = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0, 0);
+  const intervalMs = Number(settings.autoInterval || 48) * 3600 * 1000;
+  if (next <= now) next = new Date(next.getTime() + intervalMs);
+  if (next <= now) next = new Date(next.getTime() + intervalMs);
+  const msUntil = next - now;
+  if (nextEl) nextEl.textContent =
+    next.toLocaleDateString("ar-EG-u-nu-latn", { weekday:"short", month:"short", day:"numeric" }) +
+    " — " + next.toLocaleTimeString("ar-EG-u-nu-latn", { hour:"2-digit", minute:"2-digit" });
+  exportAutoTimer = setTimeout(async () => {
+    await runExport(false);
+    const s = getExpSettings();
+    scheduleAutoExport(s);
+  }, msUntil);
+}
+
+function refreshExpUI() {
+  try {
+    const info = JSON.parse(localStorage.getItem(LS_LASTINFO)||"{}");
+    const lastEl = document.getElementById("exp-last-time");
+    const cntEl  = document.getElementById("exp-last-count");
+    if (lastEl) lastEl.textContent = info.time || "—";
+    if (cntEl)  cntEl.textContent  = info.count ? info.count + " سجل" : "—";
+  } catch(e) {}
+  const grid = document.getElementById("exp-collections-grid");
+  if (grid && !grid.children.length) {
+    grid.innerHTML = EXPORT_COLS_CFG.map(c =>
+      '<div class="stmt-card"><div class="k">' + c.icon + ' ' + c.label +
+      '</div><div class="v" id="exp-col-' + c.name + '" style="font-size:13px">—</div></div>'
+    ).join("");
+  }
+}
+
+function renderExpLog() {
+  const tbody = document.getElementById("exp-log-tbody");
+  if (!tbody) return;
+  const log = getExpLog();
+  if (!log.length) {
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">لم يتم أي تصدير بعد</div></td></tr>';
+    return;
+  }
+  const TYPE_COLORS = { full: ["#dbeafe","#1d4ed8","🔄 كامل"], incremental: ["#d1fae5","#047857","📤 تدريجي"] };
+  tbody.innerHTML = log.map(e => {
+    const tc = TYPE_COLORS[e.type] || ["#f2f2f2","#555","?"];
+    return '<tr>' +
+      '<td style="white-space:nowrap;font-size:12.5px">' + (e.time||"—") + '</td>' +
+      '<td><span style="font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px;background:' + tc[0] + ';color:' + tc[1] + '">' + tc[2] + '</span></td>' +
+      '<td style="font-weight:700">' + (e.count||0) + '</td>' +
+      '<td style="font-size:12px;color:var(--muted)">' + (e.collections||"—") + '</td>' +
+      '<td><span style="font-size:12px;font-weight:700;color:' + (e.ok?"#1a6b3a":"#b3432f") + '">' + (e.ok?"✅ نجح":"❌ فشل") + '</span></td>' +
+    '</tr>';
+  }).join("");
+}
+
+async function runExport(fullExport) {
+  const progWrap  = document.getElementById("exp-progress-wrap");
+  const progBar   = document.getElementById("exp-progress-bar");
+  const progLabel = document.getElementById("exp-progress-label");
+  const progPct   = document.getElementById("exp-progress-pct");
+  const resultBox = document.getElementById("exp-result-box");
+  const incBtn    = document.getElementById("exp-manual-incremental-btn");
+  const fullBtn   = document.getElementById("exp-manual-full-btn");
+
+  if (!(await initBackupDb())) { toast("فشل الاتصال بقاعدة النسخ الاحتياطي", true); return; }
+
+  if (incBtn) incBtn.disabled = true;
+  if (fullBtn) fullBtn.disabled = true;
+  if (progWrap) progWrap.style.display = "block";
+  if (resultBox) resultBox.style.display = "none";
+
+  const cursor = fullExport ? 0 : getExpCursor();
+  const cursorDate = cursor ? new Date(cursor) : null;
+  let totalExported = 0, newCursor = cursor, hasError = false;
+  const collsSummary = [];
+
+  const { collection: fsCol, getDocs, query: fsQuery, where: fsWhere,
+          orderBy: fsOrderBy, setDoc, doc: fsDoc, Timestamp } =
+    await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+
+  for (let ci = 0; ci < EXPORT_COLS_CFG.length; ci++) {
+    const cfg = EXPORT_COLS_CFG[ci];
+    const pct = Math.round((ci / EXPORT_COLS_CFG.length) * 100);
+    if (progBar) progBar.style.width = pct + "%";
+    if (progPct) progPct.textContent = pct + "%";
+    if (progLabel) progLabel.textContent = "جارٍ تصدير: " + cfg.label + "...";
+    const statEl = document.getElementById("exp-col-" + cfg.name);
+
+    try {
+      let q;
+      if (!cfg.ts || !cursorDate) {
+        q = fsQuery(fsCol(db, cfg.name));
+      } else {
+        q = fsQuery(fsCol(db, cfg.name),
+          fsWhere(cfg.ts, ">", Timestamp.fromDate(cursorDate)),
+          fsOrderBy(cfg.ts, "asc")
+        );
+      }
+      const snap = await getDocs(q);
+      let colCount = 0;
+      for (const d of snap.docs) {
+        const data = d.data();
+        const plain = {};
+        for (const [k, v] of Object.entries(data)) {
+          plain[k] = (v && typeof v.toDate === "function") ? v.toDate().toISOString() : v;
+        }
+        plain._exportedAt = new Date().toISOString();
+        plain._sourceProject = "reta-and-hamd";
+        await setDoc(fsDoc(backupDb, cfg.name, d.id), plain, { merge: true });
+        colCount++; totalExported++;
+        if (cfg.ts && data[cfg.ts] && typeof data[cfg.ts].toDate === "function") {
+          const ts = data[cfg.ts].toDate().getTime();
+          if (ts > newCursor) newCursor = ts;
+        }
+      }
+      if (statEl) statEl.textContent = colCount > 0 ? "✅ " + colCount + " سجل" : "— لا جديد";
+      if (colCount > 0) collsSummary.push(cfg.label + "(" + colCount + ")");
+    } catch(err) {
+      console.error("Export error", cfg.name, err);
+      if (statEl) statEl.textContent = "❌ خطأ";
+      hasError = true;
+    }
+  }
+
+  if (progBar) progBar.style.width = "100%";
+  if (progPct) progPct.textContent = "100%";
+  if (newCursor > cursor) setExpCursor(newCursor);
+
+  const nowStr = new Date().toLocaleString("ar-EG-u-nu-latn", { year:"numeric", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" });
+  if (!hasError || totalExported > 0) {
+    localStorage.setItem(LS_LASTINFO, JSON.stringify({ time: nowStr, count: totalExported }));
+  }
+
+  addToExpLog({ time: nowStr, type: fullExport ? "full" : "incremental", count: totalExported, collections: collsSummary.slice(0,5).join("، ")||"—", ok: !hasError || totalExported > 0 });
+
+  try {
+    await addDoc(collection(db, "auditLog"), {
+      action:"تصدير", entity:"قاعدة احتياطية", page:"السجل الشامل",
+      details:(fullExport?"تصدير كامل":"تصدير تدريجي") + " — " + totalExported + " سجل",
+      userEmail: currentUser?.email ?? "—", createdAt: serverTimestamp(),
+    });
+  } catch(e) {}
+
+  setTimeout(() => { if(progWrap) progWrap.style.display = "none"; }, 1500);
+  if (resultBox) {
+    resultBox.style.display = "block";
+    if (hasError && totalExported === 0) {
+      resultBox.style.cssText = "display:block;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:700;background:#fce8e5;color:#b3432f";
+      resultBox.textContent = "❌ فشل التصدير — تحقق من الاتصال وصلاحيات Firebase";
+    } else if (totalExported === 0) {
+      resultBox.style.cssText = "display:block;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:700;background:#f0f9ff;color:#0369a1";
+      resultBox.textContent = "ℹ️ لا توجد بيانات جديدة منذ آخر تصدير";
+    } else {
+      resultBox.style.cssText = "display:block;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:700;background:#d1fae5;color:#047857";
+      resultBox.textContent = "✅ تم التصدير — " + totalExported + " سجل من " + collsSummary.length + " مجموعة" + (hasError?" (بعض المجموعات أخفقت)":"");
+    }
+  }
+  const lastEl = document.getElementById("exp-last-time");
+  const cntEl  = document.getElementById("exp-last-count");
+  if (lastEl) lastEl.textContent = nowStr;
+  if (cntEl)  cntEl.textContent  = totalExported + " سجل";
+  if (incBtn) incBtn.disabled = false;
+  if (fullBtn) fullBtn.disabled = false;
+}
+
+function setupExportPanel() {
+  initBackupDb();
+  loadExpSettings();
+  refreshExpUI();
+  renderExpLog();
+  scheduleAutoExport(getExpSettings());
+  document.getElementById("exp-save-settings")?.addEventListener("click", saveExpSettings);
+  document.getElementById("exp-reset-cursor-btn")?.addEventListener("click", () => {
+    if (confirm("إعادة ضبط مؤشر التصدير؟ سيُعيد التصدير كل البيانات من البداية في المرة القادمة.")) resetExpCursor();
+  });
+  document.getElementById("exp-manual-incremental-btn")?.addEventListener("click", () => runExport(false));
+  document.getElementById("exp-manual-full-btn")?.addEventListener("click", () => {
+    if (confirm("تصدير كامل سيكتب كل البيانات وقد يستغرق وقتاً. تريد المتابعة؟")) runExport(true);
+  });
+  document.getElementById("exp-clear-log-btn")?.addEventListener("click", () => {
+    if (confirm("مسح سجل التصدير المحلي؟")) { localStorage.removeItem(LS_LOG); renderExpLog(); }
+  });
 }
 
 async function handleCreateAccount(e) {

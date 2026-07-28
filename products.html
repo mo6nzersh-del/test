@@ -21,11 +21,11 @@
       Intl.NumberFormat.prototype=_NF.prototype;
     })();
     </script>
-    <script type="module" crossorigin src="/assets/products-DbXeSzH2.js"></script>
-    <link rel="modulepreload" crossorigin href="/assets/auth-guard-DMMO1gWE.js">
-    <link rel="modulepreload" crossorigin href="/assets/nav-C4LmEyvm.js">
-    <link rel="modulepreload" crossorigin href="/assets/image-utils-ix_Ztzsr.js">
-    <link rel="stylesheet" crossorigin href="/assets/auth-guard-C6CJ8_8i.css">
+    <script type="module" crossorigin src="/assets/products.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/auth-guard.js">
+    <link rel="modulepreload" crossorigin href="/assets/nav.js">
+    <link rel="modulepreload" crossorigin href="/assets/image-utils.js">
+    <link rel="stylesheet" crossorigin href="/assets/auth-guard.css">
     <style>
       /* ── Warehouse sections ── */
       .warehouse-section{border:1px solid var(--border);border-radius:10px;margin-bottom:20px;overflow:hidden;background:var(--surface)}
@@ -871,15 +871,14 @@ import { getAuth }
   from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
 
 /* ── Firebase init: استخدم التطبيق الرئيسي إن وُجد، وإلا أنشئ واحداً ── */
-const app = initializeApp({
-  apiKey:            "AIzaSyCzBhGHQ7O9BDg5D5eFXrFLhCCauFPEkWQ",
-  authDomain:        "test-reta-e4928.firebaseapp.com",
-  projectId:         "test-reta-e4928",
-  storageBucket:     "test-reta-e4928.firebasestorage.app",
-  messagingSenderId: "686928049289",
-  appId:             "1:686928049289:web:f4e733cc58e0ef36e84258",
-  measurementId:     "G-T62EFF5591"
-});
+const FB_CFG = {
+  apiKey:            "AIzaSyDQsaNVskKiV2cwPVlJDixpTD1S-Dhp7gs",
+  authDomain:        "reta-and-hamd.firebaseapp.com",
+  projectId:         "reta-and-hamd",
+  storageBucket:     "reta-and-hamd.firebasestorage.app",
+  messagingSenderId: "220767743863",
+  appId:             "1:220767743863:web:2ecd37bd5830a39ec1bb72",
+};
 /* الأولوية: التطبيق الافتراضي [DEFAULT] → أي تطبيق موجود → تهيئة جديدة */
 const _app = (()=>{
   const apps = getApps();
