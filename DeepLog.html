@@ -2801,7 +2801,7 @@ async function runExport(fullExport) {
 
   const cursor = fullExport ? 0 : getExpCursor();
   const cursorDate = cursor ? new Date(cursor) : null;
-  let totalExported = 0, newCursor = cursor, hasError = false;
+  let totalExported = 0, newCursor = cursor, hasError = false, lastErrMsg = "";
   const collsSummary = [];
 
   const { collection: fsCol, getDocs, query: fsQuery, where: fsWhere,
@@ -2847,8 +2847,14 @@ async function runExport(fullExport) {
       if (colCount > 0) collsSummary.push(cfg.label + "(" + colCount + ")");
     } catch(err) {
       console.error("Export error", cfg.name, err);
-      if (statEl) statEl.textContent = "❌ خطأ";
+      const errMsg = err?.code === "permission-denied"
+        ? "❌ محظور (Rules)"
+        : err?.code
+          ? "❌ " + err.code
+          : "❌ " + (err?.message?.slice(0,30) || "خطأ");
+      if (statEl) statEl.textContent = errMsg;
       hasError = true;
+      lastErrMsg = err?.message || err?.code || "unknown";
     }
   }
 
@@ -2876,7 +2882,9 @@ async function runExport(fullExport) {
     resultBox.style.display = "block";
     if (hasError && totalExported === 0) {
       resultBox.style.cssText = "display:block;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:700;background:#fce8e5;color:#b3432f";
-      resultBox.textContent = "❌ فشل التصدير — تحقق من الاتصال وصلاحيات Firebase";
+      resultBox.textContent = lastErrMsg.includes("permission")
+        ? "❌ فشل التصدير — السبب: قواعد الأمان (Rules) في test-reta-e4928 تمنع الكتابة. افتح Firebase Console → Firestore → Rules وعدّلها."
+        : "❌ فشل التصدير — " + (lastErrMsg || "تحقق من الاتصال وصلاحيات Firebase");
     } else if (totalExported === 0) {
       resultBox.style.cssText = "display:block;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:700;background:#f0f9ff;color:#0369a1";
       resultBox.textContent = "ℹ️ لا توجد بيانات جديدة منذ آخر تصدير";
