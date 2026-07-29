@@ -204,6 +204,10 @@
     <button class="tab-btn" data-tab="products">📦 المنتجات</button>
     <button class="tab-btn" data-tab="warehouse">🔄 حركات المخازن</button>
     <button class="tab-btn" data-tab="sales">🚚 عمليات البيع</button>
+    <button class="tab-btn" data-tab="productmov">📊 حركات المنتجات</button>
+    <button class="tab-btn" data-tab="productionmov">🏭 حركات الإنتاج</button>
+    <button class="tab-btn" data-tab="attendance">🕐 سجل الحضور</button>
+    <button class="tab-btn" data-tab="activitylog">📝 سجل النشاط</button>
     <button class="tab-btn" data-tab="auditlog">🔍 سجل المراقبة</button>
   </div>
 
@@ -224,6 +228,10 @@
         <button class="mob-tab-item" data-key="products">📦 المنتجات</button>
         <button class="mob-tab-item" data-key="warehouse">🔄 حركات المخازن</button>
         <button class="mob-tab-item" data-key="sales">🚚 عمليات البيع</button>
+        <button class="mob-tab-item" data-key="productmov">📊 حركات المنتجات</button>
+        <button class="mob-tab-item" data-key="productionmov">🏭 حركات الإنتاج</button>
+        <button class="mob-tab-item" data-key="attendance">🕐 سجل الحضور</button>
+        <button class="mob-tab-item" data-key="activitylog">📝 سجل النشاط</button>
         <button class="mob-tab-item" data-key="auditlog">🔍 سجل المراقبة</button>
       </div>
     </div>
@@ -351,6 +359,58 @@
     </div>
   </div>
 
+  <!-- ══ TAB: Product Movements ══ -->
+  <div class="section-view" id="view-productmov">
+    <div class="panel">
+      <div class="panel-header"><h3>📊 حركات المنتجات</h3><span id="productmov-count-label" style="font-size:12px;color:var(--muted)"></span></div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>النوع</th><th>المنتج</th><th>الكمية</th><th>المخزن المصدر</th><th>المخزن الهدف</th><th>ملاحظات</th><th>التاريخ</th></tr></thead>
+          <tbody id="productmov-tbody"><tr><td colspan="7"><div class="empty-state">جارٍ التحميل...</div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TAB: Production Movements ══ -->
+  <div class="section-view" id="view-productionmov">
+    <div class="panel">
+      <div class="panel-header"><h3>🏭 حركات الإنتاج</h3><span id="productionmov-count-label" style="font-size:12px;color:var(--muted)"></span></div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>النوع</th><th>المدخلات</th><th>المخرجات</th><th>المخزن</th><th>ملاحظات</th><th>التاريخ</th></tr></thead>
+          <tbody id="productionmov-tbody"><tr><td colspan="6"><div class="empty-state">جارٍ التحميل...</div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TAB: Attendance ══ -->
+  <div class="section-view" id="view-attendance">
+    <div class="panel">
+      <div class="panel-header"><h3>🕐 سجل الحضور</h3><span id="attendance-count-label" style="font-size:12px;color:var(--muted)"></span></div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>الموظف</th><th>التاريخ</th><th>وقت الدخول</th><th>وقت الخروج</th><th>الحالة</th><th>ملاحظات</th></tr></thead>
+          <tbody id="attendance-tbody"><tr><td colspan="6"><div class="empty-state">جارٍ التحميل...</div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TAB: Activity Log ══ -->
+  <div class="section-view" id="view-activitylog">
+    <div class="panel">
+      <div class="panel-header"><h3>📝 سجل النشاط (العمليات)</h3><span id="activitylog-count-label" style="font-size:12px;color:var(--muted)"></span></div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>#</th><th>النوع</th><th>التفاصيل</th><th>المستخدم</th><th>التاريخ</th></tr></thead>
+          <tbody id="activitylog-tbody"><tr><td colspan="5"><div class="empty-state">جارٍ التحميل...</div></td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <!-- ══ TAB: Audit Log ══ -->
   <div class="section-view" id="view-auditlog">
     <div class="panel">
@@ -413,7 +473,10 @@ const fmtDateTime = s => {
 const TAB_LABELS = {
   finance:"💰 الحركات المالية", merchants:"🤝 التجار والأرصدة",
   employees:"👤 الموظفون والسلف", products:"📦 المنتجات",
-  warehouse:"🔄 حركات المخازن", sales:"🚚 عمليات البيع", auditlog:"🔍 سجل المراقبة",
+  warehouse:"🔄 حركات المخازن", sales:"🚚 عمليات البيع",
+  productmov:"📊 حركات المنتجات", productionmov:"🏭 حركات الإنتاج",
+  attendance:"🕐 سجل الحضور", activitylog:"📝 سجل النشاط",
+  auditlog:"🔍 سجل المراقبة",
 };
 function switchTab(key) {
   document.querySelectorAll(".tab-btn").forEach(b=>b.classList.toggle("active",b.dataset.tab===key));
@@ -433,7 +496,8 @@ document.querySelectorAll(".mob-tab-item").forEach(b=>b.addEventListener("click"
 
 /* ═══════════ Data stores ═══════════ */
 let allFinTx=[], allMerchants=[], allMerchantTx=[], allEmployees=[],
-    allProducts=[], allWarehouses=[], allWhOps=[], allLoadOps=[], allAuditLogs=[];
+    allProducts=[], allWarehouses=[], allWhOps=[], allLoadOps=[], allAuditLogs=[],
+    allProductMov=[], allProductionMov=[], allAttendance=[], allActivityLog=[];
 
 /* ═══════════ Sync info ═══════════ */
 function updateSyncInfo(exportedAt) {
@@ -512,6 +576,34 @@ function loadAll() {
         .sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));
       populateAuditPageFilter(); renderAudit();
     });
+  });
+
+  /* Product Movements */
+  onSnapshot(collection(db,"productMovements"), snap=>{
+    allProductMov=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .sort((a,b)=>(b.createdAt||"")>(a.createdAt||"")?1:-1);
+    renderProductMov();
+  });
+
+  /* Production Movements */
+  onSnapshot(collection(db,"productionMovements"), snap=>{
+    allProductionMov=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .sort((a,b)=>(b.createdAt||"")>(a.createdAt||"")?1:-1);
+    renderProductionMov();
+  });
+
+  /* Attendance */
+  onSnapshot(collection(db,"attendance"), snap=>{
+    allAttendance=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .sort((a,b)=>(b.checkIn||b.date||"")>(a.checkIn||a.date||"")?1:-1);
+    renderAttendance();
+  });
+
+  /* Activity Log (daily_attendance handled via static collection fetch where ts=null) */
+  onSnapshot(collection(db,"activityLog"), snap=>{
+    allActivityLog=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));
+    renderActivityLog();
   });
 }
 
@@ -912,6 +1004,97 @@ function buildSalesLines(d) {
       <td style="font-weight:800;color:var(--primary-dark)">${sub?fmt(sub):"—"}</td>
     </tr>`;
   }).join("");
+}
+
+/* ═══════════ PRODUCT MOVEMENTS ═══════════ */
+function renderProductMov() {
+  const cntEl=document.getElementById("productmov-count-label");
+  if(cntEl) cntEl.textContent=allProductMov.length+" حركة";
+  const tbody=document.getElementById("productmov-tbody");
+  if(!allProductMov.length){tbody.innerHTML='<tr><td colspan="7"><div class="empty-state">لا توجد حركات منتجات</div></td></tr>';return;}
+  tbody.innerHTML="";
+  allProductMov.forEach(d=>{
+    const typeBadge=d.type==="out"?'<span class="type-badge tb-withdrawal">صرف</span>'
+                    :d.type==="in"?'<span class="type-badge tb-deposit">إضافة</span>'
+                    :`<span class="type-badge tb-other">${esc(d.type||"—")}</span>`;
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>${typeBadge}</td>
+      <td style="font-weight:700">${esc(d.productName||d.product||"—")}</td>
+      <td style="font-weight:700">${fmtNum(d.quantity||d.qty||0)} ${esc(d.unit||d.quantityType||"")}</td>
+      <td style="font-size:13px;color:var(--muted)">${esc(d.fromWarehouseName||d.fromWarehouse||"—")}</td>
+      <td style="font-size:13px;color:var(--muted)">${esc(d.toWarehouseName||d.toWarehouse||"—")}</td>
+      <td style="font-size:12px;color:var(--muted)">${esc(d.note||d.notes||"—")}</td>
+      <td style="white-space:nowrap;font-size:12.5px">${fmtDateTime(d.createdAt)}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ═══════════ PRODUCTION MOVEMENTS ═══════════ */
+function renderProductionMov() {
+  const cntEl=document.getElementById("productionmov-count-label");
+  if(cntEl) cntEl.textContent=allProductionMov.length+" حركة";
+  const tbody=document.getElementById("productionmov-tbody");
+  if(!allProductionMov.length){tbody.innerHTML='<tr><td colspan="6"><div class="empty-state">لا توجد حركات إنتاج</div></td></tr>';return;}
+  tbody.innerHTML="";
+  allProductionMov.forEach(d=>{
+    const inputsSummary=(d.inputs||[]).map(i=>`${esc(i.productName||i.name||"")} ×${fmtNum(i.quantity||i.qty||0)}`).join("، ")||"—";
+    const outputsSummary=(d.outputs||[]).map(o=>`${esc(o.productName||o.name||"")} ×${fmtNum(o.quantity||o.qty||0)}`).join("، ")||"—";
+    const typeBadge=`<span class="type-badge tb-deposit">${esc(d.type||"إنتاج")}</span>`;
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td>${typeBadge}</td>
+      <td style="font-size:12px;color:var(--muted);max-width:160px">${inputsSummary}</td>
+      <td style="font-size:12px;color:var(--muted);max-width:160px">${outputsSummary}</td>
+      <td style="font-size:13px">${esc(d.warehouseName||d.warehouse||"—")}</td>
+      <td style="font-size:12px;color:var(--muted)">${esc(d.note||d.notes||"—")}</td>
+      <td style="white-space:nowrap;font-size:12.5px">${fmtDateTime(d.createdAt)}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ═══════════ ATTENDANCE ═══════════ */
+function renderAttendance() {
+  const cntEl=document.getElementById("attendance-count-label");
+  if(cntEl) cntEl.textContent=allAttendance.length+" سجل";
+  const tbody=document.getElementById("attendance-tbody");
+  if(!allAttendance.length){tbody.innerHTML='<tr><td colspan="6"><div class="empty-state">لا توجد سجلات حضور</div></td></tr>';return;}
+  tbody.innerHTML="";
+  allAttendance.forEach(d=>{
+    const statusBadge=d.status==="present"?'<span class="type-badge tb-deposit">حاضر</span>'
+                     :d.status==="absent"?'<span class="type-badge tb-withdrawal">غائب</span>'
+                     :d.status?`<span class="type-badge tb-other">${esc(d.status)}</span>`:"—";
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td style="font-weight:700">${esc(d.employeeName||d.employee||"—")}</td>
+      <td style="white-space:nowrap;font-size:12.5px">${fmtDate(d.date||d.checkIn)}</td>
+      <td style="white-space:nowrap;font-size:12.5px">${fmtDateTime(d.checkIn)||"—"}</td>
+      <td style="white-space:nowrap;font-size:12.5px">${fmtDateTime(d.checkOut)||"—"}</td>
+      <td>${statusBadge}</td>
+      <td style="font-size:12px;color:var(--muted)">${esc(d.note||d.notes||"—")}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ═══════════ ACTIVITY LOG ═══════════ */
+function renderActivityLog() {
+  const cntEl=document.getElementById("activitylog-count-label");
+  if(cntEl) cntEl.textContent=allActivityLog.length+" سجل";
+  const tbody=document.getElementById("activitylog-tbody");
+  if(!allActivityLog.length){tbody.innerHTML='<tr><td colspan="5"><div class="empty-state">لا توجد سجلات نشاط</div></td></tr>';return;}
+  tbody.innerHTML="";
+  allActivityLog.forEach((d,i)=>{
+    const typeBadge=`<span class="type-badge tb-other">${esc(d.type||d.action||"—")}</span>`;
+    const details=d.details||d.description||d.note||JSON.stringify(d).slice(0,80)||"—";
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td style="font-size:12px;color:var(--muted);text-align:center">${allActivityLog.length-i}</td>
+      <td>${typeBadge}</td>
+      <td style="font-size:13px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(details)}">${esc(details)}</td>
+      <td style="font-size:12px;color:var(--muted)">${esc(d.userEmail||d.user||d.by||"—")}</td>
+      <td style="white-space:nowrap;font-size:12px">${fmtDateTime(d.createdAt)}</td>`;
+    tbody.appendChild(tr);
+  });
 }
 
 /* ═══════════ AUDIT LOG ═══════════ */
