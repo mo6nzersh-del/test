@@ -569,8 +569,8 @@ function renderMerchants() {
   const sg=document.getElementById("merchants-stats-grid");
   if(sg) sg.innerHTML=`
     <div class="stat-card"><div class="sk">إجمالي التجار</div><div class="sv">${allMerchants.length}</div></div>
-    <div class="stat-card"><div class="sk">إجمالي المستحق (مديونية)</div><div class="sv money" style="color:#b3432f">${fmt(totalDebt)}</div></div>
-    <div class="stat-card"><div class="sk">إجمالي الدائن (رصيد لصالحهم)</div><div class="sv money" style="color:#1a6b3a">${fmt(totalCredit)}</div></div>`;
+    <div class="stat-card"><div class="sk">إجمالي المستحق (مديونية التجار)</div><div class="sv money" style="color:#b3432f">${fmt(totalDebt)}</div></div>
+    <div class="stat-card"><div class="sk">إجمالي الدائن (رصيد لصالح التجار)</div><div class="sv money" style="color:#1a6b3a">${fmt(totalCredit)}</div></div>`;
 
   const container=document.getElementById("merchants-list");
   if(!container) return;
@@ -579,8 +579,10 @@ function renderMerchants() {
 
   rows.forEach(m=>{
     const bal=calcMerchantBalance(m.id);
-    const netColor=bal.net>=0?"#b3432f":"#1a6b3a";
-    const netLabel=bal.net>=0?"مستحق عليه":"دائن";
+    // net > 0 → مستحق على التاجر (أحمر) | net < 0 → التاجر دائن (أخضر)
+    const netColor=bal.net>0?"#b3432f":"#1a6b3a";
+    const netLabel=bal.net>0?"مستحق عليه":"دائن";
+    const netPill =bal.net>0?"pill-red":"pill-green";
     const card=document.createElement("div"); card.className="stmt-card";
     card.innerHTML=`
       <div class="stmt-header" data-id="${m.id}">
@@ -589,24 +591,24 @@ function renderMerchants() {
           <div style="font-size:11.5px;color:var(--muted);margin-top:4px">${esc(m.phone||"")} ${m.address?'| '+esc(m.address):""}</div>
         </div>
         <div class="stmt-balance-row">
-          <span class="stmt-pill ${bal.net>=0?"pill-red":"pill-green"}">${fmt(Math.abs(bal.net))} ${netLabel}</span>
-          <span class="stmt-pill pill-gray">مسحوبات: ${fmt(bal.totalIn)}</span>
-          <span class="stmt-pill pill-blue">مدفوعات: ${fmt(bal.totalOut)}</span>
+          <span class="stmt-pill ${netPill}">${fmt(Math.abs(bal.net))} ${netLabel}</span>
+          <span class="stmt-pill pill-gray">مسحوبات: ${fmt(bal.mashouhat)}</span>
+          <span class="stmt-pill pill-blue">مدفوعات: ${fmt(bal.madfooat)}</span>
           <span class="stmt-toggle">▾</span>
         </div>
       </div>
       <div class="stmt-body" id="mbody-${m.id}">
         <div class="stmt-summary-bar">
-          <div class="sc-item"><div class="sc-k">إجمالي مسحوبات (يدين بها)</div><div class="sc-v" style="color:#b3432f">${fmt(bal.totalIn)}</div></div>
-          <div class="sc-item"><div class="sc-k">إجمالي مدفوعات التاجر</div><div class="sc-v" style="color:#1a6b3a">${fmt(bal.totalOut)}</div></div>
-          <div class="sc-item"><div class="sc-k">الرصيد النهائي</div><div class="sc-v" style="color:${netColor}">${fmt(Math.abs(bal.net))} (${netLabel})</div></div>
-          <div class="sc-item"><div class="sc-k">عمليات تحميل</div><div class="sc-v">${bal.salesCount}</div></div>
+          <div class="sc-item"><div class="sc-k">📦 إجمالي مسحوبات التاجر (يدين بها)</div><div class="sc-v" style="color:#b3432f">${fmt(bal.mashouhat)}</div></div>
+          <div class="sc-item"><div class="sc-k">💵 إجمالي مدفوعات التاجر (سدّدها)</div><div class="sc-v" style="color:#1a6b3a">${fmt(bal.madfooat)}</div></div>
+          <div class="sc-item"><div class="sc-k">⚖️ الرصيد النهائي</div><div class="sc-v" style="color:${netColor}">${fmt(Math.abs(bal.net))} (${netLabel})</div></div>
+          <div class="sc-item"><div class="sc-k">🚚 عمليات تحميل</div><div class="sc-v">${bal.salesCount}</div></div>
         </div>
         <div style="padding:10px 12px">
           <table class="lines-inner" style="width:100%;border-radius:8px;overflow:hidden;font-size:12.5px">
             <thead><tr>
               <th>التاريخ</th><th>البيان</th><th>الوصف</th>
-              <th style="color:#b3432f">مسحوبات</th><th style="color:#1a6b3a">مدفوعات</th><th>الرصيد</th>
+              <th style="color:#b3432f">مسحوبات ↑</th><th style="color:#1a6b3a">مدفوعات ↓</th><th>الرصيد</th>
             </tr></thead>
             <tbody>${buildMerchantRows(m.id)}</tbody>
           </table>
@@ -625,32 +627,40 @@ function calcMerchantBalance(mId) {
   const directTx=allMerchantTx.filter(t=>t.merchantId===mId);
   const finTx=allFinTx.filter(t=>t.type==="merchant"&&t.merchantId===mId);
   const sales=allLoadOps.filter(d=>d.merchantId===mId);
-  let totalIn=0,totalOut=0;
-  directTx.forEach(t=>{ if(t.type==="in") totalIn+=t.amount||0; else totalOut+=t.amount||0; });
-  finTx.forEach(t=>{ if(t.dir==="in") totalIn+=t.amount||0; else totalOut+=t.amount||0; });
-  return {totalIn, totalOut, net:totalIn-totalOut, salesCount:sales.length};
+  // type/dir="in"  → مدفوعات التاجر (دفع لنا)  → يُقلّل المديونية
+  // type/dir="out" → مسحوبات (أخذ بضاعة منا) → يُزيد المديونية
+  let mashouhat=0, madfooat=0;
+  directTx.forEach(t=>{ if(t.type==="out") mashouhat+=t.amount||0; else madfooat+=t.amount||0; });
+  finTx.forEach(t=>{     if(t.dir ==="out") mashouhat+=t.amount||0; else madfooat+=t.amount||0; });
+  const net=mashouhat-madfooat; // موجب = مستحق على التاجر (أحمر) ، سالب = دائن (أخضر)
+  return {mashouhat, madfooat, net, salesCount:sales.length};
 }
 
 function buildMerchantRows(mId) {
   const directTx=allMerchantTx.filter(t=>t.merchantId===mId);
   const finTx=allFinTx.filter(t=>t.type==="merchant"&&t.merchantId===mId);
   const allRows=[
-    ...directTx.map(t=>({date:t.date||"",label:t.source==="loading"?"تحميل بضاعة":"دفعة/تحصيل",desc:t.note||"—",dir:t.type,amount:t.amount||0})),
-    ...finTx.map(t=>({date:t.date||"",label:"دفعة (مالية)",desc:t.description||"—",dir:t.dir,amount:t.amount||0})),
+    // directTx: type="out" → مسحوبات (أخذ بضاعة) | type="in" → مدفوعات (دفع لنا)
+    ...directTx.map(t=>({date:t.date||"",label:t.source==="loading"?"🚚 تحميل بضاعة":"💵 دفعة/تحصيل",desc:t.note||"—",dir:t.type,amount:t.amount||0})),
+    // finTx: dir="out" → مسحوبات | dir="in" → مدفوعات
+    ...finTx.map(t=>({date:t.date||"",label:"💵 دفعة (مالية)",desc:t.description||"—",dir:t.dir,amount:t.amount||0})),
   ].sort((a,b)=>(a.date||"").localeCompare(b.date||""));
   if(!allRows.length) return `<tr><td colspan="6"><div class="empty-state" style="padding:14px">لا توجد حركات لهذا التاجر</div></td></tr>`;
   let running=0;
   return allRows.map(r=>{
-    running+=(r.dir==="in"?1:-1)*(r.amount);
-    const debit=r.dir==="in"?r.amount:0;
-    const credit=r.dir==="out"?r.amount:0;
+    // dir="out" → مسحوبات → يرفع الدين (+) | dir="in" → مدفوعات → يخفض الدين (-)
+    const isMashouha = r.dir==="out";
+    running += isMashouha ? (r.amount) : -(r.amount);
+    const mashouhaAmt = isMashouha ? r.amount : 0;
+    const madfooaAmt  = isMashouha ? 0 : r.amount;
+    const runColor = running>0?"#b3432f": running<0?"#1a6b3a":"var(--muted)";
     return `<tr>
-      <td style="white-space:nowrap">${esc(fmtDate(r.date))}</td>
+      <td style="white-space:nowrap;font-size:12.5px">${esc(fmtDate(r.date))}</td>
       <td style="font-weight:700">${esc(r.label)}</td>
-      <td style="color:var(--muted)">${esc(r.desc)}</td>
-      <td style="color:#b3432f;font-weight:700">${debit?fmt(debit):"—"}</td>
-      <td style="color:#1a6b3a;font-weight:700">${credit?fmt(credit):"—"}</td>
-      <td style="font-weight:800">${fmt(running)}</td>
+      <td style="color:var(--muted);font-size:12px">${esc(r.desc)}</td>
+      <td style="color:#b3432f;font-weight:700">${mashouhaAmt?fmt(mashouhaAmt):"—"}</td>
+      <td style="color:#1a6b3a;font-weight:700">${madfooaAmt?fmt(madfooaAmt):"—"}</td>
+      <td style="font-weight:800;color:${runColor}">${fmt(Math.abs(running))} ${running>0?"↑":running<0?"↓":""}</td>
     </tr>`;
   }).join("");
 }
