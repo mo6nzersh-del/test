@@ -9,131 +9,156 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --grad-1: #047857; --grad-2: #059669; --grad-3: #065f46;
-      --accent: #f59e0b; --surface: #ffffff; --bg: #f0fdf4;
-      --border: #d1fae5; --ink: #0f172a; --muted: #64748b;
-      --primary: #047857; --primary-dark: #065f46; --primary-soft: #ecfdf5;
-      --danger: #ef4444; --success: #10b981; --r-card: 16px;
-      --shadow: 0 2px 12px rgba(0,0,0,.07); --shadow-lg: 0 8px 28px rgba(0,0,0,.12);
-      --radius: 14px;
+      --grad-1:#047857;--grad-2:#059669;--grad-3:#065f46;
+      --accent:#f59e0b;--surface:#ffffff;--bg:#f0fdf4;
+      --border:#d1fae5;--ink:#0f172a;--muted:#64748b;
+      --primary:#047857;--primary-dark:#065f46;--primary-soft:#ecfdf5;
+      --danger:#ef4444;--success:#10b981;
+      --radius:14px;--shadow:0 2px 12px rgba(0,0,0,.07);
     }
-    html, body { height: 100%; background: var(--bg); }
-    body { font-family: 'Cairo','Segoe UI',sans-serif; color: var(--ink); direction: rtl; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+    html,body{height:100%;background:var(--bg);}
+    body{font-family:'Cairo','Segoe UI',sans-serif;color:var(--ink);direction:rtl;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
 
-    /* Loader */
-    #page-loader { position:fixed;inset:0;z-index:9999;background:linear-gradient(145deg,var(--grad-1),var(--grad-2));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .35s; }
-    #page-loader.pl-hide { opacity:0;pointer-events:none; }
-    .pl-logo { width:90px;height:90px;border-radius:22px;background:rgba(255,255,255,.18);border:2px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center;overflow:hidden; }
-    .pl-logo-img { width:100%;height:100%;object-fit:contain;padding:10px; }
-    .pl-spinner { width:36px;height:36px;border:3.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:pl-spin .75s linear infinite; }
-    @keyframes pl-spin { to { transform:rotate(360deg); } }
-    .pl-text { color:rgba(255,255,255,.8);font-size:14px;font-weight:600; }
+    /* ── Loader ── */
+    #page-loader{position:fixed;inset:0;z-index:9999;background:linear-gradient(145deg,var(--grad-1),var(--grad-2));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity .35s;}
+    #page-loader.pl-hide{opacity:0;pointer-events:none;}
+    .pl-spinner{width:36px;height:36px;border:3.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .75s linear infinite;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .pl-text{color:rgba(255,255,255,.8);font-size:14px;font-weight:600;}
 
-    /* Layout */
-    #app { max-width:960px;margin:0 auto;min-height:100vh;background:var(--bg); }
+    /* ── Layout ── */
+    #app{max-width:960px;margin:0 auto;min-height:100vh;background:var(--bg);}
     @media(min-width:900px){body{background:#cce8d8;}#app{box-shadow:0 0 60px rgba(0,0,0,.15);}}
 
-    /* Header */
-    .dash-hero { background:linear-gradient(145deg,var(--grad-1) 0%,var(--grad-2) 55%,var(--grad-3) 100%);padding:0 0 40px;position:relative;overflow:hidden; }
-    .dash-hero::before { content:"";position:absolute;top:-80px;left:-80px;width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,.07);pointer-events:none; }
-    .app-bar { display:flex;align-items:center;justify-content:space-between;padding:14px 18px 10px;position:relative;z-index:2; }
-    .app-bar-brand { display:flex;align-items:center;gap:10px; }
-    .app-bar-name { font-size:14px;font-weight:900;color:#fff;line-height:1.2; }
-    .app-bar-sub { font-size:10px;opacity:.65;font-weight:600;margin-top:1px; }
-    .readonly-badge { background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.35);border-radius:99px;color:#fff;font-size:10.5px;font-weight:700;padding:3px 10px;white-space:nowrap; }
-    .hero-info { padding:6px 18px 0;position:relative;z-index:2; }
-    .hero-title { font-size:22px;font-weight:900;color:#fff;margin-bottom:4px; }
-    .hero-sub { font-size:12px;color:rgba(255,255,255,.7);font-weight:600; }
-    .hero-metric-card { margin:16px 16px 0;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);border-radius:20px;padding:18px 20px;backdrop-filter:blur(10px);position:relative;z-index:2; }
-    .hero-metric-row { display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px; }
-    .hero-sub-label { font-size:10px;color:rgba(255,255,255,.65);font-weight:600;margin-bottom:3px; }
-    .hero-sub-val { font-size:13px;font-weight:800;color:#fff; }
+    /* ── Hero ── */
+    .dash-hero{background:linear-gradient(145deg,var(--grad-1) 0%,var(--grad-2) 55%,var(--grad-3) 100%);padding:0 0 40px;position:relative;overflow:hidden;}
+    .dash-hero::before{content:"";position:absolute;top:-80px;left:-80px;width:260px;height:260px;border-radius:50%;background:rgba(255,255,255,.07);pointer-events:none;}
+    .app-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 10px;position:relative;z-index:2;}
+    .app-bar-brand{display:flex;align-items:center;gap:10px;}
+    .app-bar-name{font-size:14px;font-weight:900;color:#fff;line-height:1.2;}
+    .app-bar-sub{font-size:10px;opacity:.65;font-weight:600;margin-top:1px;}
+    .readonly-badge{background:rgba(255,255,255,.2);border:1.5px solid rgba(255,255,255,.35);border-radius:99px;color:#fff;font-size:10.5px;font-weight:700;padding:3px 10px;white-space:nowrap;}
+    .hero-info{padding:6px 18px 0;position:relative;z-index:2;}
+    .hero-title{font-size:22px;font-weight:900;color:#fff;margin-bottom:4px;}
+    .hero-sub{font-size:12px;color:rgba(255,255,255,.7);font-weight:600;}
+    .hero-metric-card{margin:16px 16px 0;background:rgba(255,255,255,.12);border:1.5px solid rgba(255,255,255,.2);border-radius:20px;padding:18px 20px;backdrop-filter:blur(10px);position:relative;z-index:2;}
+    .hero-metric-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:8px;}
+    .hero-sub-label{font-size:10px;color:rgba(255,255,255,.65);font-weight:600;margin-bottom:3px;}
+    .hero-sub-val{font-size:13px;font-weight:800;color:#fff;}
 
-    /* Tabs */
-    .tab-bar { display:flex;overflow-x:auto;scrollbar-width:none;gap:0;background:var(--surface);border-bottom:2px solid var(--border); }
-    .tab-bar::-webkit-scrollbar { display:none; }
-    .tab-btn { flex:0 0 auto;padding:13px 18px;border:none;background:transparent;font-family:inherit;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;transition:color .15s,border-color .15s; }
-    .tab-btn.active { color:var(--primary-dark);border-bottom-color:var(--primary); }
-    .tab-btn:hover:not(.active) { color:var(--ink); }
+    /* ── Tab bar ── */
+    .tab-bar{display:flex;overflow-x:auto;scrollbar-width:none;background:var(--surface);border-bottom:2px solid var(--border);}
+    .tab-bar::-webkit-scrollbar{display:none;}
+    .tab-btn{flex:0 0 auto;padding:13px 18px;border:none;background:transparent;font-family:inherit;font-size:13px;font-weight:700;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:3px solid transparent;transition:color .15s,border-color .15s;}
+    .tab-btn.active{color:var(--primary-dark);border-bottom-color:var(--primary);}
+    .tab-btn:hover:not(.active){color:var(--ink);}
 
-    /* Section views */
-    .section-view { display:none;padding:16px; }
-    .section-view.active { display:block; }
+    /* ── Sections ── */
+    .section-view{display:none;padding:16px;}
+    .section-view.active{display:block;}
 
-    /* Panel */
-    .panel { background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:18px;box-shadow:var(--shadow); }
-    .panel-header { display:flex;align-items:center;justify-content:space-between;margin-bottom:14px; }
-    .panel-header h3 { font-size:15px;font-weight:900;color:var(--ink); }
+    /* ── Panel ── */
+    .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;margin-bottom:18px;box-shadow:var(--shadow);}
+    .panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+    .panel-header h3{font-size:15px;font-weight:900;color:var(--ink);}
 
-    /* Table */
-    .table-wrap { overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:8px;border:1px solid var(--border); }
-    .data-table { width:100%;border-collapse:collapse;font-size:13px; }
-    .data-table th { background:var(--bg);font-size:12px;font-weight:800;color:var(--muted);padding:9px 12px;text-align:right;white-space:nowrap;border-bottom:2px solid var(--border); }
-    .data-table td { padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle; }
-    .data-table tr:last-child td { border-bottom:none; }
-    .data-table tr:hover td { background:var(--bg); }
+    /* ── Tables ── */
+    .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;border-radius:8px;border:1px solid var(--border);}
+    .data-table{width:100%;border-collapse:collapse;font-size:13px;}
+    .data-table th{background:var(--bg);font-size:12px;font-weight:800;color:var(--muted);padding:9px 12px;text-align:right;white-space:nowrap;border-bottom:2px solid var(--border);}
+    .data-table td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:middle;}
+    .data-table tr:last-child td{border-bottom:none;}
+    .data-table tr:hover td{background:var(--bg);}
 
-    /* Badges */
-    .type-badge { display:inline-block;font-size:11.5px;font-weight:700;border-radius:6px;padding:3px 9px;white-space:nowrap; }
-    .tb-advance { background:#e8f0fb;color:#2a5bbf; }
-    .tb-withdrawal { background:#fce8e5;color:#b3432f; }
-    .tb-deposit { background:#e7f5ec;color:#1a6b3a; }
-    .tb-merchant { background:#fdf4e3;color:#7a4f10; }
-    .tb-other { background:#f2f2f2;color:#666; }
-    .dir-in { color:#1a6b3a;font-weight:700; }
-    .dir-out { color:#b3432f;font-weight:700; }
+    /* ── Lines sub-table ── */
+    .lines-row td{padding:0!important;background:var(--bg);}
+    .lines-wrap{padding:10px 16px;}
+    .lines-inner{border-radius:8px;overflow:hidden;border:1px solid #bbf7d0;font-size:12px;}
+    .lines-inner th{background:#d1fae5;font-size:11px;font-weight:800;color:var(--primary-dark);padding:6px 10px;text-align:right;white-space:nowrap;}
+    .lines-inner td{padding:7px 10px;border-bottom:1px solid #bbf7d0;background:#f0fdf4;}
+    .lines-inner tr:last-child td{border-bottom:none;}
+    .lines-total{display:flex;justify-content:flex-end;gap:18px;padding:8px 10px;background:#ecfdf5;font-size:12.5px;font-weight:800;color:var(--primary-dark);}
 
-    /* Stats grid */
-    .stats-grid { display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:18px; }
-    .stat-card { background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow); }
-    .stat-card .sk { font-size:11.5px;color:var(--muted);font-weight:700;margin-bottom:6px; }
-    .stat-card .sv { font-size:20px;font-weight:900;color:var(--ink); }
-    .stat-card .sv.money { font-size:14px;color:var(--primary-dark); }
+    /* ── Expand button ── */
+    .expand-btn{background:none;border:none;cursor:pointer;font-size:16px;padding:0 4px;color:var(--primary);transition:transform .2s;}
+    .expand-btn.open{transform:rotate(90deg);}
 
-    /* Empty state */
-    .empty-state { text-align:center;padding:28px;color:var(--muted);font-size:13px;font-weight:600; }
+    /* ── Badges ── */
+    .type-badge{display:inline-block;font-size:11.5px;font-weight:700;border-radius:6px;padding:3px 9px;white-space:nowrap;}
+    .tb-advance{background:#e8f0fb;color:#2a5bbf;}
+    .tb-withdrawal{background:#fce8e5;color:#b3432f;}
+    .tb-deposit{background:#e7f5ec;color:#1a6b3a;}
+    .tb-merchant{background:#fdf4e3;color:#7a4f10;}
+    .tb-other{background:#f2f2f2;color:#666;}
+    .tb-in{background:#e7f5ec;color:#1a6b3a;}
+    .tb-out{background:#fce8e5;color:#b3432f;}
+    .dir-in{color:#1a6b3a;font-weight:700;}
+    .dir-out{color:#b3432f;font-weight:700;}
 
-    /* Sync bar */
-    .sync-bar { display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--primary-soft);border:1px solid var(--border);border-radius:12px;padding:10px 16px;margin:0 16px 12px;font-size:12.5px;font-weight:700;color:var(--primary-dark); }
-    .sync-dot { width:8px;height:8px;border-radius:50%;background:var(--success);display:inline-block;margin-inline-end:6px;animation:pulse 2s infinite; }
-    @keyframes pulse { 0%,100%{opacity:1;}50%{opacity:.4;} }
-    .last-sync { font-size:11px;color:var(--muted);font-weight:600; }
+    /* ── Stats grid ── */
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:18px;}
+    .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 16px;box-shadow:var(--shadow);}
+    .stat-card .sk{font-size:11.5px;color:var(--muted);font-weight:700;margin-bottom:6px;}
+    .stat-card .sv{font-size:20px;font-weight:900;color:var(--ink);}
+    .stat-card .sv.money{font-size:14px;color:var(--primary-dark);}
 
-    /* Filters */
-    .filters-bar { display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px; }
-    .filter-select,.search-input { border:1.5px solid var(--border);border-radius:8px;padding:7px 12px;background:var(--surface);font-family:inherit;font-size:13px;color:var(--ink); }
-    .search-input { flex:1;min-width:160px; }
-    .filter-select:focus,.search-input:focus { outline:none;border-color:var(--primary); }
+    /* ── Statement cards ── */
+    .stmt-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:16px;box-shadow:var(--shadow);}
+    .stmt-header{display:flex;align-items:center;justify-content:space-between;padding:13px 18px;cursor:pointer;user-select:none;gap:10px;}
+    .stmt-header:hover{background:var(--bg);}
+    .stmt-name{font-size:14px;font-weight:900;color:var(--ink);}
+    .stmt-balance-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;}
+    .stmt-pill{font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;white-space:nowrap;}
+    .pill-red{background:#fce8e5;color:#b3432f;}
+    .pill-green{background:#e7f5ec;color:#1a6b3a;}
+    .pill-blue{background:#e8f0fb;color:#2a5bbf;}
+    .pill-gray{background:#f2f2f2;color:#555;}
+    .stmt-toggle{font-size:18px;color:var(--primary);transition:transform .2s;flex-shrink:0;}
+    .stmt-toggle.open{transform:rotate(180deg);}
+    .stmt-body{display:none;padding:0 0 4px;}
+    .stmt-body.open{display:block;}
+    .stmt-summary-bar{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;padding:12px 16px;background:var(--bg);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+    .sc-item .sc-k{font-size:10.5px;color:var(--muted);font-weight:700;margin-bottom:3px;}
+    .sc-item .sc-v{font-size:13.5px;font-weight:900;}
 
-    /* Mobile: tabs bottom sheet */
-    @media(max-width:640px) {
-      .tab-bar { display:none; }
-      #mob-tab-bar { display:block!important; margin:0 16px 14px; }
+    /* ── Sync bar ── */
+    .sync-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;background:var(--primary-soft);border:1px solid var(--border);border-radius:12px;padding:10px 16px;margin:0 16px 12px;font-size:12.5px;font-weight:700;color:var(--primary-dark);}
+    .sync-dot{width:8px;height:8px;border-radius:50%;background:var(--success);display:inline-block;margin-inline-end:6px;animation:pulse 2s infinite;}
+    @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+    .last-sync{font-size:11px;color:var(--muted);font-weight:600;}
+
+    /* ── Filters ── */
+    .filters-bar{display:flex;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:14px;}
+    .filter-select,.search-input{border:1.5px solid var(--border);border-radius:8px;padding:7px 12px;background:var(--surface);font-family:inherit;font-size:13px;color:var(--ink);}
+    .search-input{flex:1;min-width:160px;}
+    .filter-select:focus,.search-input:focus{outline:none;border-color:var(--primary);}
+
+    /* ── Empty ── */
+    .empty-state{text-align:center;padding:28px;color:var(--muted);font-size:13px;font-weight:600;}
+
+    /* ── Mobile tabs ── */
+    @media(max-width:640px){
+      .tab-bar{display:none;}
+      #mob-tab-bar{display:block!important;margin:0 16px 14px;}
     }
-    @media(min-width:641px) { #mob-tab-bar { display:none; } #mob-tab-overlay { display:none; } }
-    #mob-tab-bar { display:none; }
-    #mob-tab-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end; }
-    #mob-tab-overlay.open { display:flex; }
-    #mob-tab-sheet { width:100%;background:var(--surface);border-radius:20px 20px 0 0;padding:6px 0 36px;max-height:75vh;overflow-y:auto; }
-    .mob-tab-handle { width:38px;height:4px;background:var(--border);border-radius:99px;margin:10px auto 16px; }
-    .mob-tab-list { display:flex;flex-direction:column;gap:6px;padding:0 12px; }
-    #mob-tab-trigger { display:flex;align-items:center;justify-content:space-between;width:100%;padding:12px 16px;background:var(--surface);border:1.5px solid var(--primary);border-radius:12px;font-family:inherit;font-size:15px;font-weight:700;color:var(--ink);cursor:pointer; }
-    .mob-tab-arrow { font-size:20px;color:var(--primary);transition:transform .2s; }
-    #mob-tab-trigger.open .mob-tab-arrow { transform:rotate(180deg); }
-    .mob-tab-item { width:100%;text-align:right;padding:13px 16px;border:1.5px solid var(--border);border-radius:10px;background:var(--surface);font-family:inherit;font-size:14px;font-weight:700;color:var(--ink);cursor:pointer;transition:background .12s; }
-    .mob-tab-item.mob-active { background:var(--primary-soft);border-color:var(--primary);color:var(--primary-dark); }
-
-    html { scroll-behavior:smooth; }
+    @media(min-width:641px){#mob-tab-bar{display:none;}#mob-tab-overlay{display:none;}}
+    #mob-tab-bar{display:none;}
+    #mob-tab-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:flex-end;}
+    #mob-tab-overlay.open{display:flex;}
+    #mob-tab-sheet{width:100%;background:var(--surface);border-radius:20px 20px 0 0;padding:6px 0 36px;max-height:75vh;overflow-y:auto;}
+    .mob-tab-handle{width:38px;height:4px;background:var(--border);border-radius:99px;margin:10px auto 16px;}
+    .mob-tab-list{display:flex;flex-direction:column;gap:6px;padding:0 12px;}
+    #mob-tab-trigger{display:flex;align-items:center;justify-content:space-between;width:100%;padding:12px 16px;background:var(--surface);border:1.5px solid var(--primary);border-radius:12px;font-family:inherit;font-size:15px;font-weight:700;color:var(--ink);cursor:pointer;}
+    .mob-tab-arrow{font-size:20px;color:var(--primary);transition:transform .2s;}
+    #mob-tab-trigger.open .mob-tab-arrow{transform:rotate(180deg);}
+    .mob-tab-item{width:100%;text-align:right;padding:13px 16px;border:1.5px solid var(--border);border-radius:10px;background:var(--surface);font-family:inherit;font-size:14px;font-weight:700;color:var(--ink);cursor:pointer;}
+    .mob-tab-item.mob-active{background:var(--primary-soft);border-color:var(--primary);color:var(--primary-dark);}
   </style>
 </head>
 <body>
 
 <!-- Loader -->
 <div id="page-loader">
-  <div class="pl-logo">
-    <img src="https://i.imgur.com/NsN1HgC.png" alt="logo" class="pl-logo-img"
-      onerror="this.style.display='none'">
-  </div>
   <div class="pl-spinner"></div>
   <div class="pl-text">جارٍ تحميل النسخة الاحتياطية…</div>
 </div>
@@ -144,9 +169,6 @@
   <div class="dash-hero">
     <div class="app-bar">
       <div class="app-bar-brand">
-        <img src="https://i.imgur.com/NsN1HgC.png" alt="logo"
-          style="height:38px;object-fit:contain;border-radius:8px;background:rgba(255,255,255,.2);padding:3px 6px;border:1.5px solid rgba(255,255,255,.3);"
-          onerror="this.style.display='none'">
         <div>
           <div class="app-bar-name">Ahmed & Hamdy</div>
           <div class="app-bar-sub">نسخة العرض الاحتياطية</div>
@@ -161,18 +183,9 @@
     <div class="hero-metric-card">
       <div style="font-size:11.5px;font-weight:700;color:rgba(255,255,255,.75);margin-bottom:10px;">إجماليات سريعة</div>
       <div class="hero-metric-row">
-        <div>
-          <div class="hero-sub-label">الحركات المالية</div>
-          <div class="hero-sub-val" id="hero-fin-count">—</div>
-        </div>
-        <div>
-          <div class="hero-sub-label">التجار</div>
-          <div class="hero-sub-val" id="hero-merchants-count">—</div>
-        </div>
-        <div>
-          <div class="hero-sub-label">آخر تحديث</div>
-          <div class="hero-sub-val" id="hero-last-update" style="font-size:11px">—</div>
-        </div>
+        <div><div class="hero-sub-label">الحركات المالية</div><div class="hero-sub-val" id="hero-fin-count">—</div></div>
+        <div><div class="hero-sub-label">التجار</div><div class="hero-sub-val" id="hero-merchants-count">—</div></div>
+        <div><div class="hero-sub-label">آخر تحديث</div><div class="hero-sub-val" id="hero-last-update" style="font-size:11px">—</div></div>
       </div>
     </div>
   </div>
@@ -186,15 +199,16 @@
   <!-- Desktop Tabs -->
   <div class="tab-bar">
     <button class="tab-btn active" data-tab="finance">💰 الحركات المالية</button>
-    <button class="tab-btn" data-tab="merchants">🤝 التجار</button>
-    <button class="tab-btn" data-tab="employees">👤 الموظفون</button>
+    <button class="tab-btn" data-tab="merchants">🤝 التجار والأرصدة</button>
+    <button class="tab-btn" data-tab="employees">👤 الموظفون والسلف</button>
     <button class="tab-btn" data-tab="products">📦 المنتجات</button>
     <button class="tab-btn" data-tab="warehouse">🔄 حركات المخازن</button>
+    <button class="tab-btn" data-tab="sales">🚚 عمليات البيع</button>
     <button class="tab-btn" data-tab="auditlog">🔍 سجل المراقبة</button>
   </div>
 
   <!-- Mobile tab trigger -->
-  <div id="mob-tab-bar" style="display:none">
+  <div id="mob-tab-bar">
     <button type="button" id="mob-tab-trigger">
       <span id="mob-tab-label">💰 الحركات المالية</span>
       <span class="mob-tab-arrow">▾</span>
@@ -205,19 +219,20 @@
       <div class="mob-tab-handle"></div>
       <div class="mob-tab-list">
         <button class="mob-tab-item mob-active" data-key="finance">💰 الحركات المالية</button>
-        <button class="mob-tab-item" data-key="merchants">🤝 التجار</button>
-        <button class="mob-tab-item" data-key="employees">👤 الموظفون</button>
+        <button class="mob-tab-item" data-key="merchants">🤝 التجار والأرصدة</button>
+        <button class="mob-tab-item" data-key="employees">👤 الموظفون والسلف</button>
         <button class="mob-tab-item" data-key="products">📦 المنتجات</button>
         <button class="mob-tab-item" data-key="warehouse">🔄 حركات المخازن</button>
+        <button class="mob-tab-item" data-key="sales">🚚 عمليات البيع</button>
         <button class="mob-tab-item" data-key="auditlog">🔍 سجل المراقبة</button>
       </div>
     </div>
   </div>
 
-  <!-- TAB: Finance -->
+  <!-- ══ TAB: Finance ══ -->
   <div class="section-view active" id="view-finance">
     <div class="panel">
-      <div class="panel-header"><h3>الحركات المالية</h3><span id="fin-count-label" style="font-size:12px;color:var(--muted)"></span></div>
+      <div class="panel-header"><h3>💰 الحركات المالية</h3><span id="fin-count-label" style="font-size:12px;color:var(--muted)"></span></div>
       <div class="filters-bar">
         <select class="filter-select" id="fin-f-type">
           <option value="">كل الأنواع</option>
@@ -246,42 +261,41 @@
     </div>
   </div>
 
-  <!-- TAB: Merchants -->
+  <!-- ══ TAB: Merchants ══ -->
   <div class="section-view" id="view-merchants">
-    <div class="stats-grid" id="merchants-stats"></div>
+    <div class="stats-grid" id="merchants-stats-grid"></div>
     <div class="panel">
-      <div class="panel-header"><h3>قائمة التجار</h3><span id="merchants-count-label" style="font-size:12px;color:var(--muted)"></span></div>
+      <div class="panel-header">
+        <h3>🤝 التجار والأرصدة</h3>
+        <span id="merchants-count-label" style="font-size:12px;color:var(--muted)"></span>
+      </div>
       <div class="filters-bar">
         <input class="search-input" type="text" id="mer-f-search" placeholder="بحث باسم التاجر..." />
       </div>
-      <div class="table-wrap">
-        <table class="data-table">
-          <thead><tr><th>الاسم</th><th>الهاتف</th><th>العنوان</th><th>ملاحظات</th><th>تاريخ الإضافة</th></tr></thead>
-          <tbody id="merchants-tbody"><tr><td colspan="5"><div class="empty-state">جارٍ التحميل...</div></td></tr></tbody>
-        </table>
-      </div>
+      <div id="merchants-list"></div>
     </div>
   </div>
 
-  <!-- TAB: Employees -->
+  <!-- ══ TAB: Employees ══ -->
   <div class="section-view" id="view-employees">
-    <div class="stats-grid" id="employees-stats"></div>
+    <div class="stats-grid" id="employees-stats-grid"></div>
     <div class="panel">
-      <div class="panel-header"><h3>قائمة الموظفين</h3><span id="employees-count-label" style="font-size:12px;color:var(--muted)"></span></div>
-      <div class="table-wrap">
-        <table class="data-table">
-          <thead><tr><th>الاسم</th><th>المسمى الوظيفي</th><th>الراتب</th><th>الهاتف</th><th>تاريخ الإضافة</th></tr></thead>
-          <tbody id="employees-tbody"><tr><td colspan="5"><div class="empty-state">جارٍ التحميل...</div></td></tr></tbody>
-        </table>
+      <div class="panel-header">
+        <h3>👤 الموظفون والسلف</h3>
+        <span id="employees-count-label" style="font-size:12px;color:var(--muted)"></span>
       </div>
+      <div class="filters-bar">
+        <input class="search-input" type="text" id="emp-f-search" placeholder="بحث باسم الموظف..." />
+      </div>
+      <div id="employees-list"></div>
     </div>
   </div>
 
-  <!-- TAB: Products -->
+  <!-- ══ TAB: Products ══ -->
   <div class="section-view" id="view-products">
-    <div class="stats-grid" id="products-stats"></div>
+    <div class="stats-grid" id="products-stats-grid"></div>
     <div class="panel">
-      <div class="panel-header"><h3>المنتجات</h3><span id="products-count-label" style="font-size:12px;color:var(--muted)"></span></div>
+      <div class="panel-header"><h3>📦 المنتجات</h3><span id="products-count-label" style="font-size:12px;color:var(--muted)"></span></div>
       <div class="filters-bar">
         <select class="filter-select" id="prod-f-wh"><option value="">كل المخازن</option></select>
         <input class="search-input" type="text" id="prod-f-search" placeholder="بحث باسم المنتج..." />
@@ -295,10 +309,10 @@
     </div>
   </div>
 
-  <!-- TAB: Warehouse -->
+  <!-- ══ TAB: Warehouse Ops ══ -->
   <div class="section-view" id="view-warehouse">
     <div class="panel">
-      <div class="panel-header"><h3>حركات المخازن</h3><span id="wh-count-label" style="font-size:12px;color:var(--muted)"></span></div>
+      <div class="panel-header"><h3>🔄 حركات المخازن</h3><span id="wh-count-label" style="font-size:12px;color:var(--muted)"></span></div>
       <div class="table-wrap">
         <table class="data-table">
           <thead><tr><th>النوع</th><th>من</th><th>إلى</th><th>التفاصيل</th><th>ملاحظات</th><th>التاريخ</th></tr></thead>
@@ -306,29 +320,43 @@
         </table>
       </div>
     </div>
+  </div>
+
+  <!-- ══ TAB: Sales (Loading Ops) ══ -->
+  <div class="section-view" id="view-sales">
+    <div class="stats-grid" id="sales-stats-grid"></div>
     <div class="panel">
-      <div class="panel-header"><h3>عمليات البيع للتجار</h3><span id="load-count-label" style="font-size:12px;color:var(--muted)"></span></div>
+      <div class="panel-header">
+        <h3>🚚 عمليات البيع للتجار</h3>
+        <span id="sales-count-label" style="font-size:12px;color:var(--muted)"></span>
+      </div>
+      <div class="filters-bar">
+        <select class="filter-select" id="sales-f-merchant"><option value="">كل التجار</option></select>
+        <input class="search-input" type="text" id="sales-f-search" placeholder="بحث..." />
+      </div>
       <div class="table-wrap">
-        <table class="data-table">
-          <thead><tr><th>المخزن</th><th>التاجر</th><th>عدد الأصناف</th><th>الإجمالي</th><th>ملاحظات</th><th>التاريخ</th></tr></thead>
-          <tbody id="load-tbody"><tr><td colspan="6"><div class="empty-state">جارٍ التحميل...</div></td></tr></tbody>
+        <table class="data-table" id="sales-table">
+          <thead><tr>
+            <th style="width:32px"></th>
+            <th>التاجر</th>
+            <th>المخزن</th>
+            <th>عدد الأصناف</th>
+            <th>الإجمالي</th>
+            <th>ملاحظات</th>
+            <th>التاريخ</th>
+          </tr></thead>
+          <tbody id="sales-tbody"><tr><td colspan="7"><div class="empty-state">جارٍ التحميل...</div></td></tr></tbody>
         </table>
       </div>
     </div>
   </div>
 
-  <!-- TAB: Audit Log -->
+  <!-- ══ TAB: Audit Log ══ -->
   <div class="section-view" id="view-auditlog">
     <div class="panel">
-      <div class="panel-header"><h3>🔍 سجل المراقبة الشامل</h3><span id="audit-count-label" style="font-size:12px;color:var(--muted)"></span></div>
+      <div class="panel-header"><h3>🔍 سجل المراقبة</h3><span id="audit-count-label" style="font-size:12px;color:var(--muted)"></span></div>
       <div class="filters-bar">
-        <select class="filter-select" id="audit-f-page">
-          <option value="">كل الصفحات</option>
-          <option value="المالية">📊 المالية</option>
-          <option value="التجار">🤝 التجار</option>
-          <option value="الموظفين">👤 الموظفين</option>
-          <option value="السجل الشامل">📒 السجل الشامل</option>
-        </select>
+        <select class="filter-select" id="audit-f-page"><option value="">كل الصفحات</option></select>
         <select class="filter-select" id="audit-f-action">
           <option value="">كل الإجراءات</option>
           <option value="إضافة">➕ إضافة</option>
@@ -336,7 +364,7 @@
           <option value="حذف">🗑️ حذف</option>
           <option value="تصدير">📤 تصدير</option>
         </select>
-        <input class="search-input" type="text" id="audit-f-search" placeholder="بحث في التفاصيل..." />
+        <input class="search-input" type="text" id="audit-f-search" placeholder="بحث..." />
       </div>
       <div class="table-wrap">
         <table class="data-table">
@@ -351,10 +379,9 @@
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, getDocs, query, orderBy, onSnapshot }
+import { getFirestore, collection, query, orderBy, onSnapshot }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* ── Firebase الاحتياطي ── */
 const app = initializeApp({
   apiKey:            "AIzaSyCzBhGHQ7O9BDg5D5eFXrFLhCCauFPEkWQ",
   authDomain:        "test-reta-e4928.firebaseapp.com",
@@ -362,182 +389,163 @@ const app = initializeApp({
   storageBucket:     "test-reta-e4928.firebasestorage.app",
   messagingSenderId: "686928049289",
   appId:             "1:686928049289:web:f4e733cc58e0ef36e84258"
-}, "display-readonly");
+}, "display-ro");
 const db = getFirestore(app);
 
-/* ── أدوات ── */
+/* ═══════════ Helpers ═══════════ */
 const esc = t => { const d = document.createElement("div"); d.textContent = t ?? ""; return d.innerHTML; };
-const fmt = n => new Intl.NumberFormat("ar-EG-u-nu-latn", { maximumFractionDigits: 2 }).format(n || 0) + " ج.م";
-const fmtNum = n => new Intl.NumberFormat("ar-EG-u-nu-latn", { maximumFractionDigits: 3 }).format(n || 0);
+const fmt = n => new Intl.NumberFormat("ar-EG-u-nu-latn",{maximumFractionDigits:2}).format(n||0) + " ج.م";
+const fmtNum = n => new Intl.NumberFormat("ar-EG-u-nu-latn",{maximumFractionDigits:3}).format(n||0);
 const fmtDate = s => {
   if (!s) return "—";
-  if (typeof s === "string" && s.match(/^\d{4}-\d{2}-\d{2}$/))
-    return new Date(s + "T00:00:00").toLocaleDateString("ar-EG-u-nu-latn", { year:"numeric", month:"long", day:"numeric" });
-  const d = (typeof s === "string") ? new Date(s) : (s.toDate ? s.toDate() : new Date(s));
-  return isNaN(d) ? "—" : d.toLocaleDateString("ar-EG-u-nu-latn", { year:"numeric", month:"long", day:"numeric" });
+  if (typeof s==="string" && /^\d{4}-\d{2}-\d{2}$/.test(s))
+    return new Date(s+"T00:00:00").toLocaleDateString("ar-EG-u-nu-latn",{year:"numeric",month:"long",day:"numeric"});
+  const d = typeof s==="string" ? new Date(s) : (s?.toDate ? s.toDate() : new Date(s));
+  return isNaN(d) ? "—" : d.toLocaleDateString("ar-EG-u-nu-latn",{year:"numeric",month:"long",day:"numeric"});
 };
 const fmtDateTime = s => {
   if (!s) return "—";
-  const d = (typeof s === "string") ? new Date(s) : (s && s.toDate ? s.toDate() : new Date(s));
-  return isNaN(d) ? "—" : d.toLocaleString("ar-EG-u-nu-latn", { year:"numeric", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" });
+  const d = typeof s==="string" ? new Date(s) : (s?.toDate ? s.toDate() : new Date(s));
+  return isNaN(d) ? "—" : d.toLocaleString("ar-EG-u-nu-latn",{year:"numeric",month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"});
 };
 
-/* ── Tabs ── */
+/* ═══════════ Tab system ═══════════ */
 const TAB_LABELS = {
-  finance:"💰 الحركات المالية", merchants:"🤝 التجار",
-  employees:"👤 الموظفون", products:"📦 المنتجات",
-  warehouse:"🔄 حركات المخازن", auditlog:"🔍 سجل المراقبة",
+  finance:"💰 الحركات المالية", merchants:"🤝 التجار والأرصدة",
+  employees:"👤 الموظفون والسلف", products:"📦 المنتجات",
+  warehouse:"🔄 حركات المخازن", sales:"🚚 عمليات البيع", auditlog:"🔍 سجل المراقبة",
 };
-
 function switchTab(key) {
-  document.querySelectorAll(".tab-btn").forEach(b => b.classList.toggle("active", b.dataset.tab === key));
-  document.querySelectorAll(".section-view").forEach(v => v.classList.toggle("active", v.id === "view-" + key));
-  document.querySelectorAll(".mob-tab-item").forEach(b => b.classList.toggle("mob-active", b.dataset.key === key));
-  const lbl = document.getElementById("mob-tab-label");
-  if (lbl) lbl.textContent = TAB_LABELS[key] || key;
+  document.querySelectorAll(".tab-btn").forEach(b=>b.classList.toggle("active",b.dataset.tab===key));
+  document.querySelectorAll(".section-view").forEach(v=>v.classList.toggle("active",v.id==="view-"+key));
+  document.querySelectorAll(".mob-tab-item").forEach(b=>b.classList.toggle("mob-active",b.dataset.key===key));
+  const lbl=document.getElementById("mob-tab-label"); if(lbl) lbl.textContent=TAB_LABELS[key]||key;
+}
+document.querySelectorAll(".tab-btn").forEach(b=>b.addEventListener("click",()=>switchTab(b.dataset.tab)));
+const trigger=document.getElementById("mob-tab-trigger");
+const overlay=document.getElementById("mob-tab-overlay");
+const sheet=document.getElementById("mob-tab-sheet");
+function openMob(){overlay.classList.add("open");trigger.classList.add("open");document.body.style.overflow="hidden";}
+function closeMob(){overlay.classList.remove("open");trigger.classList.remove("open");document.body.style.overflow="";}
+trigger.addEventListener("click",()=>overlay.classList.contains("open")?closeMob():openMob());
+overlay.addEventListener("click",e=>{if(!sheet.contains(e.target))closeMob();});
+document.querySelectorAll(".mob-tab-item").forEach(b=>b.addEventListener("click",()=>{switchTab(b.dataset.key);closeMob();}));
+
+/* ═══════════ Data stores ═══════════ */
+let allFinTx=[], allMerchants=[], allMerchantTx=[], allEmployees=[],
+    allProducts=[], allWarehouses=[], allWhOps=[], allLoadOps=[], allAuditLogs=[];
+
+/* ═══════════ Sync info ═══════════ */
+function updateSyncInfo(exportedAt) {
+  const el=document.getElementById("sync-info");
+  if(el&&exportedAt) el.textContent="آخر بيانات مُستلمة: "+fmtDateTime(exportedAt);
+  const hu=document.getElementById("hero-last-update");
+  if(hu&&exportedAt) hu.textContent=fmtDate(exportedAt);
 }
 
-document.querySelectorAll(".tab-btn").forEach(b => b.addEventListener("click", () => switchTab(b.dataset.tab)));
-
-/* Mobile tabs */
-const trigger  = document.getElementById("mob-tab-trigger");
-const overlay  = document.getElementById("mob-tab-overlay");
-const sheet    = document.getElementById("mob-tab-sheet");
-function openMobMenu()  { overlay.classList.add("open"); trigger.classList.add("open"); document.body.style.overflow="hidden"; }
-function closeMobMenu() { overlay.classList.remove("open"); trigger.classList.remove("open"); document.body.style.overflow=""; }
-trigger.addEventListener("click", () => overlay.classList.contains("open") ? closeMobMenu() : openMobMenu());
-overlay.addEventListener("click", e => { if (!sheet.contains(e.target)) closeMobMenu(); });
-document.querySelectorAll(".mob-tab-item").forEach(b => b.addEventListener("click", () => { switchTab(b.dataset.key); closeMobMenu(); }));
-
-/* ── Filters ── */
-let allFinTx = [], allMerchants = [], allEmployees = [], allProducts = [], allWarehouses = [];
-let allWhOps = [], allLoadOps = [], allAuditLogs = [];
-
-function setupFilters() {
-  ["fin-f-type","fin-f-dir","fin-f-search"].forEach(id => {
-    document.getElementById(id)?.addEventListener("input", renderFinance);
-    document.getElementById(id)?.addEventListener("change", renderFinance);
-  });
-  ["mer-f-search"].forEach(id => {
-    document.getElementById(id)?.addEventListener("input", renderMerchants);
-  });
-  ["prod-f-wh","prod-f-search"].forEach(id => {
-    document.getElementById(id)?.addEventListener("input", renderProducts);
-    document.getElementById(id)?.addEventListener("change", renderProducts);
-  });
-  ["audit-f-page","audit-f-action","audit-f-search"].forEach(id => {
-    document.getElementById(id)?.addEventListener("input", renderAudit);
-    document.getElementById(id)?.addEventListener("change", renderAudit);
-  });
-}
-
-/* ── DATA LOADERS (onSnapshot real-time) ── */
-const TYPE_CFG = {
-  advance:    { label:"سلفة موظف",        badge:"tb-advance" },
-  withdrawal: { label:"سحب من الصندوق",  badge:"tb-withdrawal" },
-  deposit:    { label:"إيداع في الصندوق", badge:"tb-deposit" },
-  merchant:   { label:"دفعة تاجر",        badge:"tb-merchant" },
-  other:      { label:"عملية أخرى",       badge:"tb-other" },
-};
-
+/* ═══════════ LOAD ALL ═══════════ */
 function loadAll() {
   /* Finance */
-  onSnapshot(collection(db, "finance_transactions"), snap => {
-    allFinTx = snap.docs.map(d => ({ id:d.id, ...d.data() }))
-      .filter(t => t._active !== false)
-      .sort((a,b) => { const da = a.date||"", db2 = b.date||""; return da < db2 ? 1 : da > db2 ? -1 : 0; });
-    renderFinance();
-    document.getElementById("hero-fin-count").textContent = allFinTx.length;
-    updateSyncInfo(snap.docs.map(d => d.data()._exportedAt).filter(Boolean).sort().pop());
+  onSnapshot(collection(db,"finance_transactions"), snap=>{
+    allFinTx=snap.docs.map(d=>({id:d.id,...d.data()})).filter(t=>t._active!==false)
+      .sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+    renderFinance(); renderMerchants(); renderEmployees();
+    document.getElementById("hero-fin-count").textContent=allFinTx.length;
+    updateSyncInfo(snap.docs.map(d=>d.data()._exportedAt).filter(Boolean).sort().pop());
   });
+
   /* Merchants */
-  onSnapshot(collection(db, "merchants"), snap => {
-    allMerchants = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+  onSnapshot(collection(db,"merchants"), snap=>{
+    allMerchants=snap.docs.map(d=>({id:d.id,...d.data()}));
+    document.getElementById("hero-merchants-count").textContent=allMerchants.length;
+    populateSalesMerchantFilter();
     renderMerchants();
-    document.getElementById("hero-merchants-count").textContent = allMerchants.length;
   });
+
+  /* Merchant Transactions */
+  onSnapshot(collection(db,"merchantTransactions"), snap=>{
+    allMerchantTx=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderMerchants();
+  });
+
   /* Employees */
-  onSnapshot(collection(db, "employees"), snap => {
-    allEmployees = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+  onSnapshot(collection(db,"employees"), snap=>{
+    allEmployees=snap.docs.map(d=>({id:d.id,...d.data()}));
     renderEmployees();
   });
+
   /* Products */
-  onSnapshot(collection(db, "products"), snap => {
-    allProducts = snap.docs.map(d => ({ id:d.id, ...d.data() }));
-    renderProductWarehouseFilter();
+  onSnapshot(collection(db,"products"), snap=>{
+    allProducts=snap.docs.map(d=>({id:d.id,...d.data()}));
+    populateWarehouseFilter();
     renderProducts();
   });
+
   /* Warehouses */
-  onSnapshot(collection(db, "warehouses"), snap => {
-    allWarehouses = snap.docs.map(d => ({ id:d.id, ...d.data() }));
-    renderProductWarehouseFilter();
+  onSnapshot(collection(db,"warehouses"), snap=>{
+    allWarehouses=snap.docs.map(d=>({id:d.id,...d.data()}));
+    populateWarehouseFilter();
   });
+
   /* Warehouse Ops */
-  onSnapshot(collection(db, "warehouseOperations"), snap => {
-    allWhOps = snap.docs.map(d => ({ id:d.id, ...d.data() }))
-      .sort((a,b) => (b.createdAt||"") > (a.createdAt||"") ? 1 : -1);
+  onSnapshot(collection(db,"warehouseOperations"), snap=>{
+    allWhOps=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .sort((a,b)=>(b.createdAt||"")>(a.createdAt||"")?1:-1);
     renderWarehouse();
   });
-  /* Loading Ops */
-  onSnapshot(collection(db, "loadingOperations"), snap => {
-    allLoadOps = snap.docs.map(d => ({ id:d.id, ...d.data() }))
-      .sort((a,b) => (b.createdAt||"") > (a.createdAt||"") ? 1 : -1);
-    renderLoading();
+
+  /* Loading / Sales Ops */
+  onSnapshot(collection(db,"loadingOperations"), snap=>{
+    allLoadOps=snap.docs.map(d=>({id:d.id,...d.data()}))
+      .sort((a,b)=>(b.createdAt||"")>(a.createdAt||"")?1:-1);
+    renderSales();
   });
+
   /* Audit */
-  onSnapshot(query(collection(db, "auditLog"), orderBy("createdAt","desc")), snap => {
-    allAuditLogs = snap.docs.map(d => ({ id:d.id, ...d.data() }));
+  onSnapshot(query(collection(db,"auditLog"),orderBy("createdAt","desc")), snap=>{
+    allAuditLogs=snap.docs.map(d=>({id:d.id,...d.data()}));
+    populateAuditPageFilter();
     renderAudit();
-  }, () => {
-    onSnapshot(collection(db, "auditLog"), snap => {
-      allAuditLogs = snap.docs.map(d => ({ id:d.id, ...d.data() }))
-        .sort((a,b) => {
-          const ta = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-          const tb = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-          return tb - ta;
-        });
-      renderAudit();
+  }, ()=>{
+    onSnapshot(collection(db,"auditLog"), snap=>{
+      allAuditLogs=snap.docs.map(d=>({id:d.id,...d.data()}))
+        .sort((a,b)=>new Date(b.createdAt||0)-new Date(a.createdAt||0));
+      populateAuditPageFilter(); renderAudit();
     });
   });
 }
 
-function updateSyncInfo(exportedAt) {
-  const el = document.getElementById("sync-info");
-  if (el && exportedAt) {
-    el.textContent = "آخر بيانات مُستلمة: " + fmtDateTime(exportedAt);
-    document.getElementById("hero-last-update").textContent = fmtDate(exportedAt);
-  }
-}
-
-/* ── RENDERERS ── */
+/* ═══════════ FINANCE ═══════════ */
+const TYPE_CFG = {
+  advance:    {label:"سلفة موظف",       badge:"tb-advance"},
+  withdrawal: {label:"سحب من الصندوق", badge:"tb-withdrawal"},
+  deposit:    {label:"إيداع في الصندوق",badge:"tb-deposit"},
+  merchant:   {label:"دفعة تاجر",       badge:"tb-merchant"},
+  other:      {label:"عملية أخرى",      badge:"tb-other"},
+};
 function renderFinance() {
-  const typeF   = document.getElementById("fin-f-type")?.value || "";
-  const dirF    = document.getElementById("fin-f-dir")?.value  || "";
-  const searchF = (document.getElementById("fin-f-search")?.value || "").toLowerCase().trim();
-  let rows = allFinTx.filter(t => {
-    if (typeF && t.type !== typeF) return false;
-    if (dirF  && t.dir  !== dirF)  return false;
-    if (searchF) {
-      const hay = [t.finId, t.partyName, t.merchantName, t.employeeName, t.description].join(" ").toLowerCase();
-      if (!hay.includes(searchF)) return false;
-    }
+  const typeF  =(document.getElementById("fin-f-type")?.value)||"";
+  const dirF   =(document.getElementById("fin-f-dir")?.value)||"";
+  const searchF=(document.getElementById("fin-f-search")?.value||"").toLowerCase().trim();
+  let rows=allFinTx.filter(t=>{
+    if(typeF&&t.type!==typeF)return false;
+    if(dirF&&t.dir!==dirF)return false;
+    if(searchF){const h=[t.finId,t.partyName,t.merchantName,t.employeeName,t.description].join(" ").toLowerCase();if(!h.includes(searchF))return false;}
     return true;
   });
-  const countEl = document.getElementById("fin-count-label");
-  if (countEl) countEl.textContent = rows.length + " عملية";
-  const tbody = document.getElementById("fin-tbody");
-  if (!rows.length) { tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state">لا توجد عمليات مطابقة</div></td></tr>'; return; }
-  tbody.innerHTML = "";
-  rows.forEach(t => {
-    const cfg = TYPE_CFG[t.type] || { label: t.type||"—", badge:"tb-other" };
-    const party = t.type==="advance" ? (t.employeeName||"—") : t.type==="merchant" ? (t.merchantName||t.partyName||"—") : (t.partyName||"—");
-    const dirLabel = t.dir === "in" ? '<span class="dir-in">← داخل</span>' : '<span class="dir-out">← خارج</span>';
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
+  const cntEl=document.getElementById("fin-count-label"); if(cntEl) cntEl.textContent=rows.length+" عملية";
+  const tbody=document.getElementById("fin-tbody");
+  if(!rows.length){tbody.innerHTML='<tr><td colspan="7"><div class="empty-state">لا توجد عمليات مطابقة</div></td></tr>';return;}
+  tbody.innerHTML="";
+  rows.forEach(t=>{
+    const cfg=TYPE_CFG[t.type]||{label:t.type||"—",badge:"tb-other"};
+    const party=t.type==="advance"?(t.employeeName||"—"):t.type==="merchant"?(t.merchantName||t.partyName||"—"):(t.partyName||"—");
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
       <td style="font-family:monospace;font-weight:800;font-size:12px">${esc(t.finId||"—")}</td>
       <td style="white-space:nowrap;font-size:12.5px">${esc(fmtDate(t.date))}</td>
       <td><span class="type-badge ${cfg.badge}">${esc(cfg.label)}</span></td>
-      <td>${dirLabel}</td>
+      <td>${t.dir==="in"?'<span class="dir-in">← داخل</span>':'<span class="dir-out">← خارج</span>'}</td>
       <td style="font-weight:700;white-space:nowrap">${fmt(t.amount)}</td>
       <td style="font-size:13px;color:var(--muted)">${esc(party)}</td>
       <td style="font-size:12px;color:var(--muted);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(t.description||"—")}</td>`;
@@ -545,107 +553,254 @@ function renderFinance() {
   });
 }
 
+/* ═══════════ MERCHANTS with full statement ═══════════ */
 function renderMerchants() {
-  const searchF = (document.getElementById("mer-f-search")?.value || "").toLowerCase().trim();
-  let rows = allMerchants.filter(m => !searchF || (m.name||"").toLowerCase().includes(searchF));
-  const countEl = document.getElementById("merchants-count-label");
-  if (countEl) countEl.textContent = rows.length + " تاجر";
-  const statsEl = document.getElementById("merchants-stats");
-  if (statsEl) statsEl.innerHTML = `
-    <div class="stat-card"><div class="sk">إجمالي التجار</div><div class="sv">${allMerchants.length}</div></div>`;
-  const tbody = document.getElementById("merchants-tbody");
-  if (!rows.length) { tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">لا يوجد تجار</div></td></tr>'; return; }
-  tbody.innerHTML = "";
-  rows.forEach(m => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td style="font-weight:800">${esc(m.name||"—")}</td>
-      <td style="font-size:13px">${esc(m.phone||"—")}</td>
-      <td style="font-size:13px;color:var(--muted)">${esc(m.address||"—")}</td>
-      <td style="font-size:12px;color:var(--muted)">${esc(m.notes||"—")}</td>
-      <td style="white-space:nowrap;font-size:12px">${fmtDate(m.createdAt)}</td>`;
-    tbody.appendChild(tr);
+  const searchF=(document.getElementById("mer-f-search")?.value||"").toLowerCase().trim();
+  const rows=allMerchants.filter(m=>!searchF||(m.name||"").toLowerCase().includes(searchF));
+
+  const cntEl=document.getElementById("merchants-count-label"); if(cntEl) cntEl.textContent=rows.length+" تاجر";
+
+  /* Stats */
+  let totalDebt=0, totalCredit=0;
+  allMerchants.forEach(m=>{
+    const bal=calcMerchantBalance(m.id);
+    if(bal.net>0) totalDebt+=bal.net; else totalCredit+=Math.abs(bal.net);
+  });
+  const sg=document.getElementById("merchants-stats-grid");
+  if(sg) sg.innerHTML=`
+    <div class="stat-card"><div class="sk">إجمالي التجار</div><div class="sv">${allMerchants.length}</div></div>
+    <div class="stat-card"><div class="sk">إجمالي المستحق (مديونية)</div><div class="sv money" style="color:#b3432f">${fmt(totalDebt)}</div></div>
+    <div class="stat-card"><div class="sk">إجمالي الدائن (رصيد لصالحهم)</div><div class="sv money" style="color:#1a6b3a">${fmt(totalCredit)}</div></div>`;
+
+  const container=document.getElementById("merchants-list");
+  if(!container) return;
+  if(!rows.length){container.innerHTML='<div class="empty-state">لا يوجد تجار مطابقون</div>';return;}
+  container.innerHTML="";
+
+  rows.forEach(m=>{
+    const bal=calcMerchantBalance(m.id);
+    const netColor=bal.net>=0?"#b3432f":"#1a6b3a";
+    const netLabel=bal.net>=0?"مستحق عليه":"دائن";
+    const card=document.createElement("div"); card.className="stmt-card";
+    card.innerHTML=`
+      <div class="stmt-header" data-id="${m.id}">
+        <div>
+          <div class="stmt-name">🏪 ${esc(m.name||"—")}</div>
+          <div style="font-size:11.5px;color:var(--muted);margin-top:4px">${esc(m.phone||"")} ${m.address?'| '+esc(m.address):""}</div>
+        </div>
+        <div class="stmt-balance-row">
+          <span class="stmt-pill ${bal.net>=0?"pill-red":"pill-green"}">${fmt(Math.abs(bal.net))} ${netLabel}</span>
+          <span class="stmt-pill pill-gray">مسحوبات: ${fmt(bal.totalIn)}</span>
+          <span class="stmt-pill pill-blue">مدفوعات: ${fmt(bal.totalOut)}</span>
+          <span class="stmt-toggle">▾</span>
+        </div>
+      </div>
+      <div class="stmt-body" id="mbody-${m.id}">
+        <div class="stmt-summary-bar">
+          <div class="sc-item"><div class="sc-k">إجمالي مسحوبات (يدين بها)</div><div class="sc-v" style="color:#b3432f">${fmt(bal.totalIn)}</div></div>
+          <div class="sc-item"><div class="sc-k">إجمالي مدفوعات التاجر</div><div class="sc-v" style="color:#1a6b3a">${fmt(bal.totalOut)}</div></div>
+          <div class="sc-item"><div class="sc-k">الرصيد النهائي</div><div class="sc-v" style="color:${netColor}">${fmt(Math.abs(bal.net))} (${netLabel})</div></div>
+          <div class="sc-item"><div class="sc-k">عمليات تحميل</div><div class="sc-v">${bal.salesCount}</div></div>
+        </div>
+        <div style="padding:10px 12px">
+          <table class="lines-inner" style="width:100%;border-radius:8px;overflow:hidden;font-size:12.5px">
+            <thead><tr>
+              <th>التاريخ</th><th>البيان</th><th>الوصف</th>
+              <th style="color:#b3432f">مسحوبات</th><th style="color:#1a6b3a">مدفوعات</th><th>الرصيد</th>
+            </tr></thead>
+            <tbody>${buildMerchantRows(m.id)}</tbody>
+          </table>
+        </div>
+      </div>`;
+    container.appendChild(card);
+    card.querySelector(".stmt-header").addEventListener("click",()=>{
+      const body=card.querySelector(".stmt-body");
+      const tog=card.querySelector(".stmt-toggle");
+      body.classList.toggle("open"); tog.classList.toggle("open");
+    });
   });
 }
 
+function calcMerchantBalance(mId) {
+  const directTx=allMerchantTx.filter(t=>t.merchantId===mId);
+  const finTx=allFinTx.filter(t=>t.type==="merchant"&&t.merchantId===mId);
+  const sales=allLoadOps.filter(d=>d.merchantId===mId);
+  let totalIn=0,totalOut=0;
+  directTx.forEach(t=>{ if(t.type==="in") totalIn+=t.amount||0; else totalOut+=t.amount||0; });
+  finTx.forEach(t=>{ if(t.dir==="in") totalIn+=t.amount||0; else totalOut+=t.amount||0; });
+  return {totalIn, totalOut, net:totalIn-totalOut, salesCount:sales.length};
+}
+
+function buildMerchantRows(mId) {
+  const directTx=allMerchantTx.filter(t=>t.merchantId===mId);
+  const finTx=allFinTx.filter(t=>t.type==="merchant"&&t.merchantId===mId);
+  const allRows=[
+    ...directTx.map(t=>({date:t.date||"",label:t.source==="loading"?"تحميل بضاعة":"دفعة/تحصيل",desc:t.note||"—",dir:t.type,amount:t.amount||0})),
+    ...finTx.map(t=>({date:t.date||"",label:"دفعة (مالية)",desc:t.description||"—",dir:t.dir,amount:t.amount||0})),
+  ].sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+  if(!allRows.length) return `<tr><td colspan="6"><div class="empty-state" style="padding:14px">لا توجد حركات لهذا التاجر</div></td></tr>`;
+  let running=0;
+  return allRows.map(r=>{
+    running+=(r.dir==="in"?1:-1)*(r.amount);
+    const debit=r.dir==="in"?r.amount:0;
+    const credit=r.dir==="out"?r.amount:0;
+    return `<tr>
+      <td style="white-space:nowrap">${esc(fmtDate(r.date))}</td>
+      <td style="font-weight:700">${esc(r.label)}</td>
+      <td style="color:var(--muted)">${esc(r.desc)}</td>
+      <td style="color:#b3432f;font-weight:700">${debit?fmt(debit):"—"}</td>
+      <td style="color:#1a6b3a;font-weight:700">${credit?fmt(credit):"—"}</td>
+      <td style="font-weight:800">${fmt(running)}</td>
+    </tr>`;
+  }).join("");
+}
+
+/* ═══════════ EMPLOYEES with advances ═══════════ */
 function renderEmployees() {
-  let rows = allEmployees;
-  const countEl = document.getElementById("employees-count-label");
-  if (countEl) countEl.textContent = rows.length + " موظف";
-  const totalSalary = rows.reduce((s,e) => s+(Number(e.monthlySalary)||0), 0);
-  const statsEl = document.getElementById("employees-stats");
-  if (statsEl) statsEl.innerHTML = `
-    <div class="stat-card"><div class="sk">إجمالي الموظفين</div><div class="sv">${rows.length}</div></div>
-    <div class="stat-card"><div class="sk">إجمالي الرواتب</div><div class="sv money">${fmt(totalSalary)}</div></div>`;
-  const tbody = document.getElementById("employees-tbody");
-  if (!rows.length) { tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">لا يوجد موظفون</div></td></tr>'; return; }
-  tbody.innerHTML = "";
-  rows.forEach(e => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td style="font-weight:800">${esc(e.name||"—")}</td>
-      <td style="font-size:13px;color:var(--muted)">${esc(e.jobTitle||"—")}</td>
-      <td style="font-weight:700">${e.monthlySalary ? fmt(e.monthlySalary) : "—"}</td>
-      <td style="font-size:13px">${esc(e.phone||"—")}</td>
-      <td style="white-space:nowrap;font-size:12px">${fmtDate(e.createdAt)}</td>`;
-    tbody.appendChild(tr);
+  const searchF=(document.getElementById("emp-f-search")?.value||"").toLowerCase().trim();
+  const rows=allEmployees.filter(e=>!searchF||(e.name||"").toLowerCase().includes(searchF));
+
+  const cntEl=document.getElementById("employees-count-label"); if(cntEl) cntEl.textContent=rows.length+" موظف";
+
+  const totalSalary=allEmployees.reduce((s,e)=>s+(Number(e.monthlySalary)||0),0);
+  let totalAdvances=0;
+  allEmployees.forEach(e=>{ totalAdvances+=calcEmployeeBalance(e.id).totalOut; });
+
+  const sg=document.getElementById("employees-stats-grid");
+  if(sg) sg.innerHTML=`
+    <div class="stat-card"><div class="sk">إجمالي الموظفين</div><div class="sv">${allEmployees.length}</div></div>
+    <div class="stat-card"><div class="sk">إجمالي الرواتب الشهرية</div><div class="sv money">${fmt(totalSalary)}</div></div>
+    <div class="stat-card"><div class="sk">إجمالي السلف المستحقة</div><div class="sv money" style="color:#b3432f">${fmt(totalAdvances)}</div></div>`;
+
+  const container=document.getElementById("employees-list");
+  if(!container) return;
+  if(!rows.length){container.innerHTML='<div class="empty-state">لا يوجد موظفون مطابقون</div>';return;}
+  container.innerHTML="";
+
+  rows.forEach(e=>{
+    const bal=calcEmployeeBalance(e.id);
+    const netColor=bal.net>0?"#b3432f":"#1a6b3a";
+    const netLabel=bal.net>0?"سلف قائمة":"لا سلف";
+    const card=document.createElement("div"); card.className="stmt-card";
+    card.innerHTML=`
+      <div class="stmt-header" data-id="${e.id}">
+        <div>
+          <div class="stmt-name">👤 ${esc(e.name||"—")}</div>
+          <div style="font-size:11.5px;color:var(--muted);margin-top:4px">
+            ${e.jobTitle?esc(e.jobTitle)+" | ":""} الراتب: ${fmt(e.monthlySalary||0)}
+            ${e.phone?" | "+esc(e.phone):""}
+          </div>
+        </div>
+        <div class="stmt-balance-row">
+          <span class="stmt-pill ${bal.net>0?"pill-red":"pill-green"}">${fmt(Math.abs(bal.net))} ${netLabel}</span>
+          <span class="stmt-pill pill-gray">سلف: ${fmt(bal.totalOut)}</span>
+          <span class="stmt-pill pill-blue">مدفوعات: ${fmt(bal.totalIn)}</span>
+          <span class="stmt-toggle">▾</span>
+        </div>
+      </div>
+      <div class="stmt-body" id="ebody-${e.id}">
+        <div class="stmt-summary-bar">
+          <div class="sc-item"><div class="sc-k">الراتب الشهري</div><div class="sc-v">${fmt(e.monthlySalary||0)}</div></div>
+          <div class="sc-item"><div class="sc-k">إجمالي ما دخل له</div><div class="sc-v" style="color:#1a6b3a">${fmt(bal.totalIn)}</div></div>
+          <div class="sc-item"><div class="sc-k">إجمالي السلف/الخصم</div><div class="sc-v" style="color:#b3432f">${fmt(bal.totalOut)}</div></div>
+          <div class="sc-item"><div class="sc-k">الرصيد (سلف قائمة)</div><div class="sc-v" style="color:${netColor}">${fmt(Math.abs(bal.net))}</div></div>
+        </div>
+        <div style="padding:10px 12px">
+          <table class="lines-inner" style="width:100%;border-radius:8px;overflow:hidden;font-size:12.5px">
+            <thead><tr>
+              <th>التاريخ</th><th>النوع</th><th>الوصف</th>
+              <th style="color:#1a6b3a">داخل له</th><th style="color:#b3432f">سلفة/خصم</th><th>الرصيد</th>
+            </tr></thead>
+            <tbody>${buildEmployeeRows(e.id)}</tbody>
+          </table>
+        </div>
+      </div>`;
+    container.appendChild(card);
+    card.querySelector(".stmt-header").addEventListener("click",()=>{
+      const body=card.querySelector(".stmt-body");
+      const tog=card.querySelector(".stmt-toggle");
+      body.classList.toggle("open"); tog.classList.toggle("open");
+    });
   });
 }
 
-function renderProductWarehouseFilter() {
-  const sel = document.getElementById("prod-f-wh");
-  if (!sel) return;
-  const prev = sel.value;
-  sel.innerHTML = '<option value="">كل المخازن</option>';
-  allWarehouses.forEach(wh => {
-    const o = document.createElement("option"); o.value = wh.id; o.textContent = wh.name;
-    sel.appendChild(o);
-  });
-  sel.value = prev;
+function calcEmployeeBalance(eId) {
+  const rows=allFinTx.filter(t=>t.employeeId===eId);
+  let totalIn=0, totalOut=0;
+  rows.forEach(t=>{ if(t.dir==="in") totalIn+=t.amount||0; else totalOut+=t.amount||0; });
+  return {totalIn, totalOut, net:totalOut-totalIn};
 }
 
+function buildEmployeeRows(eId) {
+  const rows=allFinTx.filter(t=>t.employeeId===eId)
+    .sort((a,b)=>(a.date||"").localeCompare(b.date||""));
+  if(!rows.length) return `<tr><td colspan="6"><div class="empty-state" style="padding:14px">لا توجد حركات لهذا الموظف</div></td></tr>`;
+  const cfg=TYPE_CFG;
+  let running=0;
+  return rows.map(r=>{
+    // For employees: in = payments to employee, out = advances/deductions
+    running+=(r.dir==="out"?1:-1)*(r.amount||0);
+    const credit=r.dir==="in"?r.amount:0;
+    const debit=r.dir==="out"?r.amount:0;
+    const label=cfg[r.type]?.label||r.type||"—";
+    const desc=r.description||(r.type==="advance"?`سلفة — خصم ${r.deductMonth||""}`:"")||"—";
+    return `<tr>
+      <td style="white-space:nowrap">${esc(fmtDate(r.date))}</td>
+      <td style="font-weight:700">${esc(label)}</td>
+      <td style="color:var(--muted)">${esc(desc)}</td>
+      <td style="color:#1a6b3a;font-weight:700">${credit?fmt(credit):"—"}</td>
+      <td style="color:#b3432f;font-weight:700">${debit?fmt(debit):"—"}</td>
+      <td style="font-weight:800">${fmt(running)}</td>
+    </tr>`;
+  }).join("");
+}
+
+/* ═══════════ PRODUCTS ═══════════ */
+function populateWarehouseFilter() {
+  const sel=document.getElementById("prod-f-wh"); if(!sel) return;
+  const prev=sel.value;
+  sel.innerHTML='<option value="">كل المخازن</option>';
+  allWarehouses.forEach(wh=>{ const o=document.createElement("option");o.value=wh.id;o.textContent=wh.name;sel.appendChild(o); });
+  sel.value=prev;
+}
 function renderProducts() {
-  const whF = document.getElementById("prod-f-wh")?.value || "";
-  const searchF = (document.getElementById("prod-f-search")?.value || "").toLowerCase().trim();
-  let rows = allProducts.filter(p => (!whF || p.warehouseId === whF) && (!searchF || (p.name||"").toLowerCase().includes(searchF)));
-  const countEl = document.getElementById("products-count-label");
-  if (countEl) countEl.textContent = rows.length + " منتج";
-  const totalVal = allProducts.reduce((s,p) => s + (Number(p.quantity)||0)*(Number(p.price)||0), 0);
-  const statsEl = document.getElementById("products-stats");
-  if (statsEl) statsEl.innerHTML = `
+  const whF=(document.getElementById("prod-f-wh")?.value)||"";
+  const searchF=(document.getElementById("prod-f-search")?.value||"").toLowerCase().trim();
+  let rows=allProducts.filter(p=>(!whF||p.warehouseId===whF)&&(!searchF||(p.name||"").toLowerCase().includes(searchF)));
+  const cntEl=document.getElementById("products-count-label"); if(cntEl) cntEl.textContent=rows.length+" منتج";
+  const totalVal=allProducts.reduce((s,p)=>s+(Number(p.quantity)||0)*(Number(p.price)||0),0);
+  const sg=document.getElementById("products-stats-grid");
+  if(sg) sg.innerHTML=`
     <div class="stat-card"><div class="sk">إجمالي المنتجات</div><div class="sv">${allProducts.length}</div></div>
     <div class="stat-card"><div class="sk">قيمة المخزون</div><div class="sv money">${fmt(totalVal)}</div></div>`;
-  const tbody = document.getElementById("products-tbody");
-  if (!rows.length) { tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">لا توجد منتجات مطابقة</div></td></tr>'; return; }
-  tbody.innerHTML = "";
-  rows.forEach(p => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td style="font-weight:800">
-        ${p.imageUrl ? `<img src="${esc(p.imageUrl)}" style="width:26px;height:26px;object-fit:cover;border-radius:5px;margin-inline-end:6px;vertical-align:middle" />` : ""}
-        ${esc(p.name||"—")}
-      </td>
+  const tbody=document.getElementById("products-tbody");
+  if(!rows.length){tbody.innerHTML='<tr><td colspan="5"><div class="empty-state">لا توجد منتجات مطابقة</div></td></tr>';return;}
+  tbody.innerHTML="";
+  rows.forEach(p=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td style="font-weight:800">${p.imageUrl?`<img src="${esc(p.imageUrl)}" style="width:26px;height:26px;object-fit:cover;border-radius:5px;margin-inline-end:6px;vertical-align:middle" />`:""}${esc(p.name||"—")}</td>
       <td style="font-family:monospace;font-size:12px;color:var(--muted)">${esc(p.serialId||"—")}</td>
       <td style="font-size:13px">${esc(p.warehouseName||"—")}</td>
       <td>${fmtNum(p.quantity||0)} ${esc(p.quantityType||"")}</td>
-      <td>${p.price ? fmt(p.price) : "—"}</td>`;
+      <td>${p.price?fmt(p.price):"—"}</td>`;
     tbody.appendChild(tr);
   });
 }
 
+/* ═══════════ WAREHOUSE OPS ═══════════ */
 function renderWarehouse() {
-  const countEl = document.getElementById("wh-count-label");
-  if (countEl) countEl.textContent = allWhOps.length + " حركة";
-  const tbody = document.getElementById("wh-tbody");
-  if (!allWhOps.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">لا توجد حركات مخزنية</div></td></tr>'; return; }
-  tbody.innerHTML = "";
-  allWhOps.forEach(d => {
-    const badge = d.type === "production" ? ["tb-deposit","إنتاج"] : ["tb-advance","تحويل"];
-    const detail = d.type === "transfer"
-      ? `${esc(d.productName||"")} × ${fmtNum(d.quantity||0)} ${esc(d.unit||"")}`
-      : `${d.inputs?.length||0} مدخل → ${d.outputs?.length||0} مخرج`;
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
+  const cntEl=document.getElementById("wh-count-label"); if(cntEl) cntEl.textContent=allWhOps.length+" حركة";
+  const tbody=document.getElementById("wh-tbody");
+  if(!allWhOps.length){tbody.innerHTML='<tr><td colspan="6"><div class="empty-state">لا توجد حركات مخزنية</div></td></tr>';return;}
+  tbody.innerHTML="";
+  allWhOps.forEach(d=>{
+    const badge=d.type==="production"?["tb-deposit","إنتاج"]:["tb-advance","تحويل"];
+    const detail=d.type==="transfer"
+      ?`${esc(d.productName||"")} × ${fmtNum(d.quantity||0)} ${esc(d.unit||"")}`
+      :`${d.inputs?.length||0} مدخل → ${d.outputs?.length||0} مخرج`;
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
       <td><span class="type-badge ${badge[0]}">${badge[1]}</span></td>
       <td style="font-size:13px">${esc(d.fromWarehouseName||"—")}</td>
       <td style="font-size:13px">${esc(d.toWarehouseName||"—")}</td>
@@ -656,84 +811,151 @@ function renderWarehouse() {
   });
 }
 
-function renderLoading() {
-  const countEl = document.getElementById("load-count-label");
-  if (countEl) countEl.textContent = allLoadOps.length + " عملية";
-  const tbody = document.getElementById("load-tbody");
-  if (!allLoadOps.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">لا توجد عمليات تحميل</div></td></tr>'; return; }
-  tbody.innerHTML = "";
-  allLoadOps.forEach(d => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
+/* ═══════════ SALES (Loading Ops) with line details ═══════════ */
+function populateSalesMerchantFilter() {
+  const sel=document.getElementById("sales-f-merchant"); if(!sel) return;
+  const prev=sel.value;
+  sel.innerHTML='<option value="">كل التجار</option>';
+  allMerchants.forEach(m=>{ const o=document.createElement("option");o.value=m.id;o.textContent=m.name;sel.appendChild(o); });
+  sel.value=prev;
+}
+function renderSales() {
+  const mF=(document.getElementById("sales-f-merchant")?.value)||"";
+  const searchF=(document.getElementById("sales-f-search")?.value||"").toLowerCase().trim();
+  let rows=allLoadOps.filter(d=>{
+    if(mF&&d.merchantId!==mF)return false;
+    if(searchF){const h=[d.merchantName,d.warehouseName,d.note].join(" ").toLowerCase();if(!h.includes(searchF))return false;}
+    return true;
+  });
+
+  const cntEl=document.getElementById("sales-count-label"); if(cntEl) cntEl.textContent=rows.length+" عملية";
+  const totalAmt=rows.reduce((s,d)=>s+(d.totalAmount||0),0);
+  const sg=document.getElementById("sales-stats-grid");
+  if(sg) sg.innerHTML=`
+    <div class="stat-card"><div class="sk">عدد العمليات</div><div class="sv">${rows.length}</div></div>
+    <div class="stat-card"><div class="sk">إجمالي المبيعات</div><div class="sv money">${fmt(totalAmt)}</div></div>`;
+
+  const tbody=document.getElementById("sales-tbody");
+  if(!rows.length){tbody.innerHTML='<tr><td colspan="7"><div class="empty-state">لا توجد عمليات مطابقة</div></td></tr>';return;}
+  tbody.innerHTML="";
+
+  rows.forEach((d,i)=>{
+    const rowId=`sale-${i}`;
+    /* main row */
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td style="text-align:center">
+        <button class="expand-btn" data-target="${rowId}" title="عرض التفاصيل">▶</button>
+      </td>
+      <td style="font-size:13px;font-weight:800">${esc(d.merchantName||"—")}</td>
       <td style="font-size:13px">${esc(d.warehouseName||"—")}</td>
-      <td style="font-size:13px;font-weight:700">${esc(d.merchantName||"—")}</td>
-      <td>${d.lines?.length||0}</td>
-      <td style="font-weight:700">${fmt(d.totalAmount)}</td>
-      <td style="font-size:13px;color:var(--muted)">${esc(d.note||"—")}</td>
+      <td style="font-weight:700;text-align:center">${d.lines?.length||0} صنف</td>
+      <td style="font-weight:800;color:var(--primary-dark)">${fmt(d.totalAmount)}</td>
+      <td style="font-size:12px;color:var(--muted)">${esc(d.note||"—")}</td>
       <td style="white-space:nowrap;font-size:12.5px">${fmtDateTime(d.createdAt)}</td>`;
     tbody.appendChild(tr);
+
+    /* lines detail row */
+    const linesHtml=buildSalesLines(d);
+    const lr=document.createElement("tr");
+    lr.className="lines-row";
+    lr.id=rowId;
+    lr.style.display="none";
+    lr.innerHTML=`<td colspan="7">
+      <div class="lines-wrap">
+        <table class="lines-inner" style="width:100%">
+          <thead><tr>
+            <th>#</th><th>المنتج</th><th>الكمية</th><th>الوحدة</th><th>السعر</th><th>الإجمالي</th>
+          </tr></thead>
+          <tbody>${linesHtml}</tbody>
+        </table>
+        <div class="lines-total">
+          <span>الإجمالي الكلي: <strong>${fmt(d.totalAmount)}</strong></span>
+          <span style="color:var(--muted)">${d.lines?.length||0} صنف</span>
+        </div>
+      </div>
+    </td>`;
+    tbody.appendChild(lr);
+
+    /* expand toggle */
+    tr.querySelector(".expand-btn").addEventListener("click",function(){
+      const isOpen=lr.style.display!=="none";
+      lr.style.display=isOpen?"none":"table-row";
+      this.classList.toggle("open",!isOpen);
+    });
   });
 }
 
+function buildSalesLines(d) {
+  const lines=d.lines||[];
+  if(!lines.length) return `<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:10px">لا توجد أصناف مسجلة</td></tr>`;
+  return lines.map((l,i)=>{
+    const qty=Number(l.qty||l.quantity||0);
+    const price=Number(l.price||l.unitPrice||0);
+    const sub=Number(l.subtotal||l.total||(qty*price)||0);
+    return `<tr>
+      <td style="color:var(--muted);font-size:11px">${i+1}</td>
+      <td style="font-weight:700">${esc(l.productName||l.name||"—")}</td>
+      <td style="font-weight:700;text-align:center">${fmtNum(qty)}</td>
+      <td style="color:var(--muted)">${esc(l.unit||l.quantityType||"—")}</td>
+      <td>${price?fmt(price):"—"}</td>
+      <td style="font-weight:800;color:var(--primary-dark)">${sub?fmt(sub):"—"}</td>
+    </tr>`;
+  }).join("");
+}
+
+/* ═══════════ AUDIT LOG ═══════════ */
+function populateAuditPageFilter() {
+  const sel=document.getElementById("audit-f-page"); if(!sel) return;
+  const pages=[...new Set(allAuditLogs.map(r=>r.page).filter(Boolean))];
+  const prev=sel.value;
+  sel.innerHTML='<option value="">كل الصفحات</option>';
+  pages.forEach(p=>{ const o=document.createElement("option");o.value=p;o.textContent=p;sel.appendChild(o); });
+  sel.value=prev;
+}
+const PAGE_ICONS={"المالية":"📊","التجار":"🤝","الموظفين":"👤","السجل الشامل":"📒","المنتجات":"📦","المخازن":"🏗️"};
+const ACTION_COLORS={"إضافة":"color:#1a6b3a;background:#e7f5ec","تعديل":"color:#7a4f10;background:#fdf4e3","حذف":"color:#b3432f;background:#fce8e5","تصدير":"color:#047857;background:#d1fae5"};
 function renderAudit() {
-  const pageF   = document.getElementById("audit-f-page")?.value   || "";
-  const actionF = document.getElementById("audit-f-action")?.value || "";
-  const searchF = (document.getElementById("audit-f-search")?.value || "").toLowerCase().trim();
-  let rows = allAuditLogs.filter(r => {
-    if (pageF   && !(r.page  ||"").includes(pageF))   return false;
-    if (actionF && !(r.action||"").includes(actionF)) return false;
-    if (searchF) {
-      const hay = [(r.details||""), (r.userEmail||""), (r.entity||"")].join(" ").toLowerCase();
-      if (!hay.includes(searchF)) return false;
-    }
+  const pageF=(document.getElementById("audit-f-page")?.value)||"";
+  const actionF=(document.getElementById("audit-f-action")?.value)||"";
+  const searchF=(document.getElementById("audit-f-search")?.value||"").toLowerCase().trim();
+  let rows=allAuditLogs.filter(r=>{
+    if(pageF&&!(r.page||"").includes(pageF))return false;
+    if(actionF&&!(r.action||"").includes(actionF))return false;
+    if(searchF&&![(r.details||""),(r.userEmail||""),(r.entity||"")].join(" ").toLowerCase().includes(searchF))return false;
     return true;
   });
-  const countEl = document.getElementById("audit-count-label");
-  if (countEl) countEl.textContent = rows.length + " سجل";
-  const tbody = document.getElementById("audit-tbody");
-  const PAGE_ICONS = { "المالية":"📊","التجار":"🤝","الموظفين":"👤","السجل الشامل":"📒","المنتجات":"📦" };
-  const ACTION_COLORS = {
-    "إضافة":"color:#1a6b3a;background:#e7f5ec",
-    "تعديل":"color:#7a4f10;background:#fdf4e3",
-    "حذف":"color:#b3432f;background:#fce8e5",
-    "تصدير":"color:#047857;background:#d1fae5",
-  };
-  if (!rows.length) { tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">لا توجد سجلات مطابقة</div></td></tr>'; return; }
-  tbody.innerHTML = "";
-  rows.forEach((d, i) => {
-    const icon = PAGE_ICONS[d.page] ?? "📝";
-    const actionStyle = ACTION_COLORS[d.action] ?? "color:#555;background:#f2f2f2";
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td style="font-size:12px;color:var(--muted);text-align:center">${rows.length - i}</td>
+  const cntEl=document.getElementById("audit-count-label"); if(cntEl) cntEl.textContent=rows.length+" سجل";
+  const tbody=document.getElementById("audit-tbody");
+  if(!rows.length){tbody.innerHTML='<tr><td colspan="6"><div class="empty-state">لا توجد سجلات مطابقة</div></td></tr>';return;}
+  tbody.innerHTML="";
+  rows.forEach((d,i)=>{
+    const icon=PAGE_ICONS[d.page]??"📝";
+    const aStyle=ACTION_COLORS[d.action]??"color:#555;background:#f2f2f2";
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td style="font-size:12px;color:var(--muted);text-align:center">${rows.length-i}</td>
       <td style="font-size:13px;font-weight:700">${icon} ${esc(d.page||"—")}</td>
-      <td><span style="display:inline-block;padding:2px 9px;border-radius:99px;font-size:11.5px;font-weight:800;${actionStyle}">${esc(d.action||"—")}</span></td>
-      <td style="font-size:13px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(d.details||'')}">${esc(d.details||"—")}</td>
+      <td><span style="display:inline-block;padding:2px 9px;border-radius:99px;font-size:11.5px;font-weight:800;${aStyle}">${esc(d.action||"—")}</span></td>
+      <td style="font-size:13px;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(d.details||"")}">${esc(d.details||"—")}</td>
       <td style="font-size:12px;color:var(--muted)">🔑 ${esc(d.userEmail||"—")}</td>
       <td style="white-space:nowrap;font-size:12px">${fmtDateTime(d.createdAt)}</td>`;
     tbody.appendChild(tr);
   });
 }
 
-/* ── Init ── */
-setupFilters();
+/* ═══════════ Filters wiring ═══════════ */
+["fin-f-type","fin-f-dir","fin-f-search"].forEach(id=>{ document.getElementById(id)?.addEventListener("input",renderFinance); document.getElementById(id)?.addEventListener("change",renderFinance); });
+["mer-f-search"].forEach(id=>{ document.getElementById(id)?.addEventListener("input",renderMerchants); });
+["emp-f-search"].forEach(id=>{ document.getElementById(id)?.addEventListener("input",renderEmployees); });
+["prod-f-wh","prod-f-search"].forEach(id=>{ document.getElementById(id)?.addEventListener("input",renderProducts); document.getElementById(id)?.addEventListener("change",renderProducts); });
+["sales-f-merchant","sales-f-search"].forEach(id=>{ document.getElementById(id)?.addEventListener("input",renderSales); document.getElementById(id)?.addEventListener("change",renderSales); });
+["audit-f-page","audit-f-action","audit-f-search"].forEach(id=>{ document.getElementById(id)?.addEventListener("input",renderAudit); document.getElementById(id)?.addEventListener("change",renderAudit); });
+
+/* ═══════════ Init ═══════════ */
 loadAll();
-
-/* ── إخفاء Loader ── */
-setTimeout(() => {
-  const loader = document.getElementById("page-loader");
-  if (loader) { loader.classList.add("pl-hide"); setTimeout(() => { loader.style.display = "none"; }, 400); }
-}, 1800);
-</script>
-
-<script>
-(function(){
-  /* Loader fallback */
-  setTimeout(function(){
-    var l = document.getElementById("page-loader");
-    if(l){ l.classList.add("pl-hide"); setTimeout(function(){ l.style.display="none"; }, 400); }
-  }, 6000);
-})();
+setTimeout(()=>{ const l=document.getElementById("page-loader"); if(l){l.classList.add("pl-hide");setTimeout(()=>l.style.display="none",400);} },1800);
+setTimeout(()=>{ const l=document.getElementById("page-loader"); if(l){l.classList.add("pl-hide");setTimeout(()=>l.style.display="none",400);} },6000);
 </script>
 </body>
 </html>
