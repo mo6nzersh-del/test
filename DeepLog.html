@@ -2639,30 +2639,31 @@ const BACKUP_FB_CONFIG = {
   appId:             "1:686928049289:web:f4e733cc58e0ef36e84258"
 };
 
+// deletionCheck:true → تُقارن سجلات النسخة الاحتياطية بالمصدر في كل تصدير للكشف عن المحذوفات
 const EXPORT_COLS_CFG = [
   // ── المالية والمبيعات ──────────────────────────────────────────────────────
-  { name:"finance_transactions",  ts:"createdAt",  tsUpdated:"updatedAt",  label:"الحركات المالية",       icon:"💰" },
-  { name:"merchantTransactions",  ts:"createdAt",  tsUpdated:"updatedAt",  label:"حركات التجار",           icon:"🤝" },
+  { name:"finance_transactions",  ts:"createdAt",  tsUpdated:"updatedAt",  label:"الحركات المالية",       icon:"💰", deletionCheck:true },
+  { name:"merchantTransactions",  ts:"createdAt",  tsUpdated:"updatedAt",  label:"حركات التجار",           icon:"🤝", deletionCheck:true },
   // ── المنتجات وحركاتها ─────────────────────────────────────────────────────
-  { name:"products",              ts:"createdAt",  tsUpdated:"updatedAt",  label:"المنتجات",               icon:"📦" },
-  { name:"productMovements",      ts:"createdAt",  tsUpdated:null,          label:"حركات المنتجات",         icon:"📊" },
-  { name:"productionMovements",   ts:"createdAt",  tsUpdated:null,          label:"حركات الإنتاج",          icon:"🏭" },
-  { name:"activityLog",           ts:"createdAt",  tsUpdated:null,          label:"سجل النشاط (عمليات)",    icon:"📝" },
+  { name:"products",              ts:"createdAt",  tsUpdated:"updatedAt",  label:"المنتجات",               icon:"📦", deletionCheck:false },
+  { name:"productMovements",      ts:"createdAt",  tsUpdated:"updatedAt",  label:"حركات المنتجات",         icon:"📊", deletionCheck:true },
+  { name:"productionMovements",   ts:"createdAt",  tsUpdated:"updatedAt",  label:"حركات الإنتاج",          icon:"🏭", deletionCheck:true },
+  { name:"activityLog",           ts:"createdAt",  tsUpdated:null,          label:"سجل النشاط (عمليات)",    icon:"📝", deletionCheck:false },
   // ── المخازن والتحميل ──────────────────────────────────────────────────────
-  { name:"warehouses",            ts:"createdAt",  tsUpdated:null,          label:"المخازن",                icon:"🏗️" },
-  { name:"warehouseOperations",   ts:"createdAt",  tsUpdated:"updatedAt",  label:"حركات المخازن",          icon:"🔄" },
-  { name:"loadingOperations",     ts:"createdAt",  tsUpdated:"updatedAt",  label:"عمليات التحميل",         icon:"🚚" },
+  { name:"warehouses",            ts:"createdAt",  tsUpdated:"updatedAt",  label:"المخازن",                icon:"🏗️", deletionCheck:false },
+  { name:"warehouseOperations",   ts:"createdAt",  tsUpdated:"updatedAt",  label:"حركات المخازن",          icon:"🔄", deletionCheck:true },
+  { name:"loadingOperations",     ts:"createdAt",  tsUpdated:"updatedAt",  label:"عمليات التحميل",         icon:"🚚", deletionCheck:true },
   // ── التجار والموظفون ───────────────────────────────────────────────────────
-  { name:"merchants",             ts:"createdAt",  tsUpdated:"updatedAt",  label:"التجار",                 icon:"🏪" },
-  { name:"employees",             ts:"createdAt",  tsUpdated:"updatedAt",  label:"الموظفون",               icon:"👤" },
-  { name:"attendance",            ts:"checkIn",    tsUpdated:null,          label:"سجل الحضور",             icon:"🕐" },
-  { name:"daily_attendance",      ts:null,          tsUpdated:null,          label:"الحضور اليومي",          icon:"📅" },
+  { name:"merchants",             ts:"createdAt",  tsUpdated:"updatedAt",  label:"التجار",                 icon:"🏪", deletionCheck:false },
+  { name:"employees",             ts:"createdAt",  tsUpdated:"updatedAt",  label:"الموظفون",               icon:"👤", deletionCheck:false },
+  { name:"attendance",            ts:"checkIn",    tsUpdated:"updatedAt",  label:"سجل الحضور",             icon:"🕐", deletionCheck:false },
+  { name:"daily_attendance",      ts:null,          tsUpdated:null,          label:"الحضور اليومي",          icon:"📅", deletionCheck:false },
   // ── السجلات والإعدادات ────────────────────────────────────────────────────
-  { name:"auditLog",              ts:"createdAt",  tsUpdated:null,          label:"سجل المراقبة",           icon:"🔍" },
-  { name:"deeplogPageActivity",   ts:"createdAt",  tsUpdated:null,          label:"نشاط DeepLog",           icon:"📋" },
-  { name:"appUsers",              ts:"createdAt",  tsUpdated:null,          label:"المستخدمون",             icon:"👥" },
-  { name:"finance_settings",      ts:null,          tsUpdated:null,          label:"إعدادات المالية",        icon:"⚙️" },
-  { name:"counters",              ts:null,          tsUpdated:null,          label:"العدادات",               icon:"🔢" },
+  { name:"auditLog",              ts:"createdAt",  tsUpdated:null,          label:"سجل المراقبة",           icon:"🔍", deletionCheck:false },
+  { name:"deeplogPageActivity",   ts:"createdAt",  tsUpdated:null,          label:"نشاط DeepLog",           icon:"📋", deletionCheck:false },
+  { name:"appUsers",              ts:"createdAt",  tsUpdated:"updatedAt",  label:"المستخدمون",             icon:"👥", deletionCheck:false },
+  { name:"finance_settings",      ts:null,          tsUpdated:null,          label:"إعدادات المالية",        icon:"⚙️", deletionCheck:false },
+  { name:"counters",              ts:null,          tsUpdated:null,          label:"العدادات",               icon:"🔢", deletionCheck:false },
 ];
 
 const LS_CURSOR   = "deeplog_export_cursor";
@@ -2857,28 +2858,33 @@ async function runExport(fullExport) {
         const snap = await fetchDocs(fsQuery(fsCol(db, cfg.name)));
         snap.forEach(d => docsMap.set(d.id, d));
       } else {
-        // ── تصدير تدريجي: السجلات الجديدة (createdAt > cursor - 60s) ──
-        const q1 = fsQuery(
-          fsCol(db, cfg.name),
-          fsWhere(cfg.ts, ">", Timestamp.fromDate(cursorDate)),
-          fsOrderBy(cfg.ts, "asc")
-        );
-        const snap1 = await fetchDocs(q1);
-        snap1.forEach(d => docsMap.set(d.id, d));
+        // ── تصدير تدريجي ──
+        // الحقل قد يكون مخزَّناً كـ Firestore Timestamp أو كـ ISO string.
+        // نُشغِّل استعلامَين بالتوازي (Timestamp + string) ونجمع النتائج بـ Map
+        // حتى نضمن اصطياد السجلات بغض النظر عن طريقة التخزين.
+        const cursorTs  = Timestamp.fromDate(cursorDate);
+        const cursorStr = cursorDate.toISOString();
 
-        // ── الاستعلام الثاني: بحقل updatedAt (لاصطياد التعديلات على السجلات القديمة) ──
+        // دالة مساعدة: تُشغّل الاستعلام المزدوج لحقل محدد
+        async function dualQuery(fieldName) {
+          const [sTs, sStr] = await Promise.all([
+            fetchDocs(fsQuery(fsCol(db, cfg.name), fsWhere(fieldName, ">", cursorTs),  fsOrderBy(fieldName, "asc"))).catch(e=>{
+              console.warn("Timestamp query failed for", cfg.name, fieldName, e?.code); return { forEach:()=>{} };
+            }),
+            fetchDocs(fsQuery(fsCol(db, cfg.name), fsWhere(fieldName, ">", cursorStr), fsOrderBy(fieldName, "asc"))).catch(e=>{
+              console.warn("String query failed for",    cfg.name, fieldName, e?.code); return { forEach:()=>{} };
+            }),
+          ]);
+          sTs.forEach(d  => docsMap.set(d.id, d));
+          sStr.forEach(d => docsMap.set(d.id, d));
+        }
+
+        // استعلام 1: بحقل createdAt — لاصطياد السجلات الجديدة
+        await dualQuery(cfg.ts);
+
+        // استعلام 2: بحقل updatedAt — لاصطياد التعديلات على سجلات سابقة
         if (cfg.tsUpdated) {
-          try {
-            const q2 = fsQuery(
-              fsCol(db, cfg.name),
-              fsWhere(cfg.tsUpdated, ">", Timestamp.fromDate(cursorDate)),
-              fsOrderBy(cfg.tsUpdated, "asc")
-            );
-            const snap2 = await fetchDocs(q2);
-            snap2.forEach(d => docsMap.set(d.id, d)); // نفس المعرّف لن يُكرَّر
-          } catch(e) {
-            console.warn("updatedAt query skipped for", cfg.name, e?.code);
-          }
+          await dualQuery(cfg.tsUpdated);
         }
       }
 
@@ -2928,6 +2934,62 @@ async function runExport(fullExport) {
   if (progBar) progBar.style.width = "100%";
   if (progPct) progPct.textContent = "100%";
 
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ── مزامنة الحذف والتعديل ──
+  // للمجموعات التي تحمل deletionCheck:true، نقارن معرّفات النسخ الاحتياطية
+  // بمعرّفات المصدر. أي معرّف موجود في النسخة الاحتياطية وليس في المصدر
+  // يُعلَّم بـ _deletedFromSource:true حتى يظهر في العارض.
+  // ═══════════════════════════════════════════════════════════════════════════
+  let totalDeleted = 0;
+  const deletionColsSummary = [];
+
+  for (const cfg of EXPORT_COLS_CFG) {
+    if (!cfg.deletionCheck) continue;
+
+    const statEl = document.getElementById("exp-col-" + cfg.name);
+    try {
+      if (progLabel) progLabel.textContent = "فحص المحذوفات: " + cfg.label + "...";
+
+      // 1. جلب كل معرّفات المصدر من الخادم مباشرة
+      const srcSnap = await getDocsFromServer(fsQuery(fsCol(db, cfg.name)));
+      const srcIds  = new Set(srcSnap.docs.map(d => d.id));
+
+      // 2. جلب كل معرّفات النسخة الاحتياطية
+      const bkpSnap = await getDocs(fsQuery(fsCol(backupDb, cfg.name)));
+
+      // 3. أي معرّف في النسخة الاحتياطية غير موجود في المصدر → محذوف
+      let colDelCount = 0;
+      const deletedAt = new Date().toISOString();
+      for (const bDoc of bkpSnap.docs) {
+        if (bDoc.data()._deletedFromSource) continue; // مُعلَّم مسبقاً
+        if (!srcIds.has(bDoc.id)) {
+          try {
+            await setDoc(fsDoc(backupDb, cfg.name, bDoc.id), {
+              _deletedFromSource: true,
+              _deletedAt: deletedAt,
+              _exportedAt: deletedAt,
+            }, { merge: true });
+            colDelCount++;
+            totalDeleted++;
+          } catch(e) {
+            console.warn("Delete-mark write failed:", cfg.name, bDoc.id, e?.code);
+          }
+        }
+      }
+
+      if (colDelCount > 0) {
+        deletionColsSummary.push(cfg.label + "(" + colDelCount + ")");
+        if (statEl) {
+          const prev = statEl.textContent || "";
+          statEl.textContent = prev + " 🗑️ " + colDelCount + " محذوف";
+        }
+        console.log("Deletion sync:", cfg.name, colDelCount, "docs marked deleted");
+      }
+    } catch(e) {
+      console.warn("Deletion sync skipped for", cfg.name, e?.code || e?.message);
+    }
+  }
+
   // ── منطق المؤشر ──
   // نقدّم المؤشر فقط إذا لم تكن هناك أخطاء في القراءة.
   // أخطاء الكتابة وحدها لا تمنع تقدم المؤشر (البيانات قُرئت بنجاح).
@@ -2944,6 +3006,10 @@ async function runExport(fullExport) {
   }
 
   const hasAnyError = hasReadError || hasWriteError;
+  const deletionNote = totalDeleted > 0
+    ? " | 🗑️ " + totalDeleted + " محذوف رُصد في: " + deletionColsSummary.join("، ")
+    : "";
+
   addToExpLog({
     time: nowStr,
     type: fullExport ? "full" : "incremental",
@@ -2955,7 +3021,9 @@ async function runExport(fullExport) {
   try {
     await addDoc(collection(db, "auditLog"), {
       action:"تصدير", entity:"قاعدة احتياطية", page:"السجل الشامل",
-      details:(fullExport?"تصدير كامل":"تصدير تدريجي") + " — " + totalExported + " سجل"
+      details:(fullExport?"تصدير كامل":"تصدير تدريجي")
+             + " — " + totalExported + " سجل"
+             + (totalDeleted > 0 ? " | " + totalDeleted + " محذوف" : "")
              + (hasReadError ? " (⚠️ بعض المجموعات أخفقت في القراءة)" : ""),
       userEmail: currentUser?.email ?? "—", createdAt: serverTimestamp(),
     });
@@ -2964,18 +3032,21 @@ async function runExport(fullExport) {
   setTimeout(() => { if(progWrap) progWrap.style.display = "none"; }, 1500);
   if (resultBox) {
     resultBox.style.display = "block";
-    if (hasAnyError && totalExported === 0) {
+    if (hasAnyError && totalExported === 0 && totalDeleted === 0) {
       resultBox.style.cssText = "display:block;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:700;background:#fce8e5;color:#b3432f";
       resultBox.textContent = lastErrMsg.includes("permission")
         ? "❌ فشل التصدير — السبب: قواعد الأمان (Rules) في test-reta-e4928 تمنع الكتابة. افتح Firebase Console → Firestore → Rules وعدّلها."
         : "❌ فشل التصدير — " + (lastErrMsg || "تحقق من الاتصال وصلاحيات Firebase");
-    } else if (totalExported === 0) {
+    } else if (totalExported === 0 && totalDeleted === 0) {
       resultBox.style.cssText = "display:block;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:700;background:#f0f9ff;color:#0369a1";
-      resultBox.textContent = "ℹ️ لا توجد بيانات جديدة منذ آخر تصدير";
+      resultBox.textContent = "ℹ️ لا توجد بيانات جديدة أو محذوفة منذ آخر تصدير";
     } else {
       const warnSuffix = hasReadError ? " — ⚠️ أعد المحاولة (بعض المجموعات لم تُصدَّر)" : "";
       resultBox.style.cssText = "display:block;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:700;background:#d1fae5;color:#047857";
-      resultBox.textContent = "✅ تم التصدير — " + totalExported + " سجل من " + collsSummary.length + " مجموعة" + warnSuffix;
+      resultBox.textContent = "✅ تم التصدير — "
+        + totalExported + " سجل جديد/معدَّل"
+        + deletionNote
+        + warnSuffix;
     }
   }
   const lastEl = document.getElementById("exp-last-time");
