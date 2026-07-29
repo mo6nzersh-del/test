@@ -2640,19 +2640,29 @@ const BACKUP_FB_CONFIG = {
 };
 
 const EXPORT_COLS_CFG = [
-  { name:"finance_transactions",  ts:"createdAt",  label:"الحركات المالية",    icon:"💰" },
-  { name:"merchantTransactions",  ts:"createdAt",  label:"حركات التجار",        icon:"🤝" },
-  { name:"products",              ts:"createdAt",  label:"المنتجات",             icon:"📦" },
-  { name:"merchants",             ts:"createdAt",  label:"التجار",              icon:"🏪" },
-  { name:"employees",             ts:"createdAt",  label:"الموظفون",            icon:"👤" },
-  { name:"warehouses",            ts:"createdAt",  label:"المخازن",             icon:"🏗️" },
-  { name:"warehouseOperations",   ts:"createdAt",  label:"حركات المخازن",       icon:"🔄" },
-  { name:"loadingOperations",     ts:"createdAt",  label:"عمليات التحميل",      icon:"🚚" },
-  { name:"auditLog",              ts:"createdAt",  label:"سجل المراقبة",        icon:"🔍" },
-  { name:"deeplogPageActivity",   ts:"createdAt",  label:"نشاط DeepLog",        icon:"📋" },
-  { name:"appUsers",              ts:"createdAt",  label:"المستخدمون",          icon:"👥" },
-  { name:"finance_settings",      ts:null,          label:"إعدادات المالية",     icon:"⚙️" },
-  { name:"counters",              ts:null,          label:"العدادات",            icon:"🔢" },
+  // ── المالية والمبيعات ──────────────────────────────────────────────────────
+  { name:"finance_transactions",  ts:"createdAt",  tsUpdated:"updatedAt",  label:"الحركات المالية",       icon:"💰" },
+  { name:"merchantTransactions",  ts:"createdAt",  tsUpdated:"updatedAt",  label:"حركات التجار",           icon:"🤝" },
+  // ── المنتجات وحركاتها ─────────────────────────────────────────────────────
+  { name:"products",              ts:"createdAt",  tsUpdated:"updatedAt",  label:"المنتجات",               icon:"📦" },
+  { name:"productMovements",      ts:"createdAt",  tsUpdated:null,          label:"حركات المنتجات",         icon:"📊" },
+  { name:"productionMovements",   ts:"createdAt",  tsUpdated:null,          label:"حركات الإنتاج",          icon:"🏭" },
+  { name:"activityLog",           ts:"createdAt",  tsUpdated:null,          label:"سجل النشاط (عمليات)",    icon:"📝" },
+  // ── المخازن والتحميل ──────────────────────────────────────────────────────
+  { name:"warehouses",            ts:"createdAt",  tsUpdated:null,          label:"المخازن",                icon:"🏗️" },
+  { name:"warehouseOperations",   ts:"createdAt",  tsUpdated:"updatedAt",  label:"حركات المخازن",          icon:"🔄" },
+  { name:"loadingOperations",     ts:"createdAt",  tsUpdated:"updatedAt",  label:"عمليات التحميل",         icon:"🚚" },
+  // ── التجار والموظفون ───────────────────────────────────────────────────────
+  { name:"merchants",             ts:"createdAt",  tsUpdated:"updatedAt",  label:"التجار",                 icon:"🏪" },
+  { name:"employees",             ts:"createdAt",  tsUpdated:"updatedAt",  label:"الموظفون",               icon:"👤" },
+  { name:"attendance",            ts:"checkIn",    tsUpdated:null,          label:"سجل الحضور",             icon:"🕐" },
+  { name:"daily_attendance",      ts:null,          tsUpdated:null,          label:"الحضور اليومي",          icon:"📅" },
+  // ── السجلات والإعدادات ────────────────────────────────────────────────────
+  { name:"auditLog",              ts:"createdAt",  tsUpdated:null,          label:"سجل المراقبة",           icon:"🔍" },
+  { name:"deeplogPageActivity",   ts:"createdAt",  tsUpdated:null,          label:"نشاط DeepLog",           icon:"📋" },
+  { name:"appUsers",              ts:"createdAt",  tsUpdated:null,          label:"المستخدمون",             icon:"👥" },
+  { name:"finance_settings",      ts:null,          tsUpdated:null,          label:"إعدادات المالية",        icon:"⚙️" },
+  { name:"counters",              ts:null,          tsUpdated:null,          label:"العدادات",               icon:"🔢" },
 ];
 
 const LS_CURSOR   = "deeplog_export_cursor";
@@ -2799,9 +2809,14 @@ async function runExport(fullExport) {
   if (progWrap) progWrap.style.display = "block";
   if (resultBox) resultBox.style.display = "none";
 
+  // نسجّل وقت بداية التصدير قبل أي عملية (مهم لحساب المؤشر الجديد)
+  const exportStartMs = Date.now();
+
   const cursor = fullExport ? 0 : getExpCursor();
-  const cursorDate = cursor ? new Date(cursor) : null;
-  let totalExported = 0, newCursor = cursor, hasError = false, lastErrMsg = "";
+  // نطرح 5 ثوانٍ من المؤشر لضمان عدم تفويت سجلات حُفظت في نفس اللحظة تقريباً
+  const effectiveCursor = cursor > 0 ? cursor - 5000 : 0;
+  const cursorDate = effectiveCursor ? new Date(effectiveCursor) : null;
+  let totalExported = 0, hasError = false, lastErrMsg = "";
   const collsSummary = [];
 
   const { collection: fsCol, getDocs, query: fsQuery, where: fsWhere,
@@ -2817,18 +2832,44 @@ async function runExport(fullExport) {
     const statEl = document.getElementById("exp-col-" + cfg.name);
 
     try {
-      let q;
+      // نجمع معرّفات السجلات المطلوب تصديرها (بدون تكرار) باستخدام Map
+      const docsMap = new Map();
+
+      // --- الاستعلام الأول: بحقل createdAt ---
       if (!cfg.ts || !cursorDate) {
-        q = fsQuery(fsCol(db, cfg.name));
+        // بدون مؤشر: كل السجلات
+        const snap = await getDocs(fsQuery(fsCol(db, cfg.name)));
+        snap.forEach(d => docsMap.set(d.id, d));
       } else {
-        q = fsQuery(fsCol(db, cfg.name),
+        // تصدير تدريجي: السجلات الجديدة (createdAt > cursor - 5s)
+        const q1 = fsQuery(
+          fsCol(db, cfg.name),
           fsWhere(cfg.ts, ">", Timestamp.fromDate(cursorDate)),
           fsOrderBy(cfg.ts, "asc")
         );
+        const snap1 = await getDocs(q1);
+        snap1.forEach(d => docsMap.set(d.id, d));
+
+        // --- الاستعلام الثاني: بحقل updatedAt (لاصطياد التعديلات) ---
+        if (cfg.tsUpdated) {
+          try {
+            const q2 = fsQuery(
+              fsCol(db, cfg.name),
+              fsWhere(cfg.tsUpdated, ">", Timestamp.fromDate(cursorDate)),
+              fsOrderBy(cfg.tsUpdated, "asc")
+            );
+            const snap2 = await getDocs(q2);
+            snap2.forEach(d => docsMap.set(d.id, d)); // نفس المعرّف لن يُكرَّر
+          } catch(e) {
+            // updatedAt index قد لا يكون موجوداً، نتجاهل الخطأ بهدوء
+            console.warn("updatedAt query skipped for", cfg.name, e?.code);
+          }
+        }
       }
-      const snap = await getDocs(q);
-      let colCount = 0;
-      for (const d of snap.docs) {
+
+      // --- كتابة السجلات إلى قاعدة النسخ الاحتياطي ---
+      let colCount = 0, colErrors = 0;
+      for (const [docId, d] of docsMap) {
         const data = d.data();
         const plain = {};
         for (const [k, v] of Object.entries(data)) {
@@ -2836,14 +2877,21 @@ async function runExport(fullExport) {
         }
         plain._exportedAt = new Date().toISOString();
         plain._sourceProject = "reta-and-hamd";
-        await setDoc(fsDoc(backupDb, cfg.name, d.id), plain, { merge: true });
-        colCount++; totalExported++;
-        if (cfg.ts && data[cfg.ts] && typeof data[cfg.ts].toDate === "function") {
-          const ts = data[cfg.ts].toDate().getTime();
-          if (ts > newCursor) newCursor = ts;
+        try {
+          await setDoc(fsDoc(backupDb, cfg.name, docId), plain, { merge: true });
+          colCount++; totalExported++;
+        } catch(writeErr) {
+          // خطأ في كتابة سجل واحد لا يوقف باقي السجلات
+          colErrors++;
+          console.error("Write error", cfg.name, docId, writeErr);
+          if (!hasError) { hasError = true; lastErrMsg = writeErr?.message || writeErr?.code || "write error"; }
         }
       }
-      if (statEl) statEl.textContent = colCount > 0 ? "✅ " + colCount + " سجل" : "— لا جديد";
+
+      const label = colCount > 0
+        ? "✅ " + colCount + " سجل" + (colErrors > 0 ? " (⚠️ " + colErrors + " فشل)" : "")
+        : (colErrors > 0 ? "⚠️ فشلت الكتابة" : "— لا جديد");
+      if (statEl) statEl.textContent = label;
       if (colCount > 0) collsSummary.push(cfg.label + "(" + colCount + ")");
     } catch(err) {
       console.error("Export error", cfg.name, err);
@@ -2860,7 +2908,12 @@ async function runExport(fullExport) {
 
   if (progBar) progBar.style.width = "100%";
   if (progPct) progPct.textContent = "100%";
-  if (newCursor > cursor) setExpCursor(newCursor);
+
+  // نحفظ المؤشر الجديد = وقت بداية التصدير (لا أقصى createdAt)
+  // هذا يضمن أن أي سجل أُنشئ قبل بدء التصدير لن يُفوَّت في المرة القادمة
+  if (!hasError || totalExported > 0) {
+    setExpCursor(exportStartMs);
+  }
 
   const nowStr = new Date().toLocaleString("ar-EG-u-nu-latn", { year:"numeric", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" });
   if (!hasError || totalExported > 0) {
