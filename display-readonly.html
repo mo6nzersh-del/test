@@ -92,8 +92,12 @@
     .tb-other{background:#f2f2f2;color:#666;}
     .tb-in{background:#e7f5ec;color:#1a6b3a;}
     .tb-out{background:#fce8e5;color:#b3432f;}
+    .tb-deleted{background:#fce8e5;color:#b3432f;border:1.5px dashed #b3432f;}
     .dir-in{color:#1a6b3a;font-weight:700;}
     .dir-out{color:#b3432f;font-weight:700;}
+    /* سجلات محذوفة من المصدر */
+    tr.row-deleted td{opacity:.6;text-decoration:line-through;background:#fff8f7!important;}
+    tr.row-deleted td:first-child{text-decoration:none;}
 
     /* ── Stats grid ── */
     .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:18px;}
@@ -630,13 +634,16 @@ function renderFinance() {
   if(!rows.length){tbody.innerHTML='<tr><td colspan="7"><div class="empty-state">لا توجد عمليات مطابقة</div></td></tr>';return;}
   tbody.innerHTML="";
   rows.forEach(t=>{
+    const isDeleted=!!t._deletedFromSource;
     const cfg=TYPE_CFG[t.type]||{label:t.type||"—",badge:"tb-other"};
     const party=t.type==="advance"?(t.employeeName||"—"):t.type==="merchant"?(t.merchantName||t.partyName||"—"):(t.partyName||"—");
     const tr=document.createElement("tr");
+    if(isDeleted) tr.classList.add("row-deleted");
+    const deletedBadge=isDeleted?` <span class="type-badge tb-deleted" title="حُذف من المصدر في ${esc(t._deletedAt||"")}">🗑️ محذوف</span>`:"";
     tr.innerHTML=`
       <td style="font-family:monospace;font-weight:800;font-size:12px">${esc(t.finId||"—")}</td>
       <td style="white-space:nowrap;font-size:12.5px">${esc(fmtDate(t.date))}</td>
-      <td><span class="type-badge ${cfg.badge}">${esc(cfg.label)}</span></td>
+      <td><span class="type-badge ${cfg.badge}">${esc(cfg.label)}</span>${deletedBadge}</td>
       <td>${t.dir==="in"?'<span class="dir-in">← داخل</span>':'<span class="dir-out">← خارج</span>'}</td>
       <td style="font-weight:700;white-space:nowrap">${fmt(t.amount)}</td>
       <td style="font-size:13px;color:var(--muted)">${esc(party)}</td>
@@ -897,13 +904,16 @@ function renderWarehouse() {
   if(!allWhOps.length){tbody.innerHTML='<tr><td colspan="6"><div class="empty-state">لا توجد حركات مخزنية</div></td></tr>';return;}
   tbody.innerHTML="";
   allWhOps.forEach(d=>{
+    const isDeleted=!!d._deletedFromSource;
     const badge=d.type==="production"?["tb-deposit","إنتاج"]:["tb-advance","تحويل"];
     const detail=d.type==="transfer"
       ?`${esc(d.productName||"")} × ${fmtNum(d.quantity||0)} ${esc(d.unit||"")}`
       :`${d.inputs?.length||0} مدخل → ${d.outputs?.length||0} مخرج`;
+    const deletedBadge=isDeleted?` <span class="type-badge tb-deleted" title="حُذف ${esc(d._deletedAt||"")}">🗑️ محذوف</span>`:"";
     const tr=document.createElement("tr");
+    if(isDeleted) tr.classList.add("row-deleted");
     tr.innerHTML=`
-      <td><span class="type-badge ${badge[0]}">${badge[1]}</span></td>
+      <td><span class="type-badge ${badge[0]}">${badge[1]}</span>${deletedBadge}</td>
       <td style="font-size:13px">${esc(d.fromWarehouseName||"—")}</td>
       <td style="font-size:13px">${esc(d.toWarehouseName||"—")}</td>
       <td style="font-size:13px;color:var(--muted)">${detail}</td>
@@ -942,14 +952,17 @@ function renderSales() {
   tbody.innerHTML="";
 
   rows.forEach((d,i)=>{
+    const isDeleted=!!d._deletedFromSource;
     const rowId=`sale-${i}`;
+    const deletedBadge=isDeleted?`<span class="type-badge tb-deleted" title="حُذف ${esc(d._deletedAt||"")}">🗑️ محذوف</span> `:"";
     /* main row */
     const tr=document.createElement("tr");
+    if(isDeleted) tr.classList.add("row-deleted");
     tr.innerHTML=`
       <td style="text-align:center">
         <button class="expand-btn" data-target="${rowId}" title="عرض التفاصيل">▶</button>
       </td>
-      <td style="font-size:13px;font-weight:800">${esc(d.merchantName||"—")}</td>
+      <td style="font-size:13px;font-weight:800">${deletedBadge}${esc(d.merchantName||"—")}</td>
       <td style="font-size:13px">${esc(d.warehouseName||"—")}</td>
       <td style="font-weight:700;text-align:center">${d.lines?.length||0} صنف</td>
       <td style="font-weight:800;color:var(--primary-dark)">${fmt(d.totalAmount)}</td>
@@ -1014,12 +1027,15 @@ function renderProductMov() {
   if(!allProductMov.length){tbody.innerHTML='<tr><td colspan="7"><div class="empty-state">لا توجد حركات منتجات</div></td></tr>';return;}
   tbody.innerHTML="";
   allProductMov.forEach(d=>{
+    const isDeleted=!!d._deletedFromSource;
     const typeBadge=d.type==="out"?'<span class="type-badge tb-withdrawal">صرف</span>'
                     :d.type==="in"?'<span class="type-badge tb-deposit">إضافة</span>'
                     :`<span class="type-badge tb-other">${esc(d.type||"—")}</span>`;
+    const deletedBadge=isDeleted?` <span class="type-badge tb-deleted" title="حُذف ${esc(d._deletedAt||"")}">🗑️ محذوف</span>`:"";
     const tr=document.createElement("tr");
+    if(isDeleted) tr.classList.add("row-deleted");
     tr.innerHTML=`
-      <td>${typeBadge}</td>
+      <td>${typeBadge}${deletedBadge}</td>
       <td style="font-weight:700">${esc(d.productName||d.product||"—")}</td>
       <td style="font-weight:700">${fmtNum(d.quantity||d.qty||0)} ${esc(d.unit||d.quantityType||"")}</td>
       <td style="font-size:13px;color:var(--muted)">${esc(d.fromWarehouseName||d.fromWarehouse||"—")}</td>
@@ -1038,12 +1054,15 @@ function renderProductionMov() {
   if(!allProductionMov.length){tbody.innerHTML='<tr><td colspan="6"><div class="empty-state">لا توجد حركات إنتاج</div></td></tr>';return;}
   tbody.innerHTML="";
   allProductionMov.forEach(d=>{
+    const isDeleted=!!d._deletedFromSource;
     const inputsSummary=(d.inputs||[]).map(i=>`${esc(i.productName||i.name||"")} ×${fmtNum(i.quantity||i.qty||0)}`).join("، ")||"—";
     const outputsSummary=(d.outputs||[]).map(o=>`${esc(o.productName||o.name||"")} ×${fmtNum(o.quantity||o.qty||0)}`).join("، ")||"—";
     const typeBadge=`<span class="type-badge tb-deposit">${esc(d.type||"إنتاج")}</span>`;
+    const deletedBadge=isDeleted?` <span class="type-badge tb-deleted" title="حُذف ${esc(d._deletedAt||"")}">🗑️ محذوف</span>`:"";
     const tr=document.createElement("tr");
+    if(isDeleted) tr.classList.add("row-deleted");
     tr.innerHTML=`
-      <td>${typeBadge}</td>
+      <td>${typeBadge}${deletedBadge}</td>
       <td style="font-size:12px;color:var(--muted);max-width:160px">${inputsSummary}</td>
       <td style="font-size:12px;color:var(--muted);max-width:160px">${outputsSummary}</td>
       <td style="font-size:13px">${esc(d.warehouseName||d.warehouse||"—")}</td>
