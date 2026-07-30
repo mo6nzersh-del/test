@@ -404,6 +404,124 @@
       .stmt-summary   { grid-template-columns:1fr }
     }
 
+    /* ══════════════════════════════════════════════════════
+       هيدر وتبويبات — سطح المكتب فقط (≥ 901px)
+       الهاتف لا يتأثر بهذا القسم إطلاقاً
+    ══════════════════════════════════════════════════════ */
+    @media (min-width: 901px) {
+
+      /* ── الهيدر: نظيف بدون بوكس أو ظل ── */
+      .dl-header {
+        background: #fff;
+        border: none;
+        border-bottom: 1.5px solid #e5e7eb;
+        border-radius: 0;
+        box-shadow: none;
+        padding: 26px 36px 18px;
+        margin-bottom: 0;
+        align-items: center;
+      }
+      .dl-header h2 {
+        font-size: 22px;
+        font-weight: 800;
+        color: #111827;
+        letter-spacing: -.3px;
+      }
+      .dl-header p {
+        font-size: 13px;
+        color: #9ca3af;
+        margin-top: 3px;
+      }
+      .dl-badge {
+        background: #f0fdf4;
+        color: #166534;
+        border: 1.5px solid #bbf7d0;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 5px 16px;
+      }
+
+      /* ── شريط التبويبات: خط سفلي — underline style ── */
+      .section-tabs {
+        display: flex !important;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 0;
+        background: #fff;
+        border-bottom: 1.5px solid #e5e7eb;
+        margin-bottom: 28px;
+        padding: 0 32px;
+        overflow-x: auto;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+      }
+      .section-tabs::-webkit-scrollbar { display: none }
+
+      /* كل الأزرار: reset كامل */
+      .section-tabs button {
+        position: relative !important;
+        border: none !important;
+        background: none !important;
+        background-image: none !important;
+        border-radius: 0 !important;
+        color: #6b7280 !important;
+        font-size: 13.5px !important;
+        font-weight: 600 !important;
+        padding: 14px 18px !important;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: color .15s, background .15s;
+        flex-shrink: 0;
+        box-shadow: none !important;
+      }
+      /* المؤشر الأخضر السفلي */
+      .section-tabs button::after {
+        content: '';
+        position: absolute;
+        bottom: -1.5px; left: 0; right: 0;
+        height: 2.5px;
+        background: transparent;
+        border-radius: 2px 2px 0 0;
+        transition: background .15s;
+      }
+      .section-tabs button:hover {
+        color: #059669 !important;
+        background: #f0fdf4 !important;
+      }
+      .section-tabs button.active {
+        color: #059669 !important;
+        background: none !important;
+        font-weight: 800 !important;
+      }
+      .section-tabs button.active::after {
+        background: #059669;
+      }
+
+      /* ── أزرار خاصة ── */
+      /* سجل المراقبة */
+      #tab-auditlog {
+        color: #2563eb !important;
+        margin-right: 8px;
+        border-right: 1.5px solid #f3f4f6 !important;
+      }
+      #tab-auditlog:hover { color: #1d4ed8 !important; background: #eff6ff !important; }
+      #tab-auditlog.active { color: #1d4ed8 !important; font-weight: 800 !important; }
+      #tab-auditlog.active::after { background: #2563eb; }
+
+      /* سلة المحذوفات */
+      #tab-trash { color: #dc2626 !important; }
+      #tab-trash:hover { color: #b91c1c !important; background: #fef2f2 !important; }
+      #tab-trash.active { color: #b91c1c !important; font-weight: 800 !important; }
+      #tab-trash.active::after { background: #dc2626; }
+
+      /* التصدير والنسخ الاحتياطي */
+      #tab-export { color: #059669 !important; font-weight: 700 !important; }
+      #tab-export:hover { background: #f0fdf4 !important; color: #047857 !important; }
+      #tab-export.active { color: #047857 !important; font-weight: 800 !important; }
+      #tab-export.active::after { background: #059669; }
+    }
+
     /* ── تحسين الطباعة: إخفاء عناصر لا لزوم لها ── */
     @media print {
       .section-tabs, .filters-bar, .trash-filters,
@@ -479,10 +597,10 @@
       <button type="button" id="tab-statement">كشف الحساب الموحّد</button>
       <button type="button" id="tab-inventory">المخازن والمنتجات</button>
       <button type="button" id="tab-dlactivity">سجل حركات هذه الصفحة</button>
-      <button type="button" id="tab-auditlog" style="background:linear-gradient(135deg,#1a3a6b,#2a5bbf);color:#fff;border-color:#1a3a6b;font-weight:800">🔍 سجل المراقبة الشامل</button>
+      <button type="button" id="tab-auditlog">🔍 سجل المراقبة الشامل</button>
       <button type="button" id="tab-accounts">👤 إدارة الحسابات</button>
-      <button type="button" id="tab-trash" style="background:linear-gradient(135deg,#b3432f,#e07070);color:#fff;border-color:#b3432f;font-weight:800">🗑️ سلة المحذوفات</button>
-      <button type="button" id="tab-export" style="background:linear-gradient(135deg,#047857,#059669);color:#fff;border-color:#047857;font-weight:800">📤 التصدير والنسخ الاحتياطي</button>
+      <button type="button" id="tab-trash">🗑️ سلة المحذوفات</button>
+      <button type="button" id="tab-export">📤 التصدير والنسخ الاحتياطي</button>
     </div>
 
     <!-- ══ منيو التبويبات (هاتف فقط) ══ -->
