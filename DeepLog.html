@@ -2788,6 +2788,21 @@ function renderExpLog() {
   }).join("");
 }
 
+// تحويل عميق — يعالج Timestamp وundefined داخل أي مستوى تداخل (مصفوفات، كائنات مركّبة)
+function deepConvert(val) {
+  if (val === undefined || val === null) return null;
+  if (typeof val === "function") return null;                          // لا يُكتب في Firestore
+  if (val && typeof val.toDate === "function") return val.toDate().toISOString(); // Timestamp
+  if (Array.isArray(val)) return val.map(deepConvert);
+  if (val && typeof val === "object" && Object.getPrototypeOf(val) === Object.prototype) {
+    const out = {};
+    for (const [k, v] of Object.entries(val)) { out[k] = deepConvert(v); }
+    return out;
+  }
+  if (typeof val === "number" && !isFinite(val)) return null;         // NaN / Infinity
+  return val;
+}
+
 async function runExport(fullExport) {
   const progWrap  = document.getElementById("exp-progress-wrap");
   const progBar   = document.getElementById("exp-progress-bar");
@@ -2856,10 +2871,8 @@ async function runExport(fullExport) {
       let colCount = 0, colErrors = 0;
       for (const d of docsMap.values()) {
         const data = d.data();
-        const plain = {};
-        for (const [k, v] of Object.entries(data)) {
-          plain[k] = (v && typeof v.toDate === "function") ? v.toDate().toISOString() : v;
-        }
+        // تحويل عميق: يعالج Timestamp/undefined/NaN في أي مستوى تداخل
+        const plain = deepConvert(data);
         plain._exportedAt = new Date().toISOString();
         plain._sourceProject = "reta-and-hamd";
         // كل سجل معالَج باستقلالية — خطأ واحد لا يوقف باقي المجموعة
