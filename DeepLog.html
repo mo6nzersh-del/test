@@ -2823,14 +2823,18 @@ async function runExport(fullExport) {
   const exportStartMs = Date.now();
 
   const cursor = fullExport ? 0 : getExpCursor();
-  // buffer 5 ثوانٍ لتجنب تفويت سجلات على حافة النافذة الزمنية
-  const effectiveCursor = cursor > 0 ? cursor - 5000 : 0;
+  // buffer 60 ثانية — يضمن التقاط أي سجل على حافة النافذة الزمنية
+  const effectiveCursor = cursor > 0 ? cursor - 60000 : 0;
   const cursorDate = effectiveCursor > 0 ? new Date(effectiveCursor) : null;
   let totalExported = 0, hasError = false, lastErrMsg = "";
   const collsSummary = [];
+  // لفحص العدد بعد التصدير
+  const countChecks = [];
 
-  const { collection: fsCol, getDocs, query: fsQuery, where: fsWhere,
-          orderBy: fsOrderBy, setDoc, doc: fsDoc, Timestamp } =
+  const { collection: fsCol, getDocs, getCountFromServer,
+          query: fsQuery, where: fsWhere,
+          orderBy: fsOrderBy, limit: fsLimit,
+          setDoc, doc: fsDoc, Timestamp } =
     await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
 
   for (let ci = 0; ci < EXPORT_COLS_CFG.length; ci++) {
@@ -2842,30 +2846,41 @@ async function runExport(fullExport) {
     const statEl = document.getElementById("exp-col-" + cfg.name);
 
     try {
-      // جمع السجلات في Map لإزالة التكرار (نفس المستند قد يظهر في استعلامَي createdAt و updatedAt)
+      // ━━━ جمع السجلات في Map لإزالة التكرار ━━━
       const docsMap = new Map();
 
-      // استعلام 1: بحسب createdAt (أو الحقل الزمني الأساسي)
       if (!cfg.ts || !cursorDate) {
+        // لا cursor أو تصدير كامل ← اجلب الكل
         const snap = await getDocs(fsQuery(fsCol(db, cfg.name)));
         snap.docs.forEach(d => docsMap.set(d.id, d));
       } else {
-        const snap = await getDocs(fsQuery(fsCol(db, cfg.name),
+        // استعلام 1 — بحسب createdAt > cursor
+        const snap1 = await getDocs(fsQuery(fsCol(db, cfg.name),
           fsWhere(cfg.ts, ">", Timestamp.fromDate(cursorDate)),
           fsOrderBy(cfg.ts, "asc")
         ));
-        snap.docs.forEach(d => docsMap.set(d.id, d));
-      }
+        snap1.docs.forEach(d => docsMap.set(d.id, d));
 
-      // استعلام 2: بحسب updatedAt — يلتقط السجلات التي تعدّلت فقط بدون إنشاء جديد
-      if (cfg.tsUpdated && cursorDate) {
+        // استعلام 2 — بحسب updatedAt > cursor (يلتقط التعديلات)
+        if (cfg.tsUpdated) {
+          try {
+            const snap2 = await getDocs(fsQuery(fsCol(db, cfg.name),
+              fsWhere(cfg.tsUpdated, ">", Timestamp.fromDate(cursorDate)),
+              fsOrderBy(cfg.tsUpdated, "asc")
+            ));
+            snap2.docs.forEach(d => docsMap.set(d.id, d));
+          } catch(e2) { /* الحقل غير موجود — تجاهل */ }
+        }
+
+        // استعلام 3 — شبكة أمان: آخر 150 سجل دائماً بغض النظر عن الـ cursor
+        // يضمن التقاط أي سجل قد يكون فات بسبب فارق التوقيت أو مشكلة الـ cursor
         try {
-          const snap2 = await getDocs(fsQuery(fsCol(db, cfg.name),
-            fsWhere(cfg.tsUpdated, ">", Timestamp.fromDate(cursorDate)),
-            fsOrderBy(cfg.tsUpdated, "asc")
+          const snap3 = await getDocs(fsQuery(fsCol(db, cfg.name),
+            fsOrderBy(cfg.ts, "desc"),
+            fsLimit(150)
           ));
-          snap2.docs.forEach(d => docsMap.set(d.id, d));
-        } catch(e2) { /* الحقل غير موجود في هذه المجموعة — تجاهل */ }
+          snap3.docs.forEach(d => docsMap.set(d.id, d));
+        } catch(e3) { /* تجاهل إذا فشل */ }
       }
 
       let colCount = 0, colErrors = 0;
@@ -2881,9 +2896,15 @@ async function runExport(fullExport) {
           colCount++; totalExported++;
         } catch(writeErr) {
           colErrors++;
-          console.error("Write error", cfg.name, d.id, writeErr);
+          console.error("Write error", cfg.name, d.id, writeErr?.code, writeErr?.message);
         }
       }
+
+      // سجّل هذه المجموعة لفحص العدد لاحقاً
+      if (cfg.ts || cfg.tsUpdated === null) {
+        countChecks.push({ name: cfg.name, label: cfg.label, statEl });
+      }
+
       const statusTxt = colCount > 0
         ? "✅ " + colCount + " سجل" + (colErrors > 0 ? " (⚠️ " + colErrors + " خطأ)" : "")
         : (colErrors > 0 ? "❌ " + colErrors + " خطأ كتابة" : "— لا جديد");
@@ -2907,6 +2928,29 @@ async function runExport(fullExport) {
   if (progPct) progPct.textContent = "100%";
   // احفظ وقت بدء التصدير كـ cursor — لا أقصى قيمة رآها
   setExpCursor(exportStartMs);
+
+  // ━━━ فحص التحقق: مقارنة عدد سجلات المصدر مع النسخة الاحتياطية ━━━
+  if (progLabel) progLabel.textContent = "جارٍ التحقق من اكتمال البيانات...";
+  let verifyWarnings = 0;
+  for (const chk of countChecks) {
+    try {
+      const [srcSnap, bkpSnap] = await Promise.all([
+        getCountFromServer(fsQuery(fsCol(db,       chk.name))),
+        getCountFromServer(fsQuery(fsCol(backupDb, chk.name))),
+      ]);
+      const srcN = srcSnap.data().count;
+      const bkpN = bkpSnap.data().count;
+      if (srcN !== bkpN) {
+        verifyWarnings++;
+        const diff = srcN - bkpN;
+        if (chk.statEl) chk.statEl.textContent += ` ⚠️ فارق: ${diff > 0 ? "+" : ""}${diff}`;
+        console.warn(`Count mismatch [${chk.name}]: source=${srcN} backup=${bkpN}`);
+      }
+    } catch(ve) { /* getCountFromServer غير متاح في هذه الخطة — تجاهل */ }
+  }
+  if (progLabel) progLabel.textContent = verifyWarnings > 0
+    ? `⚠️ يوجد ${verifyWarnings} مجموعة بها فارق — نفّذ تصديراً كاملاً`
+    : "✅ اكتمل التحقق — البيانات متطابقة";
 
   const nowStr = new Date().toLocaleString("ar-EG-u-nu-latn", { year:"numeric", month:"short", day:"numeric", hour:"2-digit", minute:"2-digit" });
   if (!hasError || totalExported > 0) {
